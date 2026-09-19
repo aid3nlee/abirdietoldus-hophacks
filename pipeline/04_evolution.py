@@ -29,10 +29,12 @@ Method, in four moves:
      families. Retweet truncation (the platform cuts at 140 chars) is collapsed
      first, so a cut-off copy is not mistaken for a mutation.
 
-  4. TREES. Within a family, sort variants by first appearance and attach each
-     to whichever earlier variant it most resembles. The result is a rooted
-     tree: the root is the earliest phrasing observed, edges are mutations, and
-     each edge carries the tokens that were added and dropped. Subtree spread
+  4. TREES. Strictly matched variants form the family backbone. Lower-confidence
+     matches may attach only as terminal leaves, never as edges that merge two
+     families. Within a family, sort variants by first appearance and attach
+     each strict variant to whichever earlier strict variant it most resembles.
+     The result is a rooted tree: the root is the earliest phrasing observed,
+     edges carry the tokens that were added and dropped, and subtree spread
      tells you which mutations were selected for.
 
 Every variant also carries an evasion profile -- homoglyph characters, emoji
@@ -81,8 +83,16 @@ RARE_DF = 20          # a shared token this rare is on its own enough to pair on
 SIM_THRESHOLD = 0.45  # token-set Jaccard for "same narrative, reworded"
 MIN_FAMILY = 3        # variants required to call something a lineage
 MAX_FAMILY = 300      # single-linkage blobs get truncated to their top variants
-MIN_FAMILY_EMISSIONS = 150  # a lineage nobody spread is not worth a tree
+MIN_FAMILY_EMISSIONS = 50   # enough observed spread to inspect, not just a stray trio
 N_BUCKETS = 24        # tree files; the dashboard fetches one on demand
+
+# Strict edges are allowed to join wordings into a family.  These settings are
+# intentionally looser, but only for one-way leaf attachment to an already
+# strict family.  A weak similarity can therefore increase recall without
+# bridging two otherwise separate narratives into the same component.
+LEAF_SIM_THRESHOLD = 0.35
+LEAF_BLOCK_KEYS = 8
+LEAF_RARE_DF = 50
 
 # The crawl is not a uniform month: Aug 16-31 carries 93.5% of the corpus at
 # 22M tweets/day, Sep 1-17 carries 6.5% at 1.4M/day -- a 15.3x collection drop,
@@ -300,6 +310,149 @@ def step3_pairs(con, force: bool) -> None:
     print(f"      {n:,} variant pairs above Jaccard {SIM_THRESHOLD}  ({time.time() - t:.0f}s)")
 
 
+def attach_lower_confidence_leaves(strict, alias_path: Path):
+    """Attach weaker matches to strict families without letting them merge.
+
+    The strict pair graph is deliberately left untouched: only its connected
+    components define a family.  This pass asks whether a wording outside that
+    graph has one reasonably similar, earlier wording inside a strict family.
+    If it does, it becomes a leaf of that one anchor.  It can never supply an
+    edge between families or become another node's parent.
+    """
+    import pandas as pd
+
+    if strict.empty:
+        strict["attach_to"] = None
+        strict["attach_sim"] = float("nan")
+        strict["is_leaf"] = False
+        return strict
+
+    strict_path = EVO / "strict-families.parquet"
+    db_path = EVO / "leaf-attachments.duckdb"
+    strict.to_parquet(strict_path, index=False)
+    db_path.unlink(missing_ok=True)
+    db = duckdb.connect(str(db_path))
+    db.execute(f"SET memory_limit='{C.MEMORY_LIMIT}'")
+    db.execute(f"SET threads={C.THREADS}")
+    db.execute(f"SET temp_directory='{C.TMP_DIR}'")
+    db.execute("SET preserve_insertion_order=false")
+
+    print("      attaching lower-confidence leaves to strict families...")
+    try:
+        db.execute(f"CREATE VIEW docs AS SELECT * FROM '{EVO}/tokens.parquet'")
+        db.execute(f"CREATE VIEW strict AS SELECT * FROM '{strict_path}'")
+        db.execute(f"CREATE VIEW aliases AS SELECT * FROM '{alias_path}'")
+        db.execute("""
+            CREATE TABLE seed AS
+            SELECT s.content_key, s.family_id, d.tokens, d.n_copies, d.first_seen
+            FROM strict s JOIN docs d USING (content_key)
+        """)
+        # Recompute global token frequency.  This is the same vocabulary-aware
+        # blocking idea as step 3, but the target side is only the strict seed
+        # set, so it remains tractable without a per-block popularity cap.
+        db.execute("""
+            CREATE TABLE df AS
+            SELECT tok, count(*)::INT AS n
+            FROM docs CROSS JOIN UNNEST(tokens) AS t(tok)
+            GROUP BY tok
+            HAVING count(*) BETWEEN 2 AND 2000
+        """)
+        db.execute(f"""
+            CREATE TABLE leaf_blocks AS
+            SELECT content_key, tok, n FROM (
+                SELECT d.content_key, t.tok, f.n,
+                       row_number() OVER (
+                           PARTITION BY d.content_key ORDER BY f.n, t.tok
+                       ) AS rk
+                FROM docs d
+                CROSS JOIN UNNEST(d.tokens) AS t(tok)
+                JOIN df f ON f.tok = t.tok
+                WHERE NOT EXISTS (SELECT 1 FROM strict s
+                                  WHERE s.content_key = d.content_key)
+                  -- A platform-truncated copy belongs to its full text, not
+                  -- to a second circle beside it.
+                  AND NOT EXISTS (SELECT 1 FROM aliases a
+                                  WHERE a.content_key = d.content_key)
+            ) WHERE rk <= {LEAF_BLOCK_KEYS}
+        """)
+        db.execute("""
+            CREATE TABLE seed_blocks AS
+            SELECT s.content_key, s.family_id, t.tok
+            FROM seed s
+            CROSS JOIN UNNEST(s.tokens) AS t(tok)
+            JOIN df f ON f.tok = t.tok
+        """)
+        db.execute(f"""
+            CREATE TABLE candidates AS
+            SELECT l.content_key AS leaf, s.content_key AS anchor, s.family_id,
+                   count(*)::INT AS shared, min(l.n)::INT AS rarest
+            FROM leaf_blocks l
+            JOIN seed_blocks s USING (tok)
+            JOIN docs ld ON ld.content_key = l.content_key
+            JOIN seed sd ON sd.content_key = s.content_key
+            WHERE ld.first_seen >= sd.first_seen
+            GROUP BY 1, 2, 3
+            HAVING count(*) >= 2 OR min(l.n) <= {LEAF_RARE_DF}
+        """)
+        db.execute(f"""
+            CREATE TABLE scored AS
+            SELECT * FROM (
+                SELECT c.leaf, c.anchor, c.family_id, l.n_copies,
+                       len(list_intersect(l.tokens, s.tokens))::DOUBLE /
+                         (len(l.tokens) + len(s.tokens) -
+                          len(list_intersect(l.tokens, s.tokens))) AS attach_sim
+                FROM candidates c
+                JOIN docs l ON l.content_key = c.leaf
+                JOIN seed s ON s.content_key = c.anchor
+            ) WHERE attach_sim >= {LEAF_SIM_THRESHOLD}
+        """)
+        n_cand, n_scored = db.execute(
+            "SELECT (SELECT count(*) FROM candidates), (SELECT count(*) FROM scored)"
+        ).fetchone()
+        print(f"      {n_cand:,} leaf candidates, {n_scored:,} pass similarity "
+              f"{LEAF_SIM_THRESHOLD:.2f}")
+
+        # Choose one best strict anchor per leaf, then respect the existing
+        # maximum tree size by using any spare slots for the most-spread leaves.
+        db.execute(f"""
+            CREATE TABLE attachments AS
+            WITH best AS (
+                SELECT *, row_number() OVER (
+                    PARTITION BY leaf
+                    ORDER BY attach_sim DESC, n_copies DESC, anchor
+                ) AS pick
+                FROM scored
+            ), capacity AS (
+                SELECT family_id, {MAX_FAMILY} - count(*) AS room
+                FROM strict GROUP BY family_id
+            ), ranked AS (
+                SELECT b.*, c.room,
+                       row_number() OVER (
+                           PARTITION BY b.family_id
+                           ORDER BY b.n_copies DESC, b.attach_sim DESC, b.leaf
+                       ) AS family_rank
+                FROM best b JOIN capacity c USING (family_id)
+                WHERE b.pick = 1
+            )
+            SELECT leaf AS content_key, family_id, anchor AS attach_to, attach_sim,
+                   true AS is_leaf
+            FROM ranked
+            WHERE family_rank <= room
+        """)
+        attached = db.execute("SELECT * FROM attachments").fetchdf()
+        print(f"      attached {len(attached):,} leaves; strict edges still define every family")
+    finally:
+        db.close()
+        db_path.unlink(missing_ok=True)
+        strict_path.unlink(missing_ok=True)
+
+    strict = strict.copy()
+    strict["attach_to"] = None
+    strict["attach_sim"] = float("nan")
+    strict["is_leaf"] = False
+    return pd.concat([strict, attached], ignore_index=True)
+
+
 def step4_families(con, force: bool) -> None:
     """Connected components of the variant graph, with truncation collapsed."""
     out = EVO / "families.parquet"
@@ -372,7 +525,12 @@ def step4_families(con, force: bool) -> None:
     alias = pd.DataFrame(
         {"content_key": list(lookup.keys()), "canonical": list(lookup.values())}
     )
-    alias.to_parquet(EVO / "alias.parquet", index=False)
+    alias_path = EVO / "alias.parquet"
+    alias.to_parquet(alias_path, index=False)
+
+    # Keep strict connected components as the family backbone.  Broader
+    # matching is only allowed to add terminal leaves to that backbone.
+    fam = attach_lower_confidence_leaves(fam, alias_path)
     fam.to_parquet(out, index=False)
     n_fam = fam.family_id.nunique()
     print(f"      {n_fam:,} families covering {len(fam):,} variants "
@@ -407,22 +565,28 @@ def step5_enrich(con, force: bool) -> None:
     # reattributed to the full text they were cut from.
     con.execute(f"""
         CREATE OR REPLACE VIEW keys AS
-        SELECT f.content_key AS canonical, f.family_id, f.content_key AS raw
+        SELECT f.content_key AS canonical, f.family_id, f.attach_to, f.attach_sim,
+               f.is_leaf, f.content_key AS raw
         FROM fam f
         UNION ALL
-        SELECT a.canonical, f.family_id, a.content_key AS raw
+        SELECT a.canonical, f.family_id, f.attach_to, f.attach_sim, f.is_leaf,
+               a.content_key AS raw
         FROM alias a JOIN fam f ON f.content_key = a.canonical
     """)
     con.execute(f"""
         COPY (
             WITH ev AS (
-                SELECT k.canonical, k.family_id, e.author_id, e.created_at
+                SELECT k.canonical, k.family_id, k.attach_to, k.attach_sim, k.is_leaf,
+                       e.author_id, e.created_at
                 FROM read_parquet('{C.EVENTS}/*.parquet') e
                 JOIN keys k ON k.raw = e.content_key
                 WHERE e.lang = 'en'
             ),
             agg AS (
                 SELECT e.canonical, e.family_id,
+                       any_value(e.attach_to)         AS attach_to,
+                       any_value(e.attach_sim)        AS attach_sim,
+                       any_value(e.is_leaf)           AS is_leaf,
                        count(*)::BIGINT              AS n_emissions,
                        count(DISTINCT e.author_id)   AS n_accounts,
                        {coord_cols}
@@ -663,6 +827,21 @@ def step6_trees(con, force: bool) -> None:
     v["last_seen"] = pd.to_datetime(v.last_seen, utc=True)
     tl["hr"] = pd.to_datetime(tl.hr, utc=True)
 
+    # An alias reattribution can very occasionally move a strict wording's
+    # observed first-seen time after a leaf selected from the unaliased table.
+    # Do not draw a time-reversed edge (or let that leaf become a root): such a
+    # match is simply omitted from this export.
+    anchor_time = v[["canonical", "first_seen"]].rename(
+        columns={"canonical": "attach_to", "first_seen": "anchor_first_seen"}
+    )
+    v = v.merge(anchor_time, on="attach_to", how="left")
+    invalid_leaf = (v.is_leaf &
+                    (v.anchor_first_seen.isna() | (v.first_seen < v.anchor_first_seen)))
+    if invalid_leaf.any():
+        print(f"      omitting {int(invalid_leaf.sum()):,} time-reversed leaf attachments")
+        v = v[~invalid_leaf].copy()
+    v = v.drop(columns=["anchor_first_seen"])
+
     # Only families with enough structure to be worth drawing a tree for.
     keep = v.groupby("family_id").agg(nv=("canonical", "size"),
                                       emis=("n_emissions", "sum"))
@@ -697,8 +876,10 @@ def step6_trees(con, force: bool) -> None:
 
     index, buckets = [], {}
     for fid, g in v.groupby("family_id", sort=False):
-        g = g.sort_values(["first_seen", "n_emissions"],
-                          ascending=[True, False]).reset_index(drop=True)
+        # Strict nodes win ties on first-seen time, guaranteeing that a leaf's
+        # recorded anchor always precedes it in the exported tree.
+        g = g.sort_values(["first_seen", "is_leaf", "n_emissions"],
+                          ascending=[True, True, False]).reset_index(drop=True)
         toks = [set(x) for x in g.tokens]
         n = len(g)
 
@@ -709,10 +890,22 @@ def step6_trees(con, force: bool) -> None:
         # about this corpus and this month, not about the origin of the idea.
         parent = [-1] * n
         psim = [0.0] * n
+        node_idx = {str(k): i for i, k in enumerate(g.canonical)}
         for i in range(1, n):
+            r = g.iloc[i]
+            if bool(r.is_leaf) and r.attach_to is not None:
+                anchor = node_idx.get(str(r.attach_to))
+                if anchor is not None and anchor < i:
+                    parent[i] = anchor
+                    psim[i] = float(r.attach_sim)
+                    continue
             best, bj = -1, -1.0
             ti = toks[i]
             for k in range(i):
+                # A lower-confidence leaf is terminal by design.  It may
+                # hang from the strict backbone but can never redirect it.
+                if bool(g.iloc[k].is_leaf):
+                    continue
                 inter = len(ti & toks[k])
                 if not inter:
                     continue
@@ -747,6 +940,7 @@ def step6_trees(con, force: bool) -> None:
                 "i": i,
                 "p": int(parent[i]) if i else None,
                 "sim": round(float(psim[i]), 3),
+                "leaf": bool(r.is_leaf),
                 "txt": r.text[:280],
                 "n": int(r.n_emissions),
                 "acc": int(r.n_accounts),
@@ -865,6 +1059,8 @@ def step6_trees(con, force: bool) -> None:
             "sim_threshold": SIM_THRESHOLD, "min_copies": MIN_COPIES,
             "block_keys": BLOCK_KEYS, "max_df": MAX_DF, "max_block": MAX_BLOCK,
             "min_family": MIN_FAMILY, "min_family_emissions": MIN_FAMILY_EMISSIONS,
+            "leaf_sim_threshold": LEAF_SIM_THRESHOLD,
+            "leaf_block_keys": LEAF_BLOCK_KEYS, "leaf_rare_df": LEAF_RARE_DF,
             "topic_min_df": MIN_TOPIC_DF, "topic_min_share": MIN_TOPIC_SHARE,
             "burst_min_peak6": BURST_MIN_PEAK6, "burst_min_coord": BURST_MIN_COORD,
             "burst_max_hshare": BURST_MAX_HSHARE,

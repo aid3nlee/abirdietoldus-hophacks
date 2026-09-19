@@ -122,7 +122,7 @@ making them; code against the schema, not against someone's branch.
 
 | File | Key columns |
 |---|---|
-| `normalized/events/*.parquet` | `id, author_id, created_at, version, lang, kind, rt_handle, content_key, reply_to_user_id, conversation_id, quoting_id, is_truncated, like_count, retweet_count, reply_count, quote_count, views_count` |
+| `normalized/events/*.parquet` | `id, author_id, created_at, version, lang, kind, rt_handle, content_key, reply_to_status_id, reply_to_user_id, conversation_id, quoting_id, is_truncated, like_count, retweet_count, reply_count, quote_count, views_count` |
 | `normalized/content/*.parquet` | `content_key, kind, rt_handle, text, lang, n_copies, first_seen` |
 | `normalized/trajectory/*.parquet` | `id, version, like_count, retweet_count, views_count` |
 | `graph/edges.parquet` | `u, v, n_coevents, jaccard` |
@@ -370,9 +370,10 @@ Depth is still on the page — in the panel, in the table column, and in the
 shape of the tree itself.
 
 A **time layout** sits beside it in the same control. There a variant sits at
-the hour it was first observed, so the horizontal gap along an edge is the real
-waiting time before the rewording appeared, and the 1 September collection
-cliff is a dashed seam. Structure gets harder to read; timing becomes exact.
+the hour it was first observed, so time runs down the board and the vertical
+gap along an edge is the real waiting time before the rewording appeared. The
+1 September collection cliff is a dashed horizontal seam. Structure gets harder
+to read; timing becomes exact.
 The reading note beside the diagram changes with the layout, because a sentence
 about "the dashed line" is wrong in a view that has no time axis.
 

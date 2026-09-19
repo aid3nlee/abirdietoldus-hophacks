@@ -16,7 +16,7 @@ Outputs (the contracts other stages code against):
   events/events-NNNNNN.parquet
       One row per distinct tweet.
       id, author_id, created_at, version, lang, kind, rt_handle, content_key,
-      reply_to_user_id, conversation_id, quoting_id, is_truncated,
+      reply_to_status_id, reply_to_user_id, conversation_id, quoting_id, is_truncated,
       like_count, retweet_count, reply_count, quote_count, views_count
 
   content/content-NNNNNN.parquet
@@ -74,6 +74,7 @@ typed AS (
             THEN regexp_replace(body, '{RT_PREFIX}', '')
             ELSE body
         END AS text,
+        reply_to_status_id,
         reply_to_user_id,
         conversation_id,
         quoting_id,
@@ -86,7 +87,7 @@ SELECT
     -- the upstream tweet even though the schema has no retweeted_status_id.
     md5(coalesce(rt_handle, '') || '|' || text) AS content_key,
     text,
-    reply_to_user_id, conversation_id, quoting_id,
+    reply_to_status_id, reply_to_user_id, conversation_id, quoting_id,
     (text LIKE '%…') AS is_truncated,
     like_count, retweet_count, reply_count, quote_count, views_count
 FROM typed
@@ -117,7 +118,7 @@ def process_shard(path_str: str) -> tuple[str, int, float]:
     con.execute(
         f"""COPY (
             SELECT id, author_id, created_at, version, lang, kind, rt_handle, content_key,
-                   reply_to_user_id, conversation_id, quoting_id, is_truncated,
+                   reply_to_status_id, reply_to_user_id, conversation_id, quoting_id, is_truncated,
                    like_count, retweet_count, reply_count, quote_count, views_count
             FROM norm
         ) TO '{C.EVENTS}/events-{tag}.parquet' (FORMAT PARQUET, COMPRESSION ZSTD)"""

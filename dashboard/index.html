@@ -103,16 +103,56 @@
     flex: 1; padding: 3px 2px; border: 0; border-bottom: 1px solid var(--rule);
     background: none; color: var(--ink);
   }
+  .filts { display: grid; gap: 4px; }
+  .filt-sum {
+    display: flex; align-items: baseline; gap: 8px; width: 100%;
+    padding: 2px 0; border: 0; background: none; cursor: pointer; text-align: left;
+  }
+  .filt-sum:hover .filt-v, .filt-sum:hover .filt-chev { color: var(--ink); }
+  .filt-k {
+    flex: none; min-width: 6.6em; color: var(--ink-2); font-size: 11px;
+    letter-spacing: .05em; font-weight: 400;
+  }
+  .filt-v {
+    flex: 1; min-width: 0; color: var(--ink); font-size: 12.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color .2s ease, opacity .2s ease;
+  }
+  .filt[data-open="true"] .filt-v { color: var(--ink-2); }
+  .filt-chev {
+    flex: none; width: 9px; height: 9px; align-self: center; color: var(--ink-2);
+    transition: transform .28s cubic-bezier(.4, 0, .2, 1), color .2s ease;
+  }
+  .filt[data-open="true"] .filt-chev { transform: rotate(180deg); color: var(--ink); }
+  .filt-clip {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .32s cubic-bezier(.4, 0, .2, 1);
+  }
+  .filt[data-open="true"] .filt-clip { grid-template-rows: 1fr; }
+  .filt-clip > .chips { min-height: 0; overflow: hidden; }
   .chips { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 12px; }
   .chips button {
     padding: 1px 0; border: 0; background: none; cursor: pointer; color: var(--ink-2);
     border-bottom: 2px solid transparent;
+    opacity: 0; transform: translateY(-6px); pointer-events: none;
+    transition: opacity .22s ease, transform .26s cubic-bezier(.2, .7, .2, 1),
+                color .15s ease, border-color .15s ease;
+  }
+  .filt:not([data-open="true"]) .chips button { transition-delay: 0s; }
+  .filt[data-open="true"] .chips button {
+    opacity: 1; transform: none; pointer-events: auto;
+    transition-delay: calc(var(--i, 0) * 22ms);
   }
   .chips button:hover { color: var(--ink); }
   .chips button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
   .chips button i { font-style: normal; color: var(--ink-2); font-size: 10px; }
-  .chips button[disabled] { opacity: .45; cursor: default; }
+  .chips button[disabled] { cursor: default; }
   .chips button[disabled]:hover { color: inherit; }
+  .filt[data-open="true"] .chips button[disabled] { opacity: .45; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .filt-clip, .chips button, .filt-chev, .filt-v { transition: none; }
+    .chips button { opacity: 1; transform: none; }
+  }
   .aug { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
   .aug input { accent-color: var(--pen); margin: 0; }
   .count { padding: 6px 16px; font-size: 11.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
@@ -199,6 +239,12 @@
   .tree.panning, .tree.holding { cursor: grabbing; }
   .ndg { cursor: grab; }
   .ndg text { pointer-events: none; user-select: none; }
+  /* A small speech mark is a collapsed conversation group, not a second kind
+     of lineage edge. Comments answer a different question from rewording, so
+     they stay attached to the tweet they answer instead of entering the tree. */
+  .rsp { pointer-events: none; }
+  .rsp circle { fill: var(--paper); stroke: var(--pen); stroke-width: 1.25; }
+  .rsp path { fill: none; stroke: var(--pen); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
   /* Map controls, in the corner of the window they act on. */
   .nav { position: absolute; right: 9px; bottom: 9px; z-index: 2; display: grid; gap: 4px; }
   .nav button {
@@ -238,10 +284,6 @@
   .panel .figs { max-width: none; }
   .insp h3 { font-size: 13.5px; display: inline; }
   .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
-  .howto { margin-top: 20px; border-top: 1px solid var(--hair); }
-  .howto summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
-  .howto summary:hover { color: var(--ink); }
-  .howto .note { padding: 0 0 10px; }
   /* ---------- the wording, drawn the way X draws a post ----------
      Each variant is a real tweet, so it is shown as one: X's layout, X's type,
      X's rounded card and action row. It is rendered here, not screenshotted.
@@ -297,6 +339,11 @@
   .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
   .flags { margin-top: 9px; font-size: 11.5px; color: var(--red); }
   .flags.mild { color: var(--ink-2); }
+  .reply-excerpts { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .reply-excerpts summary { cursor: pointer; color: var(--pen); }
+  .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
+  .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+  .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 10.5px; color: var(--ink-2); }
 
   /* ---------- the same lineage as numbers ---------- */
   .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
@@ -374,8 +421,28 @@
             <option value="peak6">burstiness</option>
           </select>
         </div>
-        <div class="chips" id="topics" role="group" aria-label="Filter by subject"></div>
-        <div class="chips kinds" id="kinds" role="group" aria-label="Filter by spread behaviour"></div>
+        <div class="filts">
+          <div class="filt" id="filt-topics" data-open="false">
+            <button type="button" class="filt-sum" id="topics-sum" aria-expanded="false" aria-controls="topics">
+              <span class="filt-k">subjects</span>
+              <span class="filt-v" id="topics-pick">all subjects</span>
+              <svg class="filt-chev" viewBox="0 0 10 10" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" d="M1.5 3.4 5 6.8 8.5 3.4"/></svg>
+            </button>
+            <div class="filt-clip">
+              <div class="chips" id="topics" role="group" aria-label="Filter by subject"></div>
+            </div>
+          </div>
+          <div class="filt" id="filt-kinds" data-open="false">
+            <button type="button" class="filt-sum" id="kinds-sum" aria-expanded="false" aria-controls="kinds">
+              <span class="filt-k">behaviour</span>
+              <span class="filt-v" id="kinds-pick">any behaviour</span>
+              <svg class="filt-chev" viewBox="0 0 10 10" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" d="M1.5 3.4 5 6.8 8.5 3.4"/></svg>
+            </button>
+            <div class="filt-clip">
+              <div class="chips kinds" id="kinds" role="group" aria-label="Filter by spread behaviour"></div>
+            </div>
+          </div>
+        </div>
         <label class="aug"><input type="checkbox" id="augonly"> August 17&ndash;31 only (clean sample)</label>
       </div>
       <p class="count" id="count"></p>
@@ -391,7 +458,6 @@
 <aside class="panel" id="panel" aria-label="Selected wording" aria-hidden="true">
   <button class="panel-x" id="panelx" type="button" aria-label="Close" title="Close">&#10005;</button>
   <div class="insp" id="inspector"></div>
-  <details class="howto"><summary>how to read the tree</summary><div id="howto-body"></div></details>
 </aside>
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 
@@ -435,7 +501,7 @@
 
   var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
-                topo:null, colorBy:"drift", xMode:"tree", cut:Infinity, sel:0, playing:false,
+                topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
                 tableOpen:false };
   // The board's camera. auto = it is still the fitted default, so a resize may
   // refit it; any pan or zoom clears the flag and the camera is left where the
@@ -607,7 +673,7 @@
                 are siblings, how deep the lineage runs. Horizontal position
                 carries no measure.
        time  -- a variant sits at the hour it was first observed, so the gap
-                along an edge is the real waiting time before the rewording
+                down an edge is the real waiting time before the rewording
                 appeared. Structure is harder to read; timing is exact.
 
      Either way these are only *rest* positions. Nothing is drawn straight from
@@ -624,7 +690,9 @@
 
   // Leaves take consecutive slots in sibling order and every parent is centred
   // over its children: the textbook tidy tree, and because sibling subtrees
-  // occupy disjoint slot ranges it cannot collide with itself.
+  // occupy disjoint slot ranges it cannot collide with itself. It supplies the
+  // stable left-to-right order for both layouts; relaxColumns may compact that
+  // order but must never change it.
   function tidySlots(kids, root, n) {
     var slot = 0, pos = new Array(n).fill(0);
     (function walk(i) {
@@ -634,6 +702,105 @@
     })(root);
     return pos;
   }
+
+  // Tidy slots alone make a terrible wide tree. Every leaf gets an identical
+  // column whether its circle is large or small, and then each parent is
+  // centred over the whole span of its subtree -- so the root's three children
+  // end up most of a screen apart, and the size of that gap is carrying no
+  // information at all. It is the widest thing on the board and it means
+  // nothing.
+  //
+  // So the columns get relaxed instead. The order from the tidy pass is fixed
+  // and never revisited, which is the whole guarantee that subtrees cannot
+  // cross; within that order the positions settle under three pressures --
+  // parents pulled onto the middle of their children, children pulled in under
+  // their parent, and circles that are genuinely too close opened up by the
+  // radii they actually have. Across 60 lineages that halves the width and cuts
+  // the span of the root's own children by 61%, while leaving parents closer to
+  // the middle of their children than the tidy pass managed. A generation ends
+  // up as wide as its contents need and no wider, so the horizontal distance
+  // that is left means something: circles near each other are relatives.
+  function relaxColumns(nodes, kids, root, r, slots) {
+    var i, k;
+    var maxR = Math.max.apply(null, r);
+    var x = slots.map(function (c) { return c * (2 * maxR + 20); });
+
+    var lev = [];
+    nodes.forEach(function (nd, j) { (lev[nd.d] || (lev[nd.d] = [])).push(j); });
+    lev.forEach(function (row) { row.sort(function (a, b) { return slots[a] - slots[b]; }); });
+
+    // Parents before children, so one sweep of the array is one pass down the
+    // tree and the reverse is one pass back up it.
+    var bfs = [root];
+    for (i = 0; i < bfs.length; i++) kids[bfs[i]].forEach(function (c) { bfs.push(c); });
+
+    var N = 220;
+    for (var it = 0; it < N; it++) {
+      var pull = 0.10 + 0.05 * (1 - it / N);
+
+      for (i = bfs.length - 1; i >= 0; i--) {
+        var p = bfs[i], ks = kids[p];
+        if (!ks.length) continue;
+        var m = 0;
+        for (k = 0; k < ks.length; k++) m += x[ks[k]];
+        x[p] += (m / ks.length - x[p]) * 0.55;
+      }
+
+      for (i = 1; i < bfs.length; i++) {
+        var c = bfs[i];
+        x[c] += (x[nodes[c].p] - x[c]) * pull;
+      }
+
+      for (var d = 0; d < lev.length; d++) if (lev[d]) separate(lev[d], x, r);
+    }
+    return x;
+  }
+
+  // Open a level up until no two circles touch, moving them as little as
+  // possible and as evenly as possible.
+  //
+  // The obvious version -- walk left to right shoving each circle clear of the
+  // one before it -- only ever pushes right, so a level under pressure walks
+  // off the side of the tree and has to be dragged back by its average. That
+  // is what the first attempt at this did, and it is why a couple of loose
+  // circles used to end up marooned hundreds of pixels to the left of their own
+  // siblings: they were the only ones free to absorb the correction.
+  //
+  // Requiring x[k] - x[k-1] >= gap[k] is the same as requiring the running
+  // total of the gaps, subtracted off, to come out non-decreasing -- so the
+  // nearest arrangement that satisfies every gap at once is the isotonic
+  // regression of that sequence, and pooling adjacent violators finds it in one
+  // pass. Blocks that have to move do so around their own centre of mass, which
+  // is exactly the even-handedness the left-to-right version lacked.
+  var _pv = [], _pc = [];
+  function separate(row, x, r) {
+    var m = row.length, PAD = 15, i, g = 0, v, c, top = -1;
+    if (m < 2) return;
+    for (i = 0; i < m; i++) {
+      if (i) g += r[row[i - 1]] + r[row[i]] + PAD;
+      v = x[row[i]] - g; c = 1;
+      while (top >= 0 && _pv[top] > v) {
+        v = (_pv[top] * _pc[top] + v * c) / (_pc[top] + c);
+        c += _pc[top]; top--;
+      }
+      _pv[++top] = v; _pc[top] = c;
+    }
+    g = 0; i = 0;
+    for (var b = 0; b <= top; b++) {
+      for (var q = 0; q < _pc[b]; q++, i++) {
+        if (i) g += r[row[i - 1]] + r[row[i]] + PAD;
+        x[row[i]] = _pv[b] + g;
+      }
+    }
+  }
+
+  // A spring's stiffness sets how fast it goes home; this sets how it gets
+  // there. One damping ratio for every axis on the board means the firmly held
+  // hour of the time layout and the loosely held column of the tree layout
+  // both ease in with the same one soft overshoot, instead of one snapping and
+  // the other wallowing. Just under 1 would ring; well over would crawl.
+  var ZETA = 0.55;
+  function damping(k) { return 1 - 2 * ZETA * Math.sqrt(k); }
 
   function buildLayout(nodes, mode) {
     var t = state.topo, r = radii(nodes);
@@ -645,29 +812,44 @@
     };
 
     if (mode === "tree") {
-      var slotW = 2 * maxR + 20;
-      // The deepest lineage in the corpus runs 15 generations; tighten the
-      // spacing past nine so the whole thing still fits a first look.
-      var gen = maxD > 9 ? 72 : 88;
+      var x = relaxColumns(nodes, t.kids, t.root, r, slots);
+      var lo = Infinity, hi = -Infinity;
+      x.forEach(function (v, i) { lo = Math.min(lo, v - r[i]); hi = Math.max(hi, v + r[i]); });
+      // Now that the columns are only as wide as they need to be, a fixed row
+      // height is the thing that makes a deep lineage tall and thin and a
+      // shallow one flat -- and either way the fit shrinks the circles to
+      // nothing. So the generations take their spacing from how wide the tree
+      // actually came out, inside limits that keep a row reading as a row and
+      // leave an edge long enough to see.
+      var gen = Math.max(68, Math.min(150, (hi - lo) / Math.max(1, maxD) / 1.7));
       base.mode = "tree";
-      base.x = slots.map(function (c) { return c * slotW; });
+      base.x = x;
       base.y = nodes.map(function (n) { return n.d * gen; });
-      base.ax = base.ay = 0.022;
+      base.ax = base.ay = 0.0075;
+      base.dx = base.dy = damping(base.ax);
       return base;
     }
 
     var t0 = Math.min.apply(null, nodes.map(function (n) { return n.t0; }));
     var t1 = Math.max.apply(null, nodes.map(function (n) { return n.t0; }));
-    var span = Math.max(1, t1 - t0), lspan = Math.log1p(span);
-    var frac = function (h) { return Math.log1p(Math.max(0, h - t0)) / lspan; };
+    // Time is intentionally linear here: the vertical distance between two
+    // circles is their actual waiting time, not a generation index or a
+    // logarithmic approximation. The board is a pan-and-zoom map, so a long
+    // quiet interval gets the space it genuinely occupied.
+    var span = Math.max(1, t1 - t0);
+    var frac = function (h) { return Math.max(0, h - t0) / span; };
     base.mode = "time";
     base.t0 = t0; base.t1 = t1; base.frac = frac;
-    base.W = Math.max(640, nodes.length * 17);
-    base.x = nodes.map(function (n) { return frac(n.t0) * base.W; });
-    base.y = slots.map(function (c) { return c * (2 * maxR + 10); });
-    // Horizontal position is the measurement here, so a circle is held to its
-    // hour far harder than to its row: pull one sideways and it snaps back.
-    base.ax = 0.09; base.ay = 0.018;
+    base.H = Math.max(680, nodes.length * 15);
+    // Keep related wordings near one another across the page. Unlike a fixed
+    // leaf-slot grid this uses only the width the circles actually require,
+    // so a large but shallow family does not explode into empty space.
+    base.x = relaxColumns(nodes, t.kids, t.root, r, slots);
+    base.y = nodes.map(function (n) { return frac(n.t0) * base.H; });
+    // Vertical position is the measurement here, so a circle is held to its
+    // observed hour far harder than to its horizontal family column.
+    base.ax = 0.006; base.ay = 0.05;
+    base.dx = damping(base.ax); base.dy = damping(base.ay);
     return base;
   }
 
@@ -708,7 +890,7 @@
       if (keep) { p[i] = old[i]; continue; }
       // A new lineage arrives folded up against its root and springs open, so
       // the first thing the board says about itself is that it is not a picture.
-      var b = bloom && !REDUCE ? 0.2 : 1;
+      var b = bloom && !REDUCE ? 0.55 : 1;
       p[i] = { x: L.x[L.root] + (L.x[i] - L.x[L.root]) * b,
                y: L.y[L.root] + (L.y[i] - L.y[L.root]) * b, vx: 0, vy: 0 };
     }
@@ -739,7 +921,7 @@
       lk = sim.links[i]; a = P[lk.a]; b = P[lk.b];
       dx = b.x - a.x; dy = b.y - a.y;
       d = Math.sqrt(dx * dx + dy * dy) || 1e-6;
-      f = (d - lk.len) / d * 0.055;
+      f = (d - lk.len) / d * 0.035;
       if (lk.a !== sim.held) { a.vx += dx * f; a.vy += dy * f; }
       if (lk.b !== sim.held) { b.vx -= dx * f; b.vy -= dy * f; }
     }
@@ -753,7 +935,7 @@
         if (d2 >= gap * gap) continue;
         if (d2 < 1e-4) { dx = (i % 2 ? 1 : -1); dy = 1; d2 = 2; }
         d = Math.sqrt(d2);
-        f = (gap - d) / d * 0.2;
+        f = (gap - d) / d * 0.13;
         if (i !== sim.held) { a.vx -= dx * f; a.vy -= dy * f; }
         if (j !== sim.held) { b.vx += dx * f; b.vy += dy * f; }
       }
@@ -763,11 +945,11 @@
     for (i = 0; i < n; i++) {
       var p = P[i];
       if (i === sim.held) { p.vx = p.vy = 0; moving = true; continue; }
-      p.vx = (p.vx + (L.x[i] - p.x) * L.ax) * 0.87;
-      p.vy = (p.vy + (L.y[i] - p.y) * L.ay) * 0.87;
+      p.vx = (p.vx + (L.x[i] - p.x) * L.ax) * L.dx;
+      p.vy = (p.vy + (L.y[i] - p.y) * L.ay) * L.dy;
       p.x += p.vx; p.y += p.vy;
-      if (!moving && (Math.abs(p.vx) + Math.abs(p.vy) > 0.02 ||
-                      Math.abs(L.x[i] - p.x) + Math.abs(L.y[i] - p.y) > 0.35)) moving = true;
+      if (!moving && (Math.abs(p.vx) + Math.abs(p.vy) > 0.015 ||
+                      Math.abs(L.x[i] - p.x) + Math.abs(L.y[i] - p.y) > 0.4)) moving = true;
     }
     // Nothing left to resolve: park every circle exactly on its rest position
     // so the board is pixel-identical to the one the layout describes.
@@ -780,7 +962,7 @@
     var g = motion.glide;
     if (!g) return false;
     view.tx += g.vx; view.ty += g.vy;
-    g.vx *= 0.93; g.vy *= 0.93;
+    g.vx *= 0.945; g.vy *= 0.945;
     if (Math.abs(g.vx) + Math.abs(g.vy) < 0.15) { motion.glide = null; return false; }
     return true;
   }
@@ -816,7 +998,7 @@
       x0 = Math.min(x0, L.x[i] - L.r[i]); x1 = Math.max(x1, L.x[i] + L.r[i]);
       y0 = Math.min(y0, L.y[i] - L.r[i]); y1 = Math.max(y1, L.y[i] + L.r[i]);
     });
-    if (L.mode === "time") y0 -= 58;            // room for the hour labels
+    if (L.mode === "time") { x0 -= 92; y0 -= 28; } // room for time-axis labels
     else y0 -= 22;                              // room for the "root" caption
     return { x0: x0, y0: y0, x1: x1, y1: y1 };
   }
@@ -877,28 +1059,33 @@
 
   function gridMarkup(L) {
     if (L.mode !== "time") return "";
-    var b = worldBox(), y0 = b.y0 + 44, y1 = b.y1 + 14, out = [];
-    var elapsed = L.t1 - L.t0, ticks = [];
-    [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512].forEach(function (o) {
-      if (o <= elapsed) ticks.push(o);
+    var b = worldBox(), x0 = b.x0 + 82, x1 = b.x1 + 14, out = [];
+    var elapsed = L.t1 - L.t0, step = 1;
+    // Aim for five or six labelled guides, then use a human-readable time
+    // unit. The positions remain linear even when the labels use days/weeks.
+    [1, 2, 4, 6, 12, 24, 48, 72, 120, 168, 336, 720, 1440, 2880].some(function (v) {
+      step = v;
+      return elapsed / v <= 6;
     });
+    var ticks = [0];
+    for (var o = step; o < elapsed; o += step) ticks.push(o);
+    if (ticks[ticks.length - 1] !== elapsed) ticks.push(elapsed);
     ticks.forEach(function (o) {
-      var gx = (L.frac(L.t0 + o) * L.W).toFixed(1);
-      out.push('<line x1="' + gx + '" y1="' + y0.toFixed(1) + '" x2="' + gx + '" y2="' + y1.toFixed(1) +
+      var gy = (L.frac(L.t0 + o) * L.H).toFixed(1);
+      out.push('<line x1="' + x0.toFixed(1) + '" y1="' + gy + '" x2="' + x1.toFixed(1) + '" y2="' + gy +
         '" stroke="' + css("--hair") + '" stroke-width="1"/>');
-      var lbl = o === 0 ? "root" : o < 24 ? "+" + o + "h" : "+" + Math.round(o / 24) + "d";
-      out.push('<text x="' + gx + '" y="' + (y0 - 9).toFixed(1) + '" font-size="11" fill="' +
-        css("--ink-2") + '" text-anchor="middle">' + lbl + "</text>");
+      out.push('<text x="' + (x0 - 10).toFixed(1) + '" y="' + (+gy + 4).toFixed(1) + '" font-size="11" fill="' +
+        css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(L.t0 + o)) + "</text>");
     });
     // The crawl thins 15x on 1 September, so a lineage that appears to stop
     // there may only have gone unobserved. Draw the seam rather than hide it.
     if (META.cliff_h > L.t0 && META.cliff_h < L.t1) {
-      var cx = L.frac(META.cliff_h) * L.W;
-      out.push('<line x1="' + cx.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + cx.toFixed(1) +
-        '" y2="' + y1.toFixed(1) + '" stroke="' + css("--red") +
+      var cy = L.frac(META.cliff_h) * L.H;
+      out.push('<line x1="' + x0.toFixed(1) + '" y1="' + cy.toFixed(1) + '" x2="' + x1.toFixed(1) +
+        '" y2="' + cy.toFixed(1) + '" stroke="' + css("--red") +
         '" stroke-width="1.5" stroke-dasharray="4 3"/>');
-      out.push('<text x="' + (cx + 5).toFixed(1) + '" y="' + (y0 - 9).toFixed(1) +
-        '" font-size="11" fill="' + css("--red") + '">1 Sep — crawl thins 15×</text>');
+      out.push('<text x="' + (x1 - 2).toFixed(1) + '" y="' + (cy - 6).toFixed(1) +
+        '" font-size="11" fill="' + css("--red") + '" text-anchor="end">1 Sep — crawl thins 15×</text>');
     }
     return out.join("");
   }
@@ -929,6 +1116,11 @@
         (heavy[i]
           ? '<text class="cap" y="' + (r + 13).toFixed(1) + '" text-anchor="middle" font-size="9.5" fill="' +
             css("--ink-2") + '">' + heavy[i] + "</text>" : "") +
+        (n.rsp && n.rsp.n
+          ? '<g class="rsp" transform="translate(' + (r * .72).toFixed(1) + ',' + (-r * .72).toFixed(1) +
+            ')" aria-label="' + fmt(n.rsp.n) + ' sampled responses"><title>' + fmt(n.rsp.n) +
+            ' responses observed in this crawl</title><circle r="5.7"/><path d="M-2.4 -1.8h4.8v3.5h-2l-1.7 1.4V1.7h-1.1z"/></g>'
+          : "") +
         "</g>");
     });
 
@@ -1074,6 +1266,7 @@
       c.setAttribute("fill", fill);
       c.setAttribute("stroke", coord > 0.15 ? css("--red") : css("--paper"));
       c.setAttribute("stroke-width", coord > 0.15 ? 2.4 : 2);
+      c.setAttribute("stroke-dasharray", n.leaf ? "3 2" : "");
       S.g[i].setAttribute("opacity", n.t0 > state.cut ? 0.12 : 1);
       S.lab[i].setAttribute("fill", inkOn(fill));
       S.lab[i].textContent = L.label[i] + (markCliff && n.t0 >= META.cliff_h ? "*" : "");
@@ -1217,7 +1410,9 @@
       ? '<p class="mut"><span class="lbl">earliest phrasing in the corpus &mdash; the root of this lineage</span></p>'
       : '<p class="mut"><span class="lbl">changed from ' + T.label[n.p] + "</span>" + add + del +
         (add || del ? "" : '<span class="tok">wording only</span>') +
-        '<span class="lbl">' + Math.round(n.sim * 100) + "% of the words kept</span></p>";
+        '<span class="lbl">' + Math.round(n.sim * 100) + "% of the words kept</span>" +
+        (n.leaf ? '<span class="lbl">lower-confidence attached leaf; it cannot join lineages</span>' : "") +
+        "</p>";
 
     // Every relation the diagram draws is a word you can click.
     var kids = T.kids[state.sel];
@@ -1247,6 +1442,31 @@
     }
     if (coord > 0.15) fl.push("coordinated accounts present");
 
+    var rsp = n.rsp;
+    var replyExcerpts = rsp && rsp.sample && rsp.sample.length
+      ? '<details class="reply-excerpts"><summary>read ' + rsp.sample.length +
+        ' captured response' + (rsp.sample.length === 1 ? "" : "s") + '</summary>' +
+        rsp.sample.map(function (reply) {
+          return '<blockquote><p>' + esc(detwit(reply.txt)) + '</p><span>' +
+            (reply.direct ? 'direct reply' : 'reply in this thread') +
+            (reply.like ? ' &middot; ' + fmt(reply.like) + ' likes when captured' : '') +
+            '</span></blockquote>';
+        }).join("") + '</details>'
+      : '';
+    var responses = rsp
+      ? '<p class="figs"><b>' + fmt(rsp.n) + '</b> response' + (rsp.n === 1 ? "" : "s") +
+        ' observed in this crawl &middot; <b>' + fmt(rsp.acc) + '</b> responding accounts' +
+        (rsp.thread ? ' &middot; <b>' + fmt(rsp.direct) + '</b> direct to this tweet, plus thread replies' :
+                      ' &middot; all direct to this tweet') +
+        (n.met && n.met.reply
+          ? ' &middot; X reports <b>' + fmt(n.met.reply) + '</b> total replies; observed responses are a sampled subset'
+          : ' &middot; response coverage is limited to tweets captured in this crawl') +
+        '</p>' + replyExcerpts
+      : (n.met && n.met.reply
+          ? '<p class="figs">X reports <b>' + fmt(n.met.reply) +
+            '</b> replies, but none of their rows were captured for this matched tweet.</p>'
+          : '');
+
     el.innerHTML =
       "<h3>Wording " + T.label[state.sel] + "</h3><span>generation " + n.d +
         " &middot; first seen " + esc(hourLabel(n.t0)) + "</span>" +
@@ -1255,6 +1475,7 @@
         fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
         "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
         (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
+      responses +
       (fl.length
         ? '<p class="flags' + (n.mix > 0 ? "" : " mild") + '">' + fl.join(" &middot; ") + "</p>"
         : "");
@@ -1275,7 +1496,7 @@
       return '<tr data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
         '<td class="k">' + T.label[i] + "</td><td>" + n.d + "</td><td>" +
         (n.p === null || n.p === undefined ? "\u2014" : T.label[n.p]) + "</td><td>" +
-        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" +
+        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.rsp && n.rsp.n || 0) + "</td><td>" +
         (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
         Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
         '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
@@ -1283,7 +1504,7 @@
     return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
       "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
       '<div class="tscroll"><table id="vartable">' +
-      "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th>" +
+      "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th><th>responses*</th>" +
       "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
       rows + "</tbody></table></div></details>";
   }
@@ -1314,7 +1535,7 @@
     return state.xMode === "tree"
       ? "Mutation tree as a rooted tree, one generation per row. Drag to pan, scroll to zoom, " +
         "drag a circle to pull it off its spring. Arrow keys move to the parent, a child or a sibling."
-      : "Mutation tree drawn against time. Drag to pan, scroll to zoom, drag a circle to pull it off " +
+      : "Mutation tree with time running from top to bottom. Drag to pan, scroll to zoom, drag a circle to pull it off " +
         "its spring. Arrow keys move to the parent, a child or a sibling.";
   }
 
@@ -1326,53 +1547,22 @@
       "<span>bigger circle, more retweets</span>" +
       '<span><svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="none" stroke="' +
         css("--red") + '" stroke-width="2"/></svg>coordinated accounts</span>' +
+      '<span><svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="white" stroke="' +
+        css("--pen") + '" stroke-width="1.25"/><path d="M5.5 6h4v3H8l-1.3 1V9H5.5z" fill="none" stroke="' +
+        css("--pen") + '" stroke-width="1.1" stroke-linejoin="round"/></svg>collapsed response group; *sampled replies</span>' +
       "<span>pencilled ring, the subtree of the selected wording</span>" +
       (state.xMode === "tree"
         ? (f.win === "span" ? "<span>* first seen after 1 Sep</span>" : "")
-        : '<span><svg width="15" height="10" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="10" stroke="' +
-          css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff</span>') +
-      "<span><b>click a circle</b> to read its wording, <b>drag one</b> to pull it loose</span>";
-  }
-
-  // The prose that explains the drawing belongs beside the wording it is
-  // explaining, not underneath the board.
-  function renderHowto() {
-    var f = state.fam, isTree = state.xMode === "tree";
-    // The cliff is a dashed rule on a time axis and a marked circle in the
-    // tree, so the sentence pointing at it has to follow the layout.
-    var seam = isTree
-      ? (f.win === "span"
-          ? "so counts before and after 1 September are not comparable; the wordings marked * are the ones that first appeared after it. "
-          : "so counts before and after 1 September are not comparable. ")
-      : "so counts either side of the dashed rule are not comparable. ";
-    var geom = isTree
-      ? "Going down the board is going down the generations: a wording sits below the one it was derived from. " +
-        "Horizontal position carries no measure here — it only packs the tree, so switch the layout to " +
-        "<i>time</i> to see how long a rewording took to appear. "
-      : "Horizontal distance is real waiting time; vertical position only keeps sibling lineages apart. ";
-
-    $("#howto-body").innerHTML =
-      '<p class="note"><b>How to read it.</b> Each circle is one distinct wording. A wording hangs off whichever ' +
-        "earlier wording it most resembles, so the root is the earliest phrasing <i>in this corpus</i> &mdash; not where " +
-        "the idea began. " + geom +
-        "Topic tags are a keyword heuristic, not a classifier. &ldquo;Coordinated&rdquo; means the account co-amplified " +
-        "content with others inside a 60&#8202;s window, repeatedly: evidence of coordination, not proof of automation. " +
-        "The crawl collected 22.0M tweets a day through 31 August and 1.4M a day after, " + seam +
-        "Tick <i>August 17&ndash;31 only</i> for a clean sample.</p>" +
-      '<p class="note"><b>How to handle it.</b> The board is a map with no edges: drag the paper to pan, ' +
-        "scroll or pinch to zoom about the pointer, double-click to zoom in, and press <i>fit</i> to come back " +
-        "to the whole lineage. Every circle is sprung to the place the measurements put it, so you can pull one " +
-        "aside to see what is underneath, watch what it drags along with it, and let go — the arrangement " +
-        "eases back to the measured one on its own. Nothing you can do to the board changes a number.</p>";
+        : '<span><svg width="15" height="10" aria-hidden="true"><line x1="0" y1="5" x2="15" y2="5" stroke="' +
+          css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff</span>');
   }
 
   function renderStage() {
     var f = state.fam;
 
-    var warn = f.win === "aug" ? "" :
-      '<p class="warn">' + (f.win === "sep"
-        ? "Lives entirely after 1 September, where the crawl collects 1.4M tweets a day against August's 22.0M. Its spread is undercounted by roughly 15× next to an August lineage."
-        : "Crosses 1 September, where crawl volume drops 15×. Any fall-off after that point is partly our collection thinning, not the narrative dying.") + "</p>";
+    var warn = f.win === "sep"
+      ? '<p class="warn">Lives entirely after 1 September, where the crawl collects 1.4M tweets a day against August\'s 22.0M. Its spread is undercounted by roughly 15× next to an August lineage.</p>'
+      : "";
 
     $("#stage-body").className = "";
     $("#stage-body").innerHTML =
@@ -1391,7 +1581,7 @@
           btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
           btn("coord", "coordination", state.colorBy) + "</span>" +
         '<span class="grp" id="xmode"><b>layout</b>' +
-          btn("tree", "tree", state.xMode) + btn("log", "time", state.xMode) + "</span>" +
+          btn("tree", "tree", state.xMode) + btn("time", "time ↓", state.xMode) + "</span>" +
         '<span class="scrub"><button class="act" id="play">play</button>' +
           '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
           '" aria-label="Show wordings first seen up to"><output id="cutout"></output></span>' +
@@ -1412,7 +1602,6 @@
       renderTable();
 
     renderKey();
-    renderHowto();
     state.cut = f.t1;
     view = { k: 1, tx: 0, ty: 0, auto: true, note: "" };
     wireStage();
@@ -1568,8 +1757,8 @@
         // Let go and the circle keeps the speed it was thrown with; the spring
         // takes it home from wherever that lands it.
         var q = sim.p[gr.i];
-        q.vx = Math.max(-45, Math.min(45, gr.vx));
-        q.vy = Math.max(-45, Math.min(45, gr.vy));
+        q.vx = Math.max(-26, Math.min(26, gr.vx));
+        q.vy = Math.max(-26, Math.min(26, gr.vy));
         if (REDUCE) settle();
         if (!gr.moved) selectNode(gr.i, true);
         kick();
@@ -1665,7 +1854,7 @@
       var b = e.target.closest("button[data-v]"); if (!b || b.dataset.v === state.xMode) return;
       state.xMode = b.dataset.v;
       press(b);
-      renderKey(); renderHowto();
+      renderKey();
       svg.setAttribute("aria-label", boardLabel());
       relayout();
     });
@@ -1698,6 +1887,9 @@
     addEventListener("keydown", function (e) {
       if (e.key === "Escape") closePanel();
     });
+
+    $("#topics-sum").addEventListener("click", function () { toggleFilt("filt-topics"); });
+    $("#kinds-sum").addEventListener("click", function () { toggleFilt("filt-kinds"); });
 
     var fold = $("#fold"), sheet = $("#sheet");
     fold.addEventListener("click", function () {
@@ -1757,16 +1949,44 @@
       });
   }
 
+  function chipStyle(i) { return ' style="--i:' + i + '"'; }
+
+  function filtPickedText(group) {
+    var pressed = group.querySelector('button[aria-pressed="true"]');
+    return pressed ? pressed.textContent.replace(/\s+/g, " ").trim() : "";
+  }
+
+  function syncFiltPicks() {
+    $("#topics-pick").textContent = filtPickedText($("#topics")) || "all subjects";
+    $("#kinds-pick").textContent = filtPickedText($("#kinds")) || "any behaviour";
+  }
+
+  function setFiltOpen(id, open) {
+    var el = $("#" + id);
+    el.dataset.open = String(open);
+    el.querySelector(".filt-sum").setAttribute("aria-expanded", String(open));
+  }
+
+  // One drawer at a time: opening subjects closes behaviour, and the reverse.
+  // Clicking the open drawer again folds it, so the rail only shows the pick.
+  function toggleFilt(id) {
+    var opening = $("#" + id).dataset.open !== "true";
+    setFiltOpen("filt-topics", opening && id === "filt-topics");
+    setFiltOpen("filt-kinds", opening && id === "filt-kinds");
+  }
+
   function renderTopics() {
     var counts = {};
     FAMS.forEach(function (f) { f.topics.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; }); });
-    var chips = ['<button data-t="all" aria-pressed="true">all subjects</button>',
-                 '<button data-t="news" aria-pressed="false">news &amp; politics</button>'];
+    var i = 0;
+    var chips = ['<button data-t="all"' + chipStyle(i++) + ' aria-pressed="' + String(state.topic === "all") + '">all subjects</button>',
+                 '<button data-t="news"' + chipStyle(i++) + ' aria-pressed="' + String(state.topic === "news") + '">news &amp; politics</button>'];
     Object.keys(TOPIC_LABEL).filter(function (t) { return counts[t]; }).forEach(function (t) {
-      chips.push('<button data-t="' + t + '" aria-pressed="false">' + TOPIC_LABEL[t].toLowerCase() +
-                 ' <i>' + counts[t] + "</i></button>");
+      chips.push('<button data-t="' + t + '"' + chipStyle(i++) + ' aria-pressed="' + String(state.topic === t) + '">' +
+                 TOPIC_LABEL[t].toLowerCase() + ' <i>(' + counts[t] + ")</i></button>");
     });
     $("#topics").innerHTML = chips.join("");
+    syncFiltPicks();
   }
 
   // The behaviour row. Classes with nothing in them are still listed, greyed
@@ -1780,19 +2000,21 @@
       if (f.offlang) off++;
       if (f.kind !== "organic") flagged++;
     });
-    var chips = ['<button data-k="all" aria-pressed="true">any behaviour</button>',
-                 '<button data-k="flagged" aria-pressed="false">any flag <i>' + flagged + "</i></button>"];
+    var i = 0;
+    var chips = ['<button data-k="all"' + chipStyle(i++) + ' aria-pressed="' + String(state.kind === "all") + '">any behaviour</button>',
+                 '<button data-k="flagged"' + chipStyle(i++) + ' aria-pressed="' + String(state.kind === "flagged") + '">any flag <i>(' + flagged + ")</i></button>"];
     ["farm", "evade", "burst", "promo", "organic"].forEach(function (k) {
       var n = counts[k] || 0;
-      chips.push('<button data-k="' + k + '" aria-pressed="false" title="' + esc(KIND_NOTE[k]) + '"' +
-                 (n ? "" : " disabled") + ">" + KIND_LABEL[k] + " <i>" + n + "</i></button>");
+      chips.push('<button data-k="' + k + '"' + chipStyle(i++) + ' aria-pressed="' + String(state.kind === k) + '" title="' + esc(KIND_NOTE[k]) + '"' +
+                 (n ? "" : " disabled") + ">" + KIND_LABEL[k] + " <i>(" + n + ")</i></button>");
     });
     if (off) {
-      chips.push('<button data-k="offlang" aria-pressed="false" title="' +
+      chips.push('<button data-k="offlang"' + chipStyle(i++) + ' aria-pressed="' + String(state.kind === "offlang") + '" title="' +
                  'Twitter tagged these English. Their text is not, so the lineage was built ' +
-                 'from Latin-script hashtags alone.">non-English <i>' + off + "</i></button>");
+                 'from Latin-script hashtags alone.">non-English <i>(' + off + ")</i></button>");
     }
     $("#kinds").innerHTML = chips.join("");
+    syncFiltPicks();
   }
 
   fetch("phylo/index.json").then(function (r) { return r.json(); }).then(function (data) {
@@ -1837,6 +2059,8 @@
       Array.prototype.forEach.call($("#topics").children, function (x) {
         x.setAttribute("aria-pressed", String(x === c));
       });
+      syncFiltPicks();
+      setFiltOpen("filt-topics", false);
       renderList();
     });
     $("#kinds").addEventListener("click", function (e) {
@@ -1845,6 +2069,8 @@
       Array.prototype.forEach.call($("#kinds").children, function (x) {
         x.setAttribute("aria-pressed", String(x === c));
       });
+      syncFiltPicks();
+      setFiltOpen("filt-kinds", false);
       renderList();
     });
   }).catch(function () {
