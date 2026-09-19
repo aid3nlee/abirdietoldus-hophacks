@@ -445,27 +445,46 @@ def step5_enrich(con, force: bool) -> None:
     print(f"      timelines written  ({time.time() - t:.0f}s)")
 
 # Coarse topical tags. This is a keyword heuristic, not a classifier, and the
-# UI says so -- its only job is to make thousands of families navigable. Terms
-# marked with "!" are unambiguous enough to tag on their own; everything else
-# needs corroboration, so that a family mentioning "white" or "strike" in
-# passing does not get filed under identity or conflict.
+# UI says so -- its only job is to make thousands of families navigable.
+#
+# Terms marked "!" are ANCHORS: specific enough that their presence is about
+# the topic rather than coincident with it. Unmarked terms only CORROBORATE.
+# A tag requires an anchor plus one more term, because one word is a
+# coincidence and two is a subject -- see classify().
+#
+# Anchor status is about ambiguity, not importance. "woke" is unmarked
+# because "I woke up" is ordinary English and used to file whole lineages
+# under identity on the strength of a single tweet; "vote" is unmarked
+# because fandoms vote in awards polls constantly; "alien" is unmarked
+# because of science fiction. Proper nouns are anchors because almost
+# nothing else produces them.
 TOPICS = {
-    "politics": "trump biden election! vote voter ballot! congress senate president campaign "
-                "democrat! republican! maga! conservative liberal government policy impeach!",
-    "conflict": "israel! palestine! gaza! hamas! idf! zionist! genocide! ukraine russia war "
-                "strike military airstrike! ceasefire! hostage occupation settler",
+    "politics": "trump! biden! election! vote voter ballot! congress! senate! president "
+                "campaign democrat! republican! maga! conservative liberal government "
+                "policy impeach!",
+    "conflict": "israel! palestine! gaza! hamas! idf! zionist! genocide! ukraine! russia! "
+                "war strike military airstrike! ceasefire! hostage occupation settler",
     "migration": "immigrant! immigration! migrant! refugee! asylum! border deport! "
-                 "deportation! illegal alien! invasion assimilate visa amnesty!",
+                 "deportation! illegal alien invasion assimilate visa amnesty!",
     "identity": "muslim! islam! jew! jewish! christian racist! racism! antisemitic! "
-                "islamophobia! sharia! woke! dei trans lgbtq groomer! white black",
+                "islamophobia! sharia! woke dei trans lgbtq groomer! white black",
     "health": "vaccine! vaccinated! covid! pandemic! fauci! cdc! fda mrna! autism pharma "
-              "outbreak measles! medicaid",
-    "crypto": "bitcoin! btc! crypto! ethereum! token airdrop! presale! wallet trading forex! "
-              "gold xauusd! signal pump profit",
+              "outbreak measles! medicaid!",
+    "crypto": "bitcoin! btc! crypto! ethereum! token airdrop! presale! wallet trading "
+              "forex! gold xauusd! signal pump profit",
     "fandom": "comeback teaser! album mv kpop! bts! nct! concert fancam! stan lightstick! "
               "preorder weverse! photocard! debut tour",
-    "sports": "match goal league season transfer fixture cricket! football nba! ufc!",
+    "sports": "match goal league season transfer fixture cricket! football! nba! ufc! fifa!",
 }
+
+# A keyword has to show up in this many of a family's variants before it
+# counts. The old code unioned the tokens of every variant and tested that,
+# so one tweet reading "I woke up to god" tagged all 226 wordings of a
+# cosmetics campaign as identity politics. A lineage is a set of rewordings
+# of the same claim: a term that is genuinely part of the claim survives the
+# rewording, and a term that appears once does not.
+MIN_TOPIC_DF = 2
+MIN_TOPIC_SHARE = 0.05
 
 
 def _parse(spec: str) -> dict[str, int]:
@@ -478,12 +497,108 @@ def _parse(spec: str) -> dict[str, int]:
 TOPIC_SETS = {k: _parse(v) for k, v in TOPICS.items()}
 
 
-def classify(tokens: set) -> list[str]:
-    hits = [(k, sum(w for tok, w in s.items() if tok in tokens))
-            for k, s in TOPIC_SETS.items()]
-    hits = [(k, n) for k, n in hits if n >= 2]
+def classify(tok_df: dict, n_variants: int) -> list[str]:
+    """Tag a family from the token->variant-count map of its wordings.
+
+    Two gates. A term must be persistent (present in several wordings, not
+    just one), and a topic must have an anchor plus corroboration. Both exist
+    to stop a single incidental word from labelling a whole lineage.
+    """
+    floor = max(MIN_TOPIC_DF, int(n_variants * MIN_TOPIC_SHARE + 0.999))
+    hits = []
+    for topic, terms in TOPIC_SETS.items():
+        kept = [(tok, w) for tok, w in terms.items() if tok_df.get(tok, 0) >= floor]
+        if len(kept) < 2 or not any(w == 2 for _, w in kept):
+            continue
+        hits.append((topic, sum(w for _, w in kept)))
     hits.sort(key=lambda x: -x[1])
     return [k for k, _ in hits[:2]]
+
+
+# --- behaviour classes ------------------------------------------------------
+#
+# Topic says what a lineage is about. It says nothing about whether the
+# spread was authentic, and the two get confused constantly: the most
+# "notable" lineages in this corpus are Thai and Korean entertainment promo,
+# which is organised and inauthentic-looking by every structural measure
+# while being neither covert nor political.
+#
+# So classify the *behaviour* on a separate axis, from signals the pipeline
+# already computes. Each class is a distinct mechanism, and the evidence for
+# each is reported alongside it so a judge can disagree with the call:
+#
+#   farm     engagement farming. Giveaways, airdrops, follow-and-retweet.
+#            Inauthentic and openly so; the payload is the instruction.
+#   evade    moderation evasion. Words carrying cross-script lookalikes, so
+#            the text reads normally and does not match a keyword filter.
+#   promo    promotional template. A conserved hashtag block with variable
+#            free text -- scheduled marketing and fan-campaign material.
+#            Coordinated by construction, but disclosed and commercial.
+#   sync     synchronised burst. Near-identical wordings from many distinct
+#            accounts inside a tight window, by accounts that co-retweet each
+#            other elsewhere. This is the coordinated-inauthentic-behaviour
+#            candidate, and the only class here that is a real accusation.
+#   organic  no structural evidence of any of the above.
+#
+# Thresholds sit near the top of each observed distribution rather than at
+# round numbers, and are listed here so they can be argued with.
+FARM_TERMS = frozenset("""
+    giveaway giveway airdrop presale whitelist winner prize enter claim mint
+    referral bonus deposit withdraw retweet follow followers subscribe
+    tag friends free join dm signal pump profit forex trading spots spot
+""".split())
+
+FARM_MIN_TERMS = 4      # 4+ of the above co-occurring is a solicitation
+EVADE_MIN_MIXED = 0.30  # mixed-script words per variant
+PROMO_MIN_HT = 1.5      # mean hashtags per variant (corpus p90 = 2.3)
+PROMO_HANDLE_HT = 0.8   # ...or a lower hashtag load from one dominant source
+PROMO_MIN_SHARE = 0.85
+SYNC_MIN_PEAK6 = 0.75   # share of spread inside its busiest 6 hours (p90)
+SYNC_MIN_COORD = 0.20   # share of accounts in a stage-2 co-retweet cluster (p95)
+SYNC_MIN_ACC = 250      # too few accounts to call it a network
+
+
+def behaviour(*, tok_df: dict, nv: int, ht: float, mixed: int, coord_share: float,
+              acc: int, peak6: float, handle_share: float) -> tuple[str, list[str]]:
+    """Return (class, human-readable evidence) for one family.
+
+    Order matters. A crypto giveaway also has a hashtag block, and a promo
+    template can also burst; the earlier tests name the more specific
+    mechanism, and the evidence list keeps the losing signals visible.
+    """
+    ev = []
+    farm_hits = sorted(t for t in FARM_TERMS if tok_df.get(t, 0) >= max(2, nv * 0.1))
+    mixed_rate = mixed / max(1, nv)
+
+    if len(farm_hits) >= FARM_MIN_TERMS:
+        return "farm", [f"solicitation terms: {', '.join(farm_hits[:6])}"]
+    if mixed_rate >= EVADE_MIN_MIXED:
+        return "evade", [f"{mixed_rate:.1f} mixed-script words per wording"]
+    if ht >= PROMO_MIN_HT or (ht >= PROMO_HANDLE_HT and handle_share >= PROMO_MIN_SHARE):
+        ev.append(f"{ht:.1f} hashtags per wording")
+        if handle_share >= PROMO_MIN_SHARE:
+            ev.append(f"{handle_share:.0%} of spread from one account")
+        return "promo", ev
+    if peak6 >= SYNC_MIN_PEAK6 and coord_share >= SYNC_MIN_COORD and acc >= SYNC_MIN_ACC:
+        return "sync", [f"{peak6:.0%} of spread in 6 hours",
+                        f"{coord_share:.0%} of accounts co-retweet elsewhere",
+                        f"{acc:,} distinct accounts"]
+    return "organic", []
+
+
+def peak_window(hours, counts, width: int = 6) -> float:
+    """Largest share of a family's spread falling in any `width`-hour window."""
+    import numpy as np
+    total = float(sum(counts))
+    if total <= 0 or len(hours) == 0:
+        return 0.0
+    lo, hi = int(min(hours)), int(max(hours))
+    dense = np.zeros(hi - lo + 1)
+    for h, c in zip(hours, counts):
+        dense[int(h) - lo] += c
+    if len(dense) <= width:
+        return 1.0
+    return float(np.convolve(dense, np.ones(width), "valid").max() / total)
 
 
 def step6_trees(con, force: bool) -> None:

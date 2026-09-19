@@ -57,7 +57,15 @@ _HOMOGLYPHS = {
     "Υ": "Y", "Χ": "X",
     # Armenian / Cherokee / other frequent offenders
     "ո": "n", "օ": "o", "ս": "u", "Ꭺ": "A", "Ꭼ": "E", "Ꮃ": "W", "Ꮋ": "H",
-    # punctuation that breaks tokenization
+}
+
+# Typographic punctuation. These fold for the same reason as everything above
+# -- they break tokenization -- but they are NOT evidence of anything. Smart
+# quotes come from phone keyboards and the ellipsis is what Twitter itself
+# appends when it truncates a retweet, so counting them as obfuscation made
+# the evasion signal a measure of "was this tweet cut off". Folded like the
+# rest, excluded from the evasion counters below.
+_PUNCT = {
     "‐": "-", "‑": "-", "‒": "-", "–": "-", "—": "-", "―": "-",
     "‘": "'", "’": "'", "‚": "'", "‛": "'", "＇": "'",
     "“": '"', "”": '"', "„": '"', "‟": '"',
@@ -65,30 +73,78 @@ _HOMOGLYPHS = {
 }
 
 
-def _build_confusables() -> tuple[str, str]:
-    """Return (from_chars, to_chars) for a single translate() call."""
-    src, dst = [], []
-    seen = set()
+def _styled_map() -> dict:
+    """Codepoints that NFKC folds to a plain ASCII alphanumeric.
+
+    Mathematical bold/script/fraktur, fullwidth forms, circled letters. Using
+    these is a deliberate styling choice, and one that defeats a naive keyword
+    filter, but it is also just how a lot of promo copy is written -- so it is
+    a weaker signal than a cross-script homoglyph and is counted separately.
+    """
+    out = {}
     for lo, hi in _NFKC_RANGES:
         for cp in range(lo, hi + 1):
             ch = chr(cp)
-            if ch in seen:
+            if ch in out:
                 continue
             folded = unicodedata.normalize("NFKC", ch)
             # Only single-char ASCII alnum folds are safe for a 1:1 translate.
             if len(folded) == 1 and folded.isascii() and folded.isalnum() and folded != ch:
+                out[ch] = folded
+    return out
+
+
+_STYLED = _styled_map()
+
+
+def _join(*maps: dict) -> tuple[str, str]:
+    src, dst, seen = [], [], set()
+    for m in maps:
+        for ch, folded in m.items():
+            if ch not in seen:
                 src.append(ch)
                 dst.append(folded)
                 seen.add(ch)
-    for ch, folded in _HOMOGLYPHS.items():
-        if ch not in seen:
-            src.append(ch)
-            dst.append(folded)
-            seen.add(ch)
     return "".join(src), "".join(dst)
 
 
-CONF_FROM, CONF_TO = _build_confusables()
+# Everything that gets folded before tokenization. Punctuation included: two
+# postings that differ only in apostrophe style are the same variant.
+CONF_FROM, CONF_TO = _join(_STYLED, _HOMOGLYPHS, _PUNCT)
+
+# What we *count* as evasion. Punctuation is deliberately absent; see _PUNCT.
+STYLED_FROM = "".join(_STYLED)
+HOMOGLYPH_FROM = "".join(_HOMOGLYPHS)
+EVASION_FROM = STYLED_FROM + HOMOGLYPH_FROM
+
+_HOMO_SET = set(_HOMOGLYPHS)
+_STYLED_SET = set(_STYLED)
+_LATIN_WORD = re.compile(r"[A-Za-z\u0370-\u058F]{2,}")
+
+
+def evasion_profile(text: str) -> dict:
+    """Measure deliberate character substitution in one message.
+
+    Three counters, weakest to strongest:
+
+      styled  -- math-bold and friends. Common in ordinary promo copy.
+      homo    -- cross-script lookalikes anywhere in the message.
+      mixed   -- words that are *part* Latin and part lookalike. This is the
+                 one that is hard to explain innocently: a fully Cyrillic word
+                 is just Russian, but "gеnocide" carrying a single Cyrillic е
+                 exists to survive a keyword match and nothing else.
+    """
+    t = text or ""
+    styled = sum(1 for ch in t if ch in _STYLED_SET)
+    homo = sum(1 for ch in t if ch in _HOMO_SET)
+    mixed = 0
+    if homo:
+        for w in _LATIN_WORD.findall(t):
+            has_h = any(ch in _HOMO_SET for ch in w)
+            has_l = any(ch.isascii() and ch.isalpha() for ch in w)
+            if has_h and has_l:
+                mixed += 1
+    return {"styled": styled, "homo": homo, "mixed": mixed}
 
 # --- stopwords --------------------------------------------------------------
 

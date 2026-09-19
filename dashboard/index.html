@@ -1,66 +1,51 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Narrative Phylogeny</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
+  /* authenticfont.ttf, embedded so the page stays a single file with no
+     network dependency. Every word on the sheet is set in it. */
   @font-face {
-    font-family: "Unconformism";
+    font-family: "AuthenticFont";
     src: url(data:font/ttf;base64,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) format("truetype");
     font-weight: 400; font-style: normal; font-display: swap;
   }
 
-  /* A typed lab sheet with a tree drawn on it. Everything is ink on paper:
-     no cards, no shadows, no rounded corners. Rules and space do the
-     separating. One accent (ballpoint blue) and one warning (red pencil). */
+  /* A whiteboard with a tree drawn on it. The surface is plain white and
+     every mark is a pen laid on top of it: no cards, no shadows, no rounded
+     corners. One accent (blue marker) and one warning (red marker). A board
+     is white in any light, so there is no dark variant to switch to. */
   :root {
-    --paper:    #f3f3ef;
-    --paper-2:  #e8e8e2;
-    --ink:      #1c1c1a;
-    --ink-2:    #5a5a54;
-    --rule:     #c9c9c1;
-    --hair:     #dedcd5;
-    --pen:      #20477c;
-    --pen-soft: #dfe5f0;
-    --red:      #a4382c;
-    /* Ink wash, light -> dark. One hue, five steps: enough to rank a node by
-       eye, few enough that adjacent steps never blur. */
-    --w1: #dde2e6; --w2: #b0bcc8; --w3: #7b8ea3; --w4: #4a6480; --w5: #21405e;
-    --type: "Courier Prime", "Courier New", ui-monospace, monospace;
-    --hand: "Unconformism", "Bradley Hand", "Segoe Print", cursive;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper:    #17181a;
-      --paper-2:  #212326;
-      --ink:      #ecebe6;
-      --ink-2:    #aeaca4;
-      --rule:     #3a3c3f;
-      --hair:     #2a2c2f;
-      --pen:      #85aee4;
-      --pen-soft: #1b2a3f;
-      --red:      #e58575;
-      --w1: #24384b; --w2: #31587d; --w3: #4a7aa8; --w4: #7fa8cf; --w5: #c6dbec;
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper:    #17181a;
-    --paper-2:  #212326;
-    --ink:      #ecebe6;
-    --ink-2:    #aeaca4;
-    --rule:     #3a3c3f;
-    --hair:     #2a2c2f;
-    --pen:      #85aee4;
-    --pen-soft: #1b2a3f;
-    --red:      #e58575;
-    --w1: #24384b; --w2: #31587d; --w3: #4a7aa8; --w4: #7fa8cf; --w5: #c6dbec;
+    color-scheme: light;
+    --paper:    #ffffff;
+    --paper-2:  #f4f5f7;
+    --ink:      #1b1b1b;
+    --ink-2:    #63676b;
+    --rule:     #d6d8db;
+    --hair:     #ebecee;
+    --pen:      #1a56a8;
+    --pen-soft: #e4ecf8;
+    --red:      #c0392b;
+    /* Blue marker wash, light -> dark. One hue, five steps: enough to rank a
+       node by eye, few enough that adjacent steps never blur. */
+    --w1: #dce5f1; --w2: #aac0dd; --w3: #6f92c1; --w4: #3f68a0; --w5: #1d4478;
+    --panel-w: 400px;
+    --type: "AuthenticFont", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+    /* One hand writes the whole board; kept as a name so the diagram code that
+       asks for it keeps reading clearly. */
+    --hand: var(--type);
   }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
-    font-family: var(--type); font-size: 14px; line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    font-family: var(--type); font-size: 15px; line-height: 1.55;
+    letter-spacing: .012em; -webkit-font-smoothing: antialiased;
   }
+  /* The face carries letters, digits and the common marks but no slash, colon,
+     em dash or middot; those fall through to the next hand in the stack rather
+     than to a typewriter, so the mixing does not show. */
+  svg text { font-family: var(--type); }
   h1, h2, h3 { margin: 0; font-weight: 700; text-wrap: balance; }
   p { margin: 0; }
   button, input, select { font: inherit; color: inherit; }
@@ -70,19 +55,41 @@
     clip: rect(0 0 0 0); white-space: nowrap;
   }
 
-  .sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+  .sheet {
+    display: flex; flex-direction: column; height: 100%; min-height: 0;
+    transition: margin-right .2s ease;
+  }
+  .sheet[data-panel="open"] { margin-right: var(--panel-w); }
 
-  /* ---------- typed header ---------- */
-  .head { padding: 16px 20px 12px; border-bottom: 2px solid var(--ink); }
-  .head h1 { font-family: var(--hand); font-weight: 400; font-size: 27px; line-height: 1.1; letter-spacing: .01em; }
-  .head .sub { color: var(--ink-2); font-size: 12.5px; margin-top: 3px; max-width: 74ch; }
-  .head .counts { color: var(--ink-2); font-size: 12px; margin-top: 6px; }
+  /* ---------- header ---------- */
+  .head {
+    display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap;
+    padding: 9px 20px 8px; border-bottom: 2px solid var(--ink);
+  }
+  .head h1 { font-weight: 400; font-size: 25px; line-height: 1.1; letter-spacing: .01em; }
+  .head .counts { color: var(--ink-2); font-size: 12.5px; margin-left: auto; }
   .head .counts b { color: var(--ink); font-weight: 700; }
 
-  .cols { display: grid; grid-template-columns: 290px minmax(0, 1fr); flex: 1; min-height: 0; }
+  /* The index of lineages folds away so the board can have the whole sheet. */
+  .fold {
+    flex: none; align-self: center; width: 25px; height: 25px; padding: 0;
+    display: grid; place-items: center; cursor: pointer;
+    border: 1px solid var(--rule); background: none; color: var(--ink-2);
+  }
+  .fold:hover { color: var(--ink); border-color: var(--ink); }
+  .fold svg { display: block; transition: transform .2s ease; }
+  .sheet[data-rail="closed"] .fold svg { transform: scaleX(-1); }
+
+  .cols { display: grid; grid-template-columns: auto minmax(0, 1fr); flex: 1; min-height: 0; }
 
   /* ---------- left column: the index of lineages ---------- */
-  .rail { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--rule); }
+  .rail {
+    display: flex; flex-direction: column; min-height: 0; width: 290px;
+    border-right: 1px solid var(--rule); overflow: hidden; transition: width .2s ease;
+  }
+  /* Fixed-width children so the list does not reflow while the rail folds. */
+  .rail > * { min-width: 290px; }
+  .sheet[data-rail="closed"] .rail { width: 0; border-right-width: 0; }
   .rail-top { padding: 12px 16px 10px; display: grid; gap: 8px; border-bottom: 1px solid var(--rule); }
   .rail input[type="search"] {
     width: 100%; padding: 5px 2px; border: 0; border-bottom: 1px solid var(--rule);
@@ -121,11 +128,18 @@
 
   /* ---------- right column: the sheet itself ---------- */
   .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; }
-  .lin { padding: 14px 20px 12px; border-bottom: 1px solid var(--rule); }
-  .lin h2 { font-size: 13px; }
+  /* Everything a lineage renders goes inside this one div, so it -- not the
+     stage -- is the column the board stretches inside. */
+  #stage-body { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 0; }
+  #stage-body.loading { display: block; }
+  .lin { padding: 8px 20px 7px; border-bottom: 1px solid var(--rule); }
+  .lin .hdr { display: flex; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
+  .lin h2 { font-size: 14px; }
+  .lin .hdr .figs { margin-top: 0; }
   .lin .root {
-    margin-top: 5px; font-size: 12.5px; color: var(--ink-2); max-width: 86ch;
+    margin-top: 4px; font-size: 12.5px; color: var(--ink-2); max-width: 96ch;
     border-left: 2px solid var(--rule); padding-left: 9px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -153,15 +167,11 @@
   .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
   .scrub output { font-size: 11.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
 
-  .plot { padding: 6px 20px 0; }
+  .plot { padding: 4px 20px 0; }
   .pulse { display: block; width: 100%; height: 52px; }
-  /* Faint ruling behind the diagram, the way the paper it would be drawn on
-     is ruled. Kept under 5% contrast so it never competes with the tree. */
-  .draw {
-    padding: 0 20px 12px;
-    background-image: repeating-linear-gradient(
-      to bottom, transparent 0 25px, color-mix(in srgb, var(--ink) 4%, transparent) 25px 26px);
-  }
+  /* The board: bare white, and it takes every pixel the sheet can spare. The
+     tree is what the page is for; everything else is a caption on it. */
+  .draw { flex: 1 0 auto; min-height: 0; padding: 0 20px 8px; }
   .tree { display: block; width: 100%; touch-action: none; cursor: grab; }
   .tree.dragging { cursor: grabbing; }
 
@@ -170,10 +180,30 @@
   .wash { display: flex; }
   .wash i { width: 17px; height: 9px; display: block; }
 
-  /* ---------- the selected variant ---------- */
-  .insp { border-top: 1px solid var(--rule); padding: 13px 20px 20px; }
-  .insp h3 { font-size: 12.5px; display: inline; }
+  /* ---------- the selected variant, in the panel that slides in ----------
+     Clicking a circle opens this. Everything the page knows about one wording
+     lives here rather than under the board, so the board stays a drawing. */
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 30;
+    width: var(--panel-w); max-width: 94vw; overflow-y: auto;
+    padding: 14px 20px 28px; background: var(--paper);
+    border-left: 2px solid var(--ink); box-shadow: -18px 0 34px rgba(0, 0, 0, .07);
+    transform: translateX(101%); visibility: hidden;
+    transition: transform .2s ease, visibility 0s linear .2s;
+  }
+  .panel.on { transform: none; visibility: visible; transition: transform .2s ease; }
+  .panel-x {
+    float: right; margin: -2px -6px 0 10px; padding: 2px 6px; cursor: pointer;
+    border: 0; background: none; color: var(--ink-2); font-size: 16px; line-height: 1;
+  }
+  .panel-x:hover { color: var(--ink); }
+  .panel .figs { max-width: none; }
+  .insp h3 { font-size: 13.5px; display: inline; }
   .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
+  .howto { margin-top: 20px; border-top: 1px solid var(--hair); }
+  .howto summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
+  .howto summary:hover { color: var(--ink); }
+  .howto .note { padding: 0 0 10px; }
   .spec {
     margin: 9px 0 0; padding: 10px 12px; font-size: 12.5px; line-height: 1.55;
     white-space: pre-wrap; overflow-wrap: anywhere; max-width: 90ch;
@@ -208,7 +238,7 @@
   tbody tr:hover { background: var(--paper-2); }
   tbody tr[aria-current="true"] { background: var(--pen-soft); }
 
-  .note { padding: 10px 20px 24px; color: var(--ink-2); font-size: 11.5px; max-width: 88ch; }
+  .note { padding: 10px 0 24px; color: var(--ink-2); font-size: 11.5px; max-width: 88ch; }
   .note b { color: var(--ink-2); font-weight: 700; }
   .loading { padding: 36px 20px; color: var(--ink-2); }
 
@@ -225,23 +255,31 @@
 
   @media (max-width: 880px) {
     body, .sheet { height: auto; }
-    .cols { grid-template-columns: 1fr; }
-    .rail { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    .rail { width: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+    .rail > * { min-width: 0; }
+    .sheet[data-rail="closed"] .rail { display: none; }
     .list { max-height: 240px; }
     .stage { overflow-y: visible; }
+    .draw { flex: none; }
+    .panel { width: 100%; }
+    .sheet[data-panel="open"] { margin-right: 0; }
   }
 </style>
 
-<div class="sheet">
+<div class="sheet" id="sheet" data-rail="open">
   <header class="head">
+    <button class="fold" id="fold" type="button" aria-expanded="true" aria-controls="rail"
+            title="Hide the lineage list"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path
+        d="M1.2 1v11M11.8 6.5h-6M8.3 3.4 5.3 6.5l3 3.1" fill="none" stroke="currentColor"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span
+        class="vh" id="foldtext">Hide the lineage list</span></button>
     <h1>Narrative Phylogeny</h1>
-    <p class="sub">Darwin drew the first one of these by hand in a notebook in 1837. This one is drawn from
-      395 million tweets: a claim appears, gets reworded, and the rewordings compete.</p>
     <p class="counts" id="corpus"></p>
   </header>
 
   <div class="cols">
-    <aside class="rail">
+    <aside class="rail" id="rail">
       <div class="rail-top">
         <label><span class="vh">Search lineages</span>
           <input id="q" type="search" placeholder="search a phrase&hellip;" autocomplete="off"></label>
@@ -268,6 +306,12 @@
     </main>
   </div>
 </div>
+
+<aside class="panel" id="panel" aria-label="Selected wording" aria-hidden="true">
+  <button class="panel-x" id="panelx" type="button" aria-label="Close" title="Close">&#10005;</button>
+  <div class="insp" id="inspector"></div>
+  <details class="howto"><summary>how to read the tree</summary><div id="howto-body"></div></details>
+</aside>
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 
 <script>
@@ -289,11 +333,21 @@
   // refit it; any manual pan or zoom clears the flag and the view is left alone.
   var view = { k:1, tx:0, ty:0, auto:true };
   var layout = null;
-  var MAX_TREE_H = 620;
+  var MIN_TREE_H = 340;
 
   var $ = function (s) { return document.querySelector(s); };
   var fmt = function (n) { return n.toLocaleString("en-US"); };
   var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+
+  // The tree gets every pixel the sheet is not already using. Subtracting the
+  // board's siblings rather than reading the board itself keeps this stable:
+  // the answer does not depend on the height we are about to set from it.
+  function maxTreeH() {
+    var st = $(".stage"), dr = $(".draw");
+    if (!st || !dr) return 620;
+    var others = dr.parentNode.scrollHeight - dr.clientHeight;
+    return Math.max(MIN_TREE_H, st.clientHeight - others - 10);
+  }
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -523,7 +577,7 @@
         '" stroke="' + css("--hair") + '" stroke-width="1"/>');
       var lbl = o === 0 ? "root" : o < 24 ? "+" + o + "h" : "+" + Math.round(o / 24) + "d";
       parts.push('<text x="' + gx + '" y="' + (L.height - 4) + '" font-size="9.5" fill="' + css("--ink-2") +
-        '" text-anchor="middle" font-family="' + css("--type") + '">' + lbl + "</text>");
+        '" text-anchor="middle">' + lbl + "</text>");
     });
 
     // The crawl thins 15x on 1 September, so a lineage that appears to stop
@@ -533,7 +587,7 @@
       parts.push('<line x1="' + cx0 + '" y1="4" x2="' + cx0 + '" y2="' + (L.height - 16) +
         '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>');
       parts.push('<text x="' + (cx0 + 4) + '" y="13" font-size="9.5" fill="' + css("--red") +
-        '" font-family="' + css("--type") + '">Sep 1 \u2014 crawl thins 15\u00d7</text>');
+        '">Sep 1 \u2014 crawl thins 15\u00d7</text>');
     }
 
     // lifespan bars: how long the variant kept being posted after it appeared
@@ -577,7 +631,7 @@
     top.forEach(function (p) {
       var i = p[1]; if (nodes[i].t0 > state.cut) return;
       parts.push('<text x="' + (L.x[i] + 11) + '" y="' + (L.y[i] + 3.4) + '" font-size="10" fill="' + css("--ink-2") +
-        '" font-family="' + css("--type") + '">' + fmt(nodes[i].n) + "</text>");
+        '">' + fmt(nodes[i].n) + "</text>");
     });
 
     svg.setAttribute("height", L.height);
@@ -613,12 +667,13 @@
     // The default view fits the whole tree; a pan or a zoom takes over from it.
     // The floor keeps a 200-variant lineage from fitting itself into
     // illegibility -- past that point it is pannable instead of shrunk.
+    var MT = maxTreeH();
     if (view.auto) {
-      view.k = Math.max(0.5, Math.min(1, avail / L.natW, MAX_TREE_H / L.natH));
+      view.k = Math.max(0.5, Math.min(1, avail / L.natW, MT / L.natH));
       view.tx = GL + Math.max(0, (avail - L.natW * view.k) / 2);
       view.ty = 0;
     }
-    var H = Math.min(MAX_TREE_H, L.natH * view.k) + 6;
+    var H = Math.min(MT, L.natH * view.k) + 6;
     var sy = function (cy) { return cy * view.k + view.ty; };
     var body = [], gutter = [];
 
@@ -628,7 +683,7 @@
     var shown = Math.min(1, avail / (L.natW * view.k));
     if (shown < 0.995) {
       gutter.push('<text x="' + GL + '" y="' + (H - 5) + '" font-size="11.5" fill="' + css("--ink-2") +
-        '" font-family="' + css("--hand") + '">showing ' + Math.round(shown * 100) +
+        '">showing ' + Math.round(shown * 100) +
         "% of a wide tree, drag to pan and scroll to zoom</text>");
     }
 
@@ -640,7 +695,7 @@
       gutter.push('<line x1="' + GL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - GR + 10) +
         '" y2="' + yy.toFixed(1) + '" stroke="' + css("--hair") + '" stroke-width="1"/>');
       gutter.push('<text x="' + (W - GR + 16) + '" y="' + (yy + 4).toFixed(1) + '" font-size="11.5" fill="' +
-        css("--ink-2") + '" font-family="' + css("--hand") + '">level ' + d + "</text>");
+        css("--ink-2") + '">level ' + d + "</text>");
     });
 
     var yTop = sy(L.levelY[0]), yBot = sy(L.levelY[L.maxD]);
@@ -654,7 +709,7 @@
       });
       gutter.push('<text transform="rotate(-90 ' + (bx - 6) + " " + mid.toFixed(1) + ')" x="' + (bx - 6) +
         '" y="' + mid.toFixed(1) + '" text-anchor="middle" font-size="11.5" fill="' + css("--ink-2") +
-        '" font-family="' + css("--hand") + '">height ' + L.maxD + "</text>");
+        '">height ' + L.maxD + "</text>");
     }
 
     // The subtree of the selected wording: everything descended from it. This
@@ -722,13 +777,12 @@
       }
       body.push('<text x="' + L.x[i].toFixed(1) + '" y="' + (L.y[i] + 3.9).toFixed(1) +
         '" text-anchor="middle" font-size="11" font-weight="600" fill="' + inkOn(fill) +
-        '" font-family="' + css("--type") + '" opacity="' + op + '" pointer-events="none">' +
+        '" opacity="' + op + '" pointer-events="none">' +
         L.label[i] + (markCliff && n.t0 >= META.cliff_h ? "*" : "") + "</text>");
     });
 
     body.push('<text x="' + L.x[L.root].toFixed(1) + '" y="' + (L.y[L.root] - L.r[L.root] - 9).toFixed(1) +
-      '" text-anchor="middle" font-size="12" fill="' + css("--ink-2") + '" font-family="' + css("--hand") +
-      '">root</text>');
+      '" text-anchor="middle" font-size="12" fill="' + css("--ink-2") + '">root</text>');
 
     // Direct-label the few heaviest wordings only; the rest are in the tooltip
     // and in the table below.
@@ -738,8 +792,7 @@
         var i = pair[1];
         if (nodes[i].t0 > state.cut) return;
         body.push('<text x="' + L.x[i].toFixed(1) + '" y="' + (L.y[i] + L.r[i] + 12).toFixed(1) +
-          '" text-anchor="middle" font-size="9.5" fill="' + css("--ink-2") + '" font-family="' + css("--type") +
-          '">' + fmt(nodes[i].n) + "</text>");
+          '" text-anchor="middle" font-size="9.5" fill="' + css("--ink-2") + '">' + fmt(nodes[i].n) + "</text>");
       });
 
     svg.setAttribute("height", H);
@@ -777,9 +830,9 @@
       '<line x1="' + pad + '" y1="' + (H - 14) + '" x2="' + (W - 118) + '" y2="' + (H - 14) + '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
       (cliffX !== null ? '<line x1="' + cliffX + '" y1="4" x2="' + cliffX + '" y2="' + (H - 14) + '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
       (cutX !== null ? '<line x1="' + cutX + '" y1="4" x2="' + cutX + '" y2="' + (H - 14) + '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
-      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" font-family="' + css("--type") + '">' + esc(dayLabel(h0)) + "</text>" +
-      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" text-anchor="end" font-family="' + css("--type") + '">' + esc(dayLabel(h1)) + "</text>" +
-      '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '" font-family="' + css("--type") + '">peak ' + fmt(mx) + "/h</text>";
+      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '">' + esc(dayLabel(h0)) + "</text>" +
+      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>" +
+      '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
   }
 
   /* ---------------- inspector ---------------- */
@@ -859,8 +912,19 @@
       tr.setAttribute("aria-current", String(+tr.dataset.i === state.sel));
     });
   }
-  function selectNode(i) {
+  function openPanel()  { setPanel(true); }
+  function closePanel() { setPanel(false); }
+  function setPanel(on) {
+    var p = $("#panel");
+    p.classList.toggle("on", on);
+    p.setAttribute("aria-hidden", String(!on));
+    $("#sheet").dataset.panel = on ? "open" : "closed";
+  }
+  // `open` is passed by everything a person can click or key. Switching family
+  // selects the root silently, which should not throw a panel over the board.
+  function selectNode(i, open) {
     state.sel = i; drawTree(); renderInspector(); syncTable();
+    if (open) openPanel();
   }
 
   /* ---------------- stage ---------------- */
@@ -890,13 +954,13 @@
 
     $("#stage-body").className = "";
     $("#stage-body").innerHTML =
-      '<div class="lin">' +
+      '<div class="lin"><div class="hdr">' +
         "<h2>Lineage " + f.id + "</h2>" +
-        '<p class="root">' + esc(f.root) + "</p>" +
         '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
           fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
           Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
-          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p></div>" +
+        '<p class="root">' + esc(f.root) + "</p>" +
         warn +
       "</div>" +
       '<div class="bar">' +
@@ -926,9 +990,13 @@
             (f.win === "span" ? "<span>* first seen after 1 Sep</span>" : "")
           : '<span><svg width="15" height="10" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="10" stroke="' +
             css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff</span>') +
+        "<span><b>click a circle</b> to read its wording</span>" +
       "</div>" +
-      '<div class="insp" id="inspector"></div>' +
-      renderTable() +
+      renderTable();
+
+    // The prose that explains the drawing belongs beside the wording it is
+    // explaining, not underneath the board.
+    $("#howto-body").innerHTML =
       '<p class="note"><b>How to read it.</b> Each circle is one distinct wording. A wording hangs off whichever ' +
         "earlier wording it most resembles, so the root is the earliest phrasing <i>in this corpus</i> &mdash; not where " +
         "the idea began. " + geom +
@@ -976,9 +1044,6 @@
       } else { tip.classList.remove("on"); }
     });
     svg.addEventListener("pointerleave", function () { tip.classList.remove("on"); });
-    svg.addEventListener("click", function (e) {
-      if (e.target.classList && e.target.classList.contains("nd")) selectNode(+e.target.dataset.i);
-    });
 
     // A tree is navigated by its relations, so give the keyboard the same four
     // moves the diagram draws.
@@ -993,31 +1058,42 @@
       } else if (e.key === "Home") go = T.root;
       else return;
       e.preventDefault();
-      if (go !== undefined) selectNode(go);
+      if (go !== undefined) selectNode(go, true);
     });
 
-    $("#inspector").addEventListener("click", function (e) {
-      var b = e.target.closest(".rel[data-i]"); if (b) selectNode(+b.dataset.i);
-    });
     var table = $("#vartable");
     if (table) table.addEventListener("click", function (e) {
-      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i);
+      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i, true);
     });
     var details = $("#tabledetails");
     if (details) details.addEventListener("toggle", function () { state.tableOpen = details.open; });
 
-    // pan & zoom
+    // Pan, zoom, and pick. Picking rides on pointerup rather than on click:
+    // panning captures the pointer, and a captured pointer retargets the click
+    // to the <svg>, so the circle itself never sees one.
     var drag = null;
     svg.addEventListener("pointerdown", function (e) {
-      drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty };
+      drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, hit: e.target, moved: false };
       svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId);
     });
     svg.addEventListener("pointerup", function (e) {
+      var d = drag;
       drag = null; svg.classList.remove("dragging");
       try { svg.releasePointerCapture(e.pointerId); } catch (err) {}
+      if (d && !d.moved && d.hit && d.hit.classList && d.hit.classList.contains("nd")) {
+        selectNode(+d.hit.dataset.i, true);
+      }
+    });
+    svg.addEventListener("pointercancel", function () {
+      drag = null; svg.classList.remove("dragging");
     });
     svg.addEventListener("pointermove", function (e) {
       if (!drag) return;
+      // A few pixels of hand tremor is a pick, not a drag.
+      if (!drag.moved) {
+        if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 4) return;
+        drag.moved = true;
+      }
       view.auto = false;
       view.tx = drag.tx + (e.clientX - drag.x); view.ty = drag.ty + (e.clientY - drag.y); drawTree();
     });
@@ -1044,6 +1120,35 @@
       state.cut = +e.target.value; drawTree(); drawPulse(); updateCut();
     });
     $("#play").addEventListener("click", play);
+  }
+
+  // Wired once, against elements that no render replaces.
+  function wireOnce() {
+    // The relation chips are the diagram's edges as words, so they navigate it.
+    $("#inspector").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-i]"); if (b) selectNode(+b.dataset.i, true);
+    });
+    $("#panelx").addEventListener("click", closePanel);
+    addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closePanel();
+    });
+
+    var fold = $("#fold"), sheet = $("#sheet");
+    fold.addEventListener("click", function () {
+      var open = sheet.dataset.rail !== "closed";
+      sheet.dataset.rail = open ? "closed" : "open";
+      fold.setAttribute("aria-expanded", String(!open));
+      fold.title = open ? "Show the lineage list" : "Hide the lineage list";
+      $("#foldtext").textContent = fold.title;
+    });
+    // The stage only learns its new width once the fold has finished.
+    $("#rail").addEventListener("transitionend", function (e) {
+      if (e.propertyName === "width") relayout();
+    });
+    sheet.addEventListener("transitionend", function (e) {
+      if (e.propertyName === "margin-right" && e.target === sheet) relayout();
+    });
+
     addEventListener("resize", debounce(relayout, 160));
   }
 
@@ -1110,6 +1215,7 @@
 
     renderTopics();
     renderList();
+    wireOnce();
 
     // Open on a prose narrative rather than a promotional template: both are real
     // lineages, but the hashtag-block campaigns dominate the corpus by volume and
