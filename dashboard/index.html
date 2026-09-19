@@ -84,7 +84,7 @@
   html, body { height: 100%; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
-    font-family: var(--type); font-size: 15px; line-height: 1.55;
+    font-family: var(--type); font-size: 17px; line-height: 1.55;
     letter-spacing: .012em; -webkit-font-smoothing: antialiased;
   }
   /* The face carries letters, digits and the common marks but no slash, colon,
@@ -111,8 +111,8 @@
     display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap;
     padding: 9px 20px 8px; border-bottom: 2px solid var(--ink);
   }
-  .head h1 { font-weight: 400; font-size: 25px; line-height: 1.1; letter-spacing: .01em; }
-  .head .counts { color: var(--ink-2); font-size: 12.5px; margin-left: auto; }
+  .head h1 { font-weight: 400; font-size: 27px; line-height: 1.1; letter-spacing: .01em; }
+  .head .counts { color: var(--ink-2); font-size: 14.5px; margin-left: auto; }
   .head .counts b { color: var(--ink); font-weight: 700; }
 
   /* The index of lineages folds away so the board can have the whole sheet. */
@@ -144,10 +144,41 @@
   }
   .rail input[type="search"]::placeholder { color: var(--ink-2); }
   .rail input[type="search"]:focus { border-bottom-color: var(--pen); outline: none; }
-  .railrow { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--ink-2); }
-  .railrow select {
-    flex: 1; padding: 3px 2px; border: 0; border-bottom: 1px solid var(--rule);
-    background: none; color: var(--ink);
+  .railrow { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--ink-2); }
+  /* The sort control is a listbox of our own rather than a native select: each
+     choice carries a one-line note on what it measures, and a native option
+     cannot show one. It keeps the select's look -- a word on an underline. */
+  .sortsel { position: relative; flex: 1; min-width: 0; }
+  .sort-sum {
+    display: flex; align-items: baseline; gap: 8px; width: 100%;
+    padding: 3px 2px; border: 0; border-bottom: 1px solid var(--rule);
+    background: none; color: var(--ink); cursor: pointer; text-align: left;
+  }
+  .sort-v { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sort-sum .filt-chev { align-self: center; }
+  .sortsel[data-open="true"] .filt-chev { transform: rotate(180deg); color: var(--ink); }
+  .sort-menu {
+    display: none; position: absolute; z-index: 30; top: calc(100% + 4px); left: -6px; right: -6px;
+    padding: 4px 0 0; background: var(--paper); border: 1px solid var(--rule);
+    border-radius: 7px; box-shadow: 0 8px 22px rgba(0, 0, 0, .16);
+  }
+  .sortsel[data-open="true"] .sort-menu { display: block; }
+  /* The menu takes focus so the arrow keys reach it, but the row it has
+     landed on is the thing to look at, not the box around the whole list. */
+  .sort-menu:focus, .sort-menu:focus-visible { outline: none; }
+  .sort-menu [role="option"] {
+    padding: 4px 10px; font-size: 14px; color: var(--ink-2); cursor: pointer;
+  }
+  .sort-menu [role="option"][data-on="true"] { background: var(--paper-2); color: var(--ink); }
+  .sort-menu [role="option"][aria-selected="true"] {
+    color: var(--ink); box-shadow: inset 2px 0 0 var(--pen);
+  }
+  /* The note sits in a fixed slot at the foot of the menu, so moving down the
+     list reads one description after another without the list shifting. */
+  .sort-note {
+    margin: 4px 0 0; padding: 7px 10px 8px; min-height: 82px;
+    border-top: 1px solid var(--hair); font-size: 12.5px; line-height: 1.32;
+    color: var(--ink-2);
   }
   .filts { display: grid; gap: 4px; }
   .filt-sum {
@@ -156,11 +187,11 @@
   }
   .filt-sum:hover .filt-v, .filt-sum:hover .filt-chev { color: var(--ink); }
   .filt-k {
-    flex: none; min-width: 6.6em; color: var(--ink-2); font-size: 11px;
+    flex: none; min-width: 6.6em; color: var(--ink-2); font-size: 13.5px;
     letter-spacing: .05em; font-weight: 400;
   }
   .filt-v {
-    flex: 1; min-width: 0; color: var(--ink); font-size: 12.5px;
+    flex: 1; min-width: 0; color: var(--ink); font-size: 14.5px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     transition: color .2s ease, opacity .2s ease;
   }
@@ -176,7 +207,7 @@
   }
   .filt[data-open="true"] .filt-clip { grid-template-rows: 1fr; }
   .filt-clip > .chips { min-height: 0; overflow: hidden; }
-  .chips { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 14px; }
   .chips button {
     padding: 1px 0; border: 0; background: none; cursor: pointer; color: var(--ink-2);
     border-bottom: 2px solid transparent;
@@ -191,7 +222,7 @@
   }
   .chips button:hover { color: var(--ink); }
   .chips button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
-  .chips button i { font-style: normal; color: var(--ink-2); font-size: 10px; }
+  .chips button i { font-style: normal; color: var(--ink-2); font-size: 12.5px; }
   .chips button[disabled] { cursor: default; }
   .chips button[disabled]:hover { color: inherit; }
   .filt[data-open="true"] .chips button[disabled] { opacity: .45; pointer-events: none; }
@@ -199,9 +230,9 @@
     .filt-clip, .chips button, .filt-chev, .filt-v { transition: none; }
     .chips button { opacity: 1; transform: none; }
   }
-  .aug { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+  .aug { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
   .aug input { accent-color: var(--pen); margin: 0; }
-  .count { padding: 6px 16px; font-size: 11.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
+  .count { padding: 6px 16px; font-size: 13.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
   .list { overflow-y: auto; flex: 1; min-height: 0; display: grid; gap: 6px; padding: 8px 10px; }
   .fam {
     display: grid; gap: 5px; width: 100%; text-align: left; cursor: pointer;
@@ -213,18 +244,18 @@
   .fam[aria-current="true"] { background: var(--paper-2); border-left-color: var(--pen); }
   .fam-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .fam-badges { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
-  .fam-time { flex: none; font-size: 10px; color: var(--ink-2); }
+  .fam-time { flex: none; font-size: 12.5px; color: var(--ink-2); }
   .fam-txt {
-    font-size: 11.5px; font-weight: 500; line-height: 1.4; color: var(--ink);
+    font-size: 13.5px; font-weight: 500; line-height: 1.4; color: var(--ink);
     display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
     overflow: hidden; text-overflow: ellipsis;
   }
-  .fam-meta { font-size: 11px; color: var(--ink-2); }
+  .fam-meta { font-size: 13px; color: var(--ink-2); }
   /* Behaviour badge. Colour separates the two accusatory classes from the
      merely descriptive ones, so the list reads at a glance. Pill-shaped so a
      metadata tag reads as a tag, not as another clause of body text. */
   .kind {
-    display: inline-flex; align-items: center; padding: 1.5px 7px; font-size: 9.5px;
+    display: inline-flex; align-items: center; padding: 1.5px 7px; font-size: 12px;
     font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
     border: 1px solid currentColor; border-radius: 999px;
     background: color-mix(in srgb, currentColor 12%, transparent);
@@ -233,37 +264,39 @@
   .kind.burst { color: var(--pen); }
   .kind.promo { color: var(--ink-2); }
   .kind.offlang { color: var(--ink-2); border-style: dashed; }
-  .why { margin-top: 6px; font-size: 11.5px; color: var(--ink-2); }
+  .why { margin-top: 6px; font-size: 13.5px; color: var(--ink-2); }
   .why b { color: var(--ink); font-weight: 600; }
   .chips.kinds button[aria-pressed="true"] { border-bottom-color: var(--red); }
 
   /* ---------- right column: the sheet itself ---------- */
   .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; }
   /* Everything a lineage renders goes inside this one div, so it -- not the
-     stage -- is the column the board stretches inside. */
-  #stage-body { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 0; }
+     stage -- is the column the board stretches inside. It shrinks as well as
+     grows, so opening the dock at the foot of it takes height out of the board
+     rather than pushing the board's own bottom edge under the dock. */
+  #stage-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
   #stage-body.loading { display: block; }
   .lin { padding: 8px 20px 7px; border-bottom: 1px solid var(--rule); }
   .lin summary { cursor: pointer; }
   .lin summary h2 { display: inline; }
   .lin summary:hover h2 { color: var(--ink); }
   .lin .hdr { display: flex; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
-  .lin h2 { font-size: 14px; }
+  .lin h2 { font-size: 16px; }
   .lin .hdr .figs { margin-top: 0; }
-  .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .figs { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   .warn {
-    margin-top: 9px; max-width: 84ch; font-size: 11.5px; color: var(--ink-2);
+    margin-top: 9px; max-width: 84ch; font-size: 13.5px; color: var(--ink-2);
     border-left: 2px solid var(--red); padding: 2px 0 2px 9px;
   }
 
   /* Controls are typed words, underlined in pen when they are the live one. */
   .bar {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px;
-    padding: 8px 20px; border-bottom: 1px solid var(--rule); font-size: 12.5px;
+    padding: 8px 20px; border-bottom: 1px solid var(--rule); font-size: 14.5px;
   }
   .grp { display: flex; align-items: baseline; gap: 8px; }
-  .grp > b { font-weight: 400; color: var(--ink-2); }
+  .grp > b { font-weight: 400; color: var(--ink-2); text-transform: uppercase; font-size: 12.5px; }
   .bar button {
     padding: 1px 0; border: 0; background: none; cursor: pointer;
     color: var(--ink-2); border-bottom: 2px solid transparent;
@@ -273,8 +306,11 @@
   .bar .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
   .bar .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
   .scrub { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; }
+  /* Uppercase in CSS, not in the label text, so it holds through the
+     play/pause swap the scrubber does while it runs. */
+  .scrub #play { text-transform: uppercase; font-size: 12.5px; }
   .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
-  .scrub output { font-size: 11.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
+  .scrub output { font-size: 13.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
 
   .plot { padding: 4px 20px 0; }
   .pulse { display: block; width: 100%; height: 52px; }
@@ -282,7 +318,7 @@
      edges. The tree is what the page is for, so the window takes every pixel
      the sheet can spare; everything else is a caption on it. */
   .draw {
-    position: relative; flex: 1 1 auto; min-height: 430px;
+    position: relative; flex: 1 1 auto; min-height: 260px;
     margin: 0 20px 8px; border: 1px solid var(--hair); overflow: hidden;
   }
   .tree { display: block; touch-action: none; cursor: grab; }
@@ -302,17 +338,17 @@
   .nav button {
     width: 27px; height: 27px; padding: 0; display: grid; place-items: center;
     border: 1px solid var(--rule); background: var(--nav-overlay);
-    color: var(--ink-2); cursor: pointer; font-size: 15px; line-height: 1;
+    color: var(--ink-2); cursor: pointer; font-size: 17px; line-height: 1;
   }
   .nav button:hover { color: var(--ink); border-color: var(--ink); }
-  .nav .fit { font-size: 11px; }
+  .nav .fit { font-size: 13.5px; }
   .zoomlbl {
     position: absolute; left: 10px; bottom: 8px; z-index: 2; pointer-events: none;
-    font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums;
+    font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums;
   }
 
   .key {
-    padding: 9px 20px 12px; font-size: 11.5px; color: var(--ink-2);
+    padding: 9px 20px 12px; font-size: 13.5px; color: var(--ink-2);
     display: flex; flex-direction: column; gap: 6px;
   }
   .key-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 14px; }
@@ -335,12 +371,12 @@
   .panel.on { transform: none; visibility: visible; transition: transform .2s ease; }
   .panel-x {
     float: right; margin: -2px -6px 0 10px; padding: 2px 6px; cursor: pointer;
-    border: 0; background: none; color: var(--ink-2); font-size: 16px; line-height: 1;
+    border: 0; background: none; color: var(--ink-2); font-size: 18px; line-height: 1;
   }
   .panel-x:hover { color: var(--ink); }
   .panel .figs { max-width: none; }
-  .insp h3 { font-size: 13.5px; display: inline; }
-  .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
+  .insp h3 { font-size: 15.5px; display: inline; }
+  .insp h3 + span { font-size: 13.5px; color: var(--ink-2); margin-left: 9px; }
   /* ---------- the wording, drawn the way X draws a post ----------
      Each variant is a real tweet, so it is shown as one: X's layout, X's type,
      X's rounded card and action row. It is rendered here, not screenshotted.
@@ -354,12 +390,12 @@
     background: var(--x-card-bg); border: 1px solid var(--x-line); border-radius: 16px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                  Helvetica, Arial, sans-serif;
-    font-size: 15px; line-height: 20px; letter-spacing: normal; color: var(--x-ink);
+    font-size: 17px; line-height: 22px; letter-spacing: normal; color: var(--x-ink);
   }
   .xpost .av {
     flex: none; width: 40px; height: 40px; border-radius: 50%;
     display: grid; place-items: center;
-    color: #fff; font-weight: 700; font-size: 17px; user-select: none;
+    color: #fff; font-weight: 700; font-size: 19px; user-select: none;
   }
   .xcol { flex: 1; min-width: 0; }
   .xhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 5px; }
@@ -378,38 +414,131 @@
   .xmore:hover { text-decoration: underline; }
   .xacts {
     display: flex; justify-content: space-between; align-items: center;
-    margin-top: 12px; color: var(--x-dim); font-size: 13px;
+    margin-top: 12px; color: var(--x-dim); font-size: 15px;
   }
   .xact { display: flex; align-items: center; gap: 5px; }
   .xact svg { width: 17.5px; height: 17.5px; display: block; }
-  .mut { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; font-size: 11.5px; }
+  .mut { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; font-size: 13.5px; }
   .mut .lbl, .rels .lbl { color: var(--ink-2); }
-  .tok { font-size: 11.5px; padding: 0 4px; }
+  .tok { font-size: 13.5px; padding: 0 4px; }
   .tok.add { color: var(--pen); background: var(--pen-soft); }
   .tok.del { color: var(--red); text-decoration: line-through; }
-  .rels { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 11.5px; }
+  .rels { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 13.5px; }
   .rels button {
     padding: 0; border: 0; background: none; cursor: pointer; color: var(--pen);
     border-bottom: 1px dotted var(--pen);
   }
   .rels button:hover { border-bottom-style: solid; }
   .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
-  .flags { margin-top: 9px; font-size: 11.5px; color: var(--red); }
+  .flags { margin-top: 9px; font-size: 13.5px; color: var(--red); }
   .flags.mild { color: var(--ink-2); }
-  .reply-excerpts { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .reply-excerpts { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
   .reply-excerpts summary { cursor: pointer; color: var(--pen); }
   .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
   .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
-  .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 10.5px; color: var(--ink-2); }
+  .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
 
-  /* ---------- the same lineage as numbers ---------- */
-  .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
-  .tbl summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
-  .tbl summary:hover { color: var(--ink); }
-  .tscroll { overflow-x: auto; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
-  table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+  /* ---------- the inspector dock ----------
+     The numbers used to fall out of a summary line and shove the board up the
+     page. They are a docked panel now, in the shape a developer console has:
+     a rule of tabs along the top, one pane open at a time, and a caret on the
+     right that folds the body away without taking the tabs with it. It sticks
+     to the foot of the stage, so the board stays in view while the numbers are
+     read instead of being scrolled off to reach them. Same paper, same pen:
+     a panel, not a card -- its top rule answers the header's. */
+  .dock {
+    position: sticky; bottom: 0; z-index: 12; margin-top: 4px;
+    background: var(--paper); border-top: 2px solid var(--ink);
+  }
+  .dock-bar {
+    display: flex; align-items: stretch; gap: 14px;
+    padding: 0 8px 0 20px; background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .dock[data-open="false"] .dock-bar { border-bottom: 0; }
+  .dock-tabs { display: flex; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .dock-tabs::-webkit-scrollbar { display: none; }
+  .dock-tabs button {
+    flex: none; display: flex; align-items: center; gap: 7px; margin-bottom: -1px;
+    padding: 7px 14px; border: 0; background: none; cursor: pointer;
+    font-size: 14px; color: var(--ink-2); border-bottom: 2px solid transparent;
+  }
+  .dock-tabs button:hover { color: var(--ink); }
+  .dock-tabs button[aria-selected="true"] {
+    color: var(--ink); background: var(--paper); border-bottom-color: var(--pen);
+  }
+  /* The count belongs to its tab rather than to a sentence, so it is set off
+     the way the lineage badges are instead of left as another word. */
+  .dock-n {
+    font-size: 12px; font-weight: 700; letter-spacing: .03em; padding: 0 5px;
+    color: var(--ink-2); border: 1px solid var(--rule); font-variant-numeric: tabular-nums;
+  }
+  .dock-tabs button[aria-selected="true"] .dock-n { color: var(--pen); border-color: var(--pen); }
+  .dock-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .dock-sel { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .dock-sel b { color: var(--ink); font-weight: 700; }
+  #docktoggle svg { transition: transform .2s ease; }
+  .dock[data-open="false"] #docktoggle svg { transform: rotate(180deg); }
+  /* Fixed height, so opening and closing the dock is the only thing that ever
+     moves the board -- a tab switch must not resize it underneath the reader. */
+  .dock-body { height: min(274px, 32vh); overflow: hidden; }
+  .dock[data-open="false"] .dock-body { display: none; }
+  .dock-pane { height: 100%; overflow: auto; padding: 0 20px 14px; }
+  .dock-pane[hidden] { display: none; }
+  .dock-pane h4 {
+    margin: 0; padding: 12px 0 2px; font-size: 13px; font-weight: 400;
+    letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .dock-empty { padding: 20px 0; color: var(--ink-2); font-size: 14px; }
+
+  /* Node metadata: the whole record of one wording as a field list, which is
+     the reading the slide-in panel does not give -- that one is a tweet and a
+     sentence about it, this one is every number the pipeline recorded. */
+  .meta-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0 26px; margin: 0; font-size: 13.5px;
+  }
+  .meta-grid > div {
+    display: flex; align-items: baseline; gap: 8px; padding: 4px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .meta-grid dt { flex: none; min-width: 10.8em; color: var(--ink-2); }
+  .meta-grid dd {
+    margin: 0; flex: 1; min-width: 0; color: var(--ink);
+    font-variant-numeric: tabular-nums; overflow-wrap: break-word;
+  }
+  .meta-grid dd.dim { color: var(--ink-2); }
+  .meta-grid dd .tok { font-size: 12.5px; }
+  .meta-txt {
+    margin-top: 10px; font-size: 14px; color: var(--ink); max-width: 88ch;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+    border-left: 2px solid var(--pen-soft); padding-left: 10px;
+  }
+
+  /* Drift analytics: the lineage's rewording, as a distribution and as a
+     curve over generations. One series each, so the heading names it and no
+     legend is needed; the bars borrow the board's own drift wash so the two
+     readings of drift are the same colour language. */
+  .an-figs { display: flex; flex-wrap: wrap; gap: 2px 30px; padding: 10px 0 2px; }
+  .an-figs div { display: flex; align-items: baseline; gap: 7px; font-size: 13.5px; color: var(--ink-2); }
+  .an-figs b { color: var(--ink); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .an-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0 26px; min-width: 0; }
+  .an-chart svg { display: block; width: 100%; height: 112px; }
+  .an-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .an-top button {
+    display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left;
+    padding: 4px 0; border: 0; border-bottom: 1px solid var(--hair);
+    background: none; cursor: pointer; color: var(--ink-2); font-size: 13.5px;
+  }
+  .an-top button:hover { background: var(--paper-2); color: var(--ink); }
+  .an-top button[aria-current="true"] { background: var(--pen-soft); color: var(--ink); }
+  .an-top .k { flex: none; min-width: 3.4em; color: var(--ink); font-weight: 700; }
+  .an-top .v { flex: none; min-width: 4.5em; font-variant-numeric: tabular-nums; }
+  .an-top .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
   th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
-  th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; }
+  th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
   td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   td.k { color: var(--ink); font-weight: 700; }
   td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
@@ -418,7 +547,7 @@
   tbody tr:hover { background: var(--paper-2); }
   tbody tr[aria-current="true"] { background: var(--pen-soft); }
 
-  .note { padding: 10px 0 24px; color: var(--ink-2); font-size: 11.5px; max-width: 88ch; }
+  .note { padding: 10px 0 24px; color: var(--ink-2); font-size: 13.5px; max-width: 88ch; }
   .note b { color: var(--ink-2); font-weight: 700; }
   .loading { padding: 36px 20px; color: var(--ink-2); }
 
@@ -432,7 +561,7 @@
   .tip .xpost { margin: 0; padding: 0; border: 0; border-radius: 0; }
   /* The line under the card is this page talking about the post, not X, so it
      keeps the board's hand. */
-  .tip .m { margin-top: 9px; font-size: 11px; color: var(--ink-2); }
+  .tip .m { margin-top: 9px; font-size: 13.5px; color: var(--ink-2); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
@@ -445,6 +574,12 @@
     .list { max-height: 240px; }
     .stage { overflow-y: visible; }
     .draw { flex: none; height: 68vh; min-height: 320px; }
+    .dock-body { height: min(274px, 46vh); }
+    /* Three tabs and a caret are all the bar has room for; the selection is
+       named at the top of the metadata pane anyway. */
+    .dock-sel { display: none; }
+    .dock-bar { padding-left: 12px; }
+    .dock-pane { padding: 0 12px 14px; }
     .panel { width: 100%; }
     .sheet[data-panel="open"] { margin-right: 0; }
   }
@@ -475,16 +610,15 @@
         <label><span class="vh">Search lineages</span>
           <input id="q" type="search" placeholder="search a phrase&hellip;" autocomplete="off"></label>
         <div class="railrow">
-          <label for="sort">sort by</label>
-          <select id="sort">
-            <option value="notable">notability</option>
-            <option value="emis">total spread</option>
-            <option value="nv">variant count</option>
-            <option value="depth">depth</option>
-            <option value="drift">drift</option>
-            <option value="coord">coordinated share</option>
-            <option value="peak6">burstiness</option>
-          </select>
+          <span id="sortlab">sort by</span>
+          <div class="sortsel" id="sortsel" data-open="false">
+            <button type="button" id="sortbtn" class="sort-sum" aria-haspopup="listbox"
+                    aria-expanded="false" aria-labelledby="sortlab sortval">
+              <span class="sort-v" id="sortval">notability</span>
+              <svg class="filt-chev" viewBox="0 0 10 10" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" d="M1.5 3.4 5 6.8 8.5 3.4"/></svg>
+            </button>
+            <div class="sort-menu" id="sortmenu" role="listbox" aria-labelledby="sortlab" tabindex="-1"></div>
+          </div>
         </div>
         <div class="filts">
           <div class="filt" id="filt-topics" data-open="false">
@@ -574,7 +708,7 @@
   var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
-                tableOpen:false, linOpen:true };
+                dockOpen:true, dockTab:"wordings", linOpen:false };
   // The board's camera. auto = it is still the fitted default, so a resize may
   // refit it; any pan or zoom clears the flag and the camera is left where the
   // reader put it. The zoom range is wide enough to be called free: the whole
@@ -675,6 +809,26 @@
   function notability(f) {
     return f.depth * Math.log10(Math.max(10, f.emis)) * (1 + f.drift);
   }
+
+  // Every way of ranking the index, each with the line shown under the menu
+  // while that choice is hovered. The note says what the number measures, so
+  // the ordering can be read rather than guessed at.
+  var SORTS = [
+    { v: "notable", label: "notability",
+      note: "Depth, spread and drift combined \u2014 the lineages with the most structure to look at. The opening order." },
+    { v: "emis", label: "total spread",
+      note: "Retweets traced across every wording in the lineage. Raw reach, nothing about shape." },
+    { v: "nv", label: "variant count",
+      note: "How many distinct wordings the lineage broke into, however closely related." },
+    { v: "depth", label: "depth",
+      note: "Longest chain of rewordings from the root \u2014 how many hands the phrase passed through. Spread breaks ties." },
+    { v: "drift", label: "drift",
+      note: "Mean distance of the wordings from the root text. High means the phrase was rewritten, not just repeated." },
+    { v: "coord", label: "coordinated share",
+      note: "Share of the lineage's accounts that also retweet together elsewhere in the corpus." },
+    { v: "peak6", label: "burstiness",
+      note: "Largest share of the lineage's spread landing inside any six-hour window." }
+  ];
 
   // Show the numbers behind the classification, so the call can be checked
   // rather than taken. The class name and its definition live once in the
@@ -1174,7 +1328,7 @@
       var gy = (L.frac(L.t0 + o) * L.H).toFixed(1);
       out.push('<line x1="' + x0.toFixed(1) + '" y1="' + gy + '" x2="' + x1.toFixed(1) + '" y2="' + gy +
         '" stroke="' + css("--hair") + '" stroke-width="1"/>');
-      out.push('<text x="' + (x0 - 10).toFixed(1) + '" y="' + (+gy + 4).toFixed(1) + '" font-size="11" fill="' +
+      out.push('<text x="' + (x0 - 10).toFixed(1) + '" y="' + (+gy + 4).toFixed(1) + '" font-size="12.5" fill="' +
         css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(L.t0 + o)) + "</text>");
     });
     // The crawl thins 15x on 1 September, so a lineage that appears to stop
@@ -1185,7 +1339,7 @@
         '" y2="' + cy.toFixed(1) + '" stroke="' + css("--red") +
         '" stroke-width="1.5" stroke-dasharray="4 3"/>');
       out.push('<text x="' + (x1 - 2).toFixed(1) + '" y="' + (cy - 6).toFixed(1) +
-        '" font-size="11" fill="' + css("--red") + '" text-anchor="end">1 Sep — crawl thins 15×</text>');
+        '" font-size="12.5" fill="' + css("--red") + '" text-anchor="end">1 Sep — crawl thins 15×</text>');
     }
     return out.join("");
   }
@@ -1200,7 +1354,7 @@
 
     var owner = [], edges = [], marks = [];
     nodes.forEach(function (n, i) {
-      var r = L.r[i], fs = Math.min(11.5, Math.max(7, r * 0.82));
+      var r = L.r[i], fs = Math.min(13, Math.max(9, r * 0.86));
       if (!(n.p === null || n.p === undefined)) {
         owner.push(i);
         edges.push('<path fill="none" stroke="' + css("--ink-2") +
@@ -1211,10 +1365,10 @@
         '<text class="lb" y="' + (fs * 0.35).toFixed(1) + '" text-anchor="middle" font-size="' +
           fs.toFixed(1) + '" font-weight="600"></text>' +
         (i === L.root
-          ? '<text class="cap" y="' + (-r - 10).toFixed(1) + '" text-anchor="middle" font-size="12" fill="' +
+          ? '<text class="cap" y="' + (-r - 10).toFixed(1) + '" text-anchor="middle" font-size="13.5" fill="' +
             css("--ink-2") + '">root</text>' : "") +
         (heavy[i]
-          ? '<text class="cap" y="' + (r + 13).toFixed(1) + '" text-anchor="middle" font-size="9.5" fill="' +
+          ? '<text class="cap" y="' + (r + 13).toFixed(1) + '" text-anchor="middle" font-size="11.5" fill="' +
             css("--ink-2") + '">' + heavy[i] + "</text>" : "") +
         (n.rsp && n.rsp.n
           ? '<g class="rsp" transform="translate(' + (r * .72).toFixed(1) + ',' + (-r * .72).toFixed(1) +
@@ -1411,9 +1565,9 @@
       '<line x1="' + pad + '" y1="' + (H - 14) + '" x2="' + (W - 118) + '" y2="' + (H - 14) + '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
       (cliffX !== null ? '<line x1="' + cliffX + '" y1="4" x2="' + cliffX + '" y2="' + (H - 14) + '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
       (cutX !== null ? '<line x1="' + cutX + '" y1="4" x2="' + cutX + '" y2="' + (H - 14) + '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
-      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '">' + esc(dayLabel(h0)) + "</text>" +
-      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>" +
-      '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
+      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="11.5" fill="' + css("--ink-2") + '">' + esc(dayLabel(h0)) + "</text>" +
+      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="11.5" fill="' + css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>" +
+      '<text x="' + (W - 112) + '" y="14" font-size="11.5" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
   }
 
   /* ---------------- the post, as X would draw it ----------------
@@ -1585,35 +1739,318 @@
     return "<button data-i=\"" + i + '">' + kind + " " + state.topo.label[i] + "</button>";
   }
 
-  /* ---------------- table twin ---------------- */
+  /* ---------------- the inspector dock ----------------
 
-  // Colour and area are the diagram's encodings; this is the same lineage as
-  // numbers, so nothing on the page is readable only as a colour.
-  function renderTable() {
+     Three readings of the same lineage, one showing at a time, in a panel
+     docked under the board rather than an accordion that pushes it away:
+
+       wordings  -- every node as a row. Colour and area are the diagram's
+                    encodings, so this is the same lineage as numbers and
+                    nothing on the page is readable only as a colour.
+       metadata  -- the whole record of the selected wording. The slide-in
+                    panel reads that node as a tweet and a sentence about it;
+                    this reads it as fields, including the ones the sentence
+                    has no room for.
+       drift     -- how far the rewording has travelled, as a distribution
+                    and as a curve over generations, which is the question
+                    the tree is drawn to ask. */
+
+  var DOCK_TABS = [
+    { id: "wordings", label: "Wordings" },
+    { id: "meta",     label: "Node Metadata" },
+    { id: "drift",    label: "Drift Analytics" }
+  ];
+
+  function renderDock() {
+    var tabs = DOCK_TABS.map(function (t) {
+      var on = t.id === state.dockTab;
+      return '<button type="button" role="tab" id="dtab-' + t.id + '" data-tab="' + t.id +
+        '" aria-selected="' + on + '" aria-controls="dpane-' + t.id +
+        '" tabindex="' + (on ? "0" : "-1") + '">' + t.label +
+        (t.id === "wordings" ? '<span class="dock-n">' + state.nodes.length + "</span>" : "") +
+        "</button>";
+    }).join("");
+
+    var panes = DOCK_TABS.map(function (t) {
+      return '<div class="dock-pane" role="tabpanel" id="dpane-' + t.id + '" data-pane="' + t.id +
+        '" aria-labelledby="dtab-' + t.id + '" tabindex="0"' +
+        (t.id === state.dockTab ? "" : " hidden") + ">" + dockPane(t.id) + "</div>";
+    }).join("");
+
+    return '<section class="dock" id="dock" data-open="' + state.dockOpen +
+        '" aria-label="Lineage inspector">' +
+      '<div class="dock-bar">' +
+        '<div class="dock-tabs" role="tablist" aria-label="Inspector views">' + tabs + "</div>" +
+        '<div class="dock-tools">' +
+          '<p class="dock-sel" id="docksel"></p>' +
+          '<button class="fold" id="docktoggle" type="button" aria-expanded="' + state.dockOpen +
+            '" aria-controls="dock-body" title="' + (state.dockOpen ? "Minimize" : "Expand") +
+            ' the inspector"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path ' +
+            'd="M2 4.5 6.5 9 11 4.5" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+            'stroke-linecap="round" stroke-linejoin="round"/></svg><span class="vh" id="docktoggletext">' +
+            (state.dockOpen ? "Minimize" : "Expand") + " the inspector</span></button>" +
+        "</div>" +
+      "</div>" +
+      '<div class="dock-body" id="dock-body">' + panes + "</div>" +
+    "</section>";
+  }
+  function dockPane(id) {
+    return id === "wordings" ? paneWordings()
+         : id === "meta"     ? paneMeta()
+         :                     paneDrift();
+  }
+
+  /* ---- pane: every wording as a row ---- */
+
+  function paneWordings() {
     var T = state.topo, nodes = state.nodes;
     var rows = T.order.map(function (i) {
       var n = nodes[i];
       return '<tr data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
         '<td class="k">' + T.label[i] + "</td><td>" + n.d + "</td><td>" +
-        (n.p === null || n.p === undefined ? "\u2014" : T.label[n.p]) + "</td><td>" +
+        (n.p === null || n.p === undefined ? "—" : T.label[n.p]) + "</td><td>" +
         fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.rsp && n.rsp.n || 0) + "</td><td>" +
         (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
         Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
         '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
     }).join("");
-    return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
-      "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
-      '<div class="tscroll"><table id="vartable">' +
+    return '<table id="vartable">' +
       "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th><th>responses*</th>" +
       "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
-      rows + "</tbody></table></div></details>";
+      rows + "</tbody></table>";
   }
-  function syncTable() {
-    var t = $("#vartable"); if (!t) return;
-    Array.prototype.forEach.call(t.querySelectorAll("tr[data-i]"), function (tr) {
-      tr.setAttribute("aria-current", String(+tr.dataset.i === state.sel));
+
+  /* ---- pane: the selected wording, as fields ---- */
+
+  function paneMeta() {
+    var n = state.nodes[state.sel]; if (!n) return '<p class="dock-empty">No wording selected.</p>';
+    var T = state.topo, isRoot = n.p === null || n.p === undefined;
+    var kids = T.kids[state.sel] || [];
+    var coord = n.acc ? n.co / n.acc : 0;
+    var rsp = n.rsp, m = n.met;
+    var out = [];
+    var row = function (k, v, dim) {
+      out.push("<div><dt>" + k + '</dt><dd' + (dim ? ' class="dim"' : "") + ">" + v + "</dd></div>");
+    };
+    var none = '<span class="dim">not recorded</span>';
+
+    row("node", T.label[state.sel]);
+    row("generation", isRoot ? "0 — root" : String(n.d));
+    row("parent", isRoot ? "—" : T.label[n.p]);
+    row("children", kids.length ? kids.map(function (k) { return T.label[k]; }).join(", ") : "none, a dead end");
+    row("first seen", esc(hourLabel(n.t0)));
+    row("posted by", n.src ? "@" + esc(String(n.src).replace(/^@/, "")) : none);
+    row("retweets in crawl", fmt(n.n));
+    row("distinct accounts", fmt(n.acc));
+    row("subtree total", fmt(n.sub));
+    row("coordinated accounts", fmt(n.co) + " (" + Math.round(coord * 100) + "%)",
+        coord <= 0.15);
+    row("drift from root", Math.round(n.drift * 100) + "%");
+    row("words kept from parent", isRoot ? "—" : Math.round(n.sim * 100) + "%");
+    row("attachment", n.leaf ? "lower-confidence leaf" : (isRoot ? "root of the lineage" : "strict match"),
+        !n.leaf);
+    row("after the 1 Sep cliff", n.t0 >= META.cliff_h ? "yes — spread undercounted ~15×" : "no",
+        n.t0 < META.cliff_h);
+    row("mixed-script words", n.mix > 0 ? String(n.mix) : "0", !n.mix);
+    row("styled characters", n.obf > 0 ? String(n.obf) : "0", !n.obf);
+    row("responses observed", rsp ? fmt(rsp.n) + " from " + fmt(rsp.acc) + " accounts" : none, !rsp);
+    row("X replies / retweets", m ? fmt(m.reply || 0) + " / " + fmt(m.rt || 0) : none, !m);
+    row("X likes / views", m ? fmt(m.like || 0) + " / " + fmt(m.views || 0) : none, !m);
+
+    var add = (n.add || []).map(function (t) { return '<span class="tok add">+' + esc(t) + "</span>"; }).join(" ");
+    var del = (n["del"] || []).map(function (t) { return '<span class="tok del">' + esc(t) + "</span>"; }).join(" ");
+    row("words added", add || (isRoot ? "—" : "none"), !add);
+    row("words dropped", del || (isRoot ? "—" : "none"), !del);
+
+    return "<h4>Wording " + T.label[state.sel] + "</h4>" +
+      '<dl class="meta-grid">' + out.join("") + "</dl>" +
+      '<p class="meta-txt">' + esc(detwit(n.txt)) + "</p>";
+  }
+
+  /* ---- pane: the lineage's rewording ---- */
+
+  function paneDrift() {
+    var nodes = state.nodes, T = state.topo;
+    var ds = nodes.map(function (n) { return n.drift; }).slice().sort(function (a, b) { return a - b; });
+    var mean = ds.reduce(function (a, b) { return a + b; }, 0) / (ds.length || 1);
+    var med = ds.length ? ds[Math.floor(ds.length / 2)] : 0;
+    var kept = nodes.filter(function (n) { return !(n.p === null || n.p === undefined); })
+                    .map(function (n) { return n.sim; });
+    var keptMean = kept.length ? kept.reduce(function (a, b) { return a + b; }, 0) / kept.length : 1;
+    var reworded = nodes.filter(function (n) { return n.drift >= 0.5; }).length;
+
+    var pct = function (v) { return Math.round(v * 100) + "%"; };
+    var figs =
+      '<div class="an-figs">' +
+        "<div><b>" + pct(mean) + "</b> mean drift</div>" +
+        "<div><b>" + pct(med) + "</b> median</div>" +
+        "<div><b>" + pct(ds[ds.length - 1] || 0) + "</b> furthest</div>" +
+        "<div><b>" + pct(keptMean) + "</b> mean words kept per step</div>" +
+        "<div><b>" + reworded + "</b> of " + nodes.length + " past halfway from the root</div>" +
+      "</div>";
+
+    // The rows are ranked, so they are ordered by the number and read as a
+    // ranking; the board keeps the colour.
+    var top = nodes.map(function (n, i) { return i; })
+      .sort(function (a, b) { return nodes[b].drift - nodes[a].drift; })
+      .slice(0, 6)
+      .map(function (i) {
+        var n = nodes[i];
+        return '<button type="button" data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
+          '<span class="k">' + T.label[i] + '</span><span class="v">' + pct(n.drift) +
+          '</span><span class="t">' + esc(detwit(n.txt)) + "</span></button>";
+      }).join("");
+
+    return figs +
+      '<div class="an-charts">' +
+        '<div class="an-chart"><h4>Wordings by distance from the root</h4>' +
+          '<svg id="an-dist" role="img" aria-label="How many wordings fall in each ten-percent band of drift from the root"></svg></div>' +
+        '<div class="an-chart"><h4>Mean drift by generation</h4>' +
+          '<svg id="an-gen" role="img" aria-label="Mean drift from the root at each generation of the lineage"></svg></div>' +
+      "</div>" +
+      "<h4>Furthest from the root</h4>" +
+      '<div class="an-top">' + top + "</div>";
+  }
+
+  // Both charts carry one series, so the heading names it and no legend is
+  // needed. The bars wear the board's own drift wash, so a band of the
+  // histogram and a circle on the tree at the same drift are the same colour.
+  function drawDockCharts() {
+    if (!state.dockOpen || state.dockTab !== "drift") return;
+    drawDriftDist();
+    drawDriftGen();
+  }
+  function drawDriftDist() {
+    var svg = $("#an-dist"); if (!svg) return;
+    var W = svg.clientWidth, H = 112;
+    if (W < 140) return;
+    var bins = [], i;
+    for (i = 0; i < 10; i++) bins.push(0);
+    state.nodes.forEach(function (n) {
+      bins[Math.max(0, Math.min(9, Math.floor(n.drift * 10)))]++;
     });
+    var mx = Math.max.apply(null, bins) || 1;
+    var padL = 2, padR = 2, base = H - 21, top = 16;
+    var bw = (W - padL - padR) / 10;
+    var peak = bins.indexOf(mx);
+    var bars = bins.map(function (c, i) {
+      var h = c / mx * (base - top);
+      var x = padL + i * bw, y = base - h;
+      var lab = (i * 10) + "–" + (i * 10 + 10) + "% drift";
+      return (c
+        ? '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + Math.max(1, bw - 2).toFixed(1) +
+          '" height="' + h.toFixed(1) + '" fill="' + rampColor((i + 0.5) / 10, "drift") + '"><title>' +
+          c + " wording" + (c === 1 ? "" : "s") + ", " + lab + "</title></rect>"
+        : '<rect x="' + x.toFixed(1) + '" y="' + (base - 1.5) + '" width="' + Math.max(1, bw - 2).toFixed(1) +
+          '" height="1.5" fill="' + css("--hair") + '"><title>no wordings, ' + lab + "</title></rect>") +
+        (i === peak && c
+          ? '<text x="' + (x + (bw - 2) / 2).toFixed(1) + '" y="' + (y - 5).toFixed(1) +
+            '" font-size="11.5" text-anchor="middle" fill="' + css("--ink-2") + '">' + c + "</text>"
+          : "");
+    }).join("");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML = bars +
+      '<line x1="' + padL + '" y1="' + base + '" x2="' + (W - padR) + '" y2="' + base +
+        '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
+      '<text x="' + padL + '" y="' + (H - 6) + '" font-size="11.5" fill="' + css("--ink-2") + '">identical</text>' +
+      '<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="11.5" text-anchor="end" fill="' +
+        css("--ink-2") + '">fully reworded</text>';
   }
+  function drawDriftGen() {
+    var svg = $("#an-gen"); if (!svg) return;
+    var W = svg.clientWidth, H = 112;
+    if (W < 140) return;
+    var sum = [], cnt = [], maxD = 0;
+    state.nodes.forEach(function (n) {
+      var d = n.d;
+      maxD = Math.max(maxD, d);
+      sum[d] = (sum[d] || 0) + n.drift;
+      cnt[d] = (cnt[d] || 0) + 1;
+    });
+    var padL = 32, padR = 6, base = H - 21, top = 14;
+    var X = function (d) { return padL + (maxD ? d / maxD : 0.5) * (W - padL - padR); };
+    var Y = function (v) { return base - v * (base - top); };
+    var pts = [], dots = "";
+    for (var d = 0; d <= maxD; d++) {
+      if (!cnt[d]) continue;
+      var v = sum[d] / cnt[d], x = X(d), y = Y(v);
+      pts.push(x.toFixed(1) + "," + y.toFixed(1));
+      // A 2px surface ring keeps the dots legible where the curve doubles back
+      // on itself and they overlap.
+      dots += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="' + css("--pen") +
+        '" stroke="' + css("--paper") + '" stroke-width="2"><title>generation ' + d + ": " +
+        Math.round(v * 100) + "% mean drift across " + cnt[d] + " wording" + (cnt[d] === 1 ? "" : "s") +
+        "</title></circle>";
+    }
+    var grid = [0, 0.5, 1].map(function (v) {
+      return '<line x1="' + padL + '" y1="' + Y(v) + '" x2="' + (W - padR) + '" y2="' + Y(v) +
+        '" stroke="' + css(v ? "--hair" : "--rule") + '" stroke-width="1"/>' +
+        '<text x="' + (padL - 6) + '" y="' + (Y(v) + 4) + '" font-size="11.5" text-anchor="end" fill="' +
+        css("--ink-2") + '">' + Math.round(v * 100) + "%</text>";
+    }).join("");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML = grid +
+      (pts.length > 1
+        ? '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") +
+          '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+        : "") + dots +
+      '<text x="' + padL + '" y="' + (H - 6) + '" font-size="11.5" fill="' + css("--ink-2") + '">gen 0</text>' +
+      '<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="11.5" text-anchor="end" fill="' +
+        css("--ink-2") + '">gen ' + maxD + "</text>";
+  }
+
+  // Selecting a circle is the dock's input: the row highlights, the field list
+  // is rewritten and the ranking marks its entry. Only the visible pane is
+  // rebuilt -- the other two are rebuilt when they are opened.
+  function syncDock() {
+    var sel = state.sel, T = state.topo;
+    var lab = $("#docksel");
+    if (lab) {
+      lab.innerHTML = "selected <b>" + (T ? T.label[sel] : "—") + "</b>";
+    }
+    var t = $("#vartable");
+    if (t) {
+      Array.prototype.forEach.call(t.querySelectorAll("tr[data-i]"), function (tr) {
+        tr.setAttribute("aria-current", String(+tr.dataset.i === sel));
+      });
+    }
+    if (state.dockTab === "meta") {
+      var pane = $('#dpane-meta'); if (pane) pane.innerHTML = paneMeta();
+    } else if (state.dockTab === "drift") {
+      var top = $(".an-top");
+      if (top) Array.prototype.forEach.call(top.querySelectorAll("button[data-i]"), function (b) {
+        b.setAttribute("aria-current", String(+b.dataset.i === sel));
+      });
+    }
+  }
+  function showDockTab(id) {
+    if (state.dockTab === id && state.dockOpen) return;
+    state.dockTab = id;
+    DOCK_TABS.forEach(function (t) {
+      var tab = $("#dtab-" + t.id), pane = $("#dpane-" + t.id), on = t.id === id;
+      if (!tab || !pane) return;
+      tab.setAttribute("aria-selected", String(on));
+      tab.tabIndex = on ? 0 : -1;
+      pane.hidden = !on;
+      // Metadata and analytics are about the current selection, so they are
+      // built at the moment they are opened rather than kept in step while
+      // hidden.
+      if (on && t.id !== "wordings") pane.innerHTML = dockPane(t.id);
+    });
+    if (!state.dockOpen) setDock(true);
+    drawDockCharts();
+  }
+  function setDock(open) {
+    state.dockOpen = open;
+    var d = $("#dock"), b = $("#docktoggle");
+    if (!d || !b) return;
+    d.dataset.open = String(open);
+    b.setAttribute("aria-expanded", String(open));
+    b.title = (open ? "Minimize" : "Expand") + " the inspector";
+    $("#docktoggletext").textContent = b.title;
+    if (open) drawDockCharts();
+  }
+
   function openPanel()  { setPanel(true); }
   function closePanel() { setPanel(false); }
   function setPanel(on) {
@@ -1625,7 +2062,7 @@
   // `open` is passed by everything a person can click or key. Switching family
   // selects the root silently, which should not throw a panel over the board.
   function selectNode(i, open) {
-    state.sel = i; restyle(); paint(); renderInspector(); syncTable();
+    state.sel = i; restyle(); paint(); renderInspector(); syncDock();
     if (open) openPanel();
   }
 
@@ -1712,7 +2149,7 @@
         "</div>" +
       "</div>" +
       '<div class="key" id="key"></div>' +
-      renderTable();
+      renderDock();
 
     renderKey();
     state.cut = f.t1;
@@ -1950,12 +2387,30 @@
       boardRO.observe($(".draw"));
     }
 
-    var table = $("#vartable");
-    if (table) table.addEventListener("click", function (e) {
-      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i, true);
-    });
-    var details = $("#tabledetails");
-    if (details) details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+    // One listener on the dock for all three panes: a table row, a ranked
+    // entry and a relation chip all mean the same thing -- select that wording.
+    var dock = $("#dock");
+    if (dock) {
+      dock.addEventListener("click", function (e) {
+        var tab = e.target.closest("button[data-tab]");
+        if (tab) { showDockTab(tab.dataset.tab); return; }
+        if (e.target.closest("#docktoggle")) { setDock(!state.dockOpen); return; }
+        var hit = e.target.closest("tr[data-i], button[data-i]");
+        if (hit) selectNode(+hit.dataset.i, true);
+      });
+      // Left/right walks the tabs, the way a tablist is expected to behave.
+      dock.addEventListener("keydown", function (e) {
+        var tab = e.target.closest("button[data-tab]"); if (!tab) return;
+        var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        var ids = DOCK_TABS.map(function (t) { return t.id; });
+        var next = ids[(ids.indexOf(tab.dataset.tab) + step + ids.length) % ids.length];
+        showDockTab(next);
+        $("#dtab-" + next).focus();
+      });
+    }
+    syncDock();
     var lin = $("#lindetails");
     if (lin) lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
 
@@ -2004,7 +2459,7 @@
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (e) {}
     syncThemeButton();
-    if (state.fam) { relayout({ fit: false }); renderKey(); }
+    if (state.fam) { relayout({ fit: false }); renderKey(); drawDockCharts(); }
   }
   // Wired once, against elements that no render replaces.
   function wireOnce() {
@@ -2044,7 +2499,7 @@
     addEventListener("resize", debounce(function () {
       sizeBoard();
       if (view.auto) fitView();
-      paint(); drawPulse();
+      paint(); drawPulse(); drawDockCharts();
     }, 160));
   }
 
@@ -2114,6 +2569,72 @@
     var opening = $("#" + id).dataset.open !== "true";
     setFiltOpen("filt-topics", opening && id === "filt-topics");
     setFiltOpen("filt-kinds", opening && id === "filt-kinds");
+  }
+
+  // The sort listbox. Hovering or arrowing onto a choice writes its note into
+  // the slot at the foot of the menu; the note follows the keyboard as well as
+  // the pointer, so it is not a mouse-only explanation.
+  function wireSort() {
+    var box = $("#sortsel"), btn = $("#sortbtn"), menu = $("#sortmenu"), active = 0;
+
+    menu.innerHTML = SORTS.map(function (o, i) {
+      return '<div role="option" id="sortopt-' + i + '" data-v="' + o.v + '" data-i="' + i +
+             '" aria-selected="' + String(state.sort === o.v) + '">' + esc(o.label) + "</div>";
+    }).join("") + '<p class="sort-note" id="sortnote"></p>';
+
+    function setActive(i) {
+      active = (i + SORTS.length) % SORTS.length;
+      Array.prototype.forEach.call(menu.querySelectorAll('[role="option"]'), function (el, j) {
+        el.dataset.on = String(j === active);
+      });
+      $("#sortnote").textContent = SORTS[active].note;
+      menu.setAttribute("aria-activedescendant", "sortopt-" + active);
+    }
+
+    function setOpen(open) {
+      box.dataset.open = String(open);
+      btn.setAttribute("aria-expanded", String(open));
+      if (open) {
+        setFiltOpen("filt-topics", false);
+        setFiltOpen("filt-kinds", false);
+        setActive(SORTS.findIndex(function (o) { return o.v === state.sort; }));
+        menu.focus();
+      }
+    }
+
+    function choose(i) {
+      var o = SORTS[i];
+      state.sort = o.v;
+      $("#sortval").textContent = o.label;
+      Array.prototype.forEach.call(menu.querySelectorAll('[role="option"]'), function (el, j) {
+        el.setAttribute("aria-selected", String(j === i));
+      });
+      setOpen(false);
+      btn.focus();
+      renderList();
+    }
+
+    btn.addEventListener("click", function () { setOpen(box.dataset.open !== "true"); });
+    menu.addEventListener("mousemove", function (e) {
+      var o = e.target.closest('[role="option"]'); if (o) setActive(+o.dataset.i);
+    });
+    menu.addEventListener("click", function (e) {
+      var o = e.target.closest('[role="option"]'); if (o) choose(+o.dataset.i);
+    });
+    menu.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { setActive(active + 1); e.preventDefault(); }
+      else if (e.key === "ArrowUp") { setActive(active - 1); e.preventDefault(); }
+      else if (e.key === "Home") { setActive(0); e.preventDefault(); }
+      else if (e.key === "End") { setActive(SORTS.length - 1); e.preventDefault(); }
+      else if (e.key === "Enter" || e.key === " ") { choose(active); e.preventDefault(); }
+      else if (e.key === "Escape" || e.key === "Tab") { setOpen(false); btn.focus(); }
+    });
+    btn.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { setOpen(true); e.preventDefault(); }
+    });
+    document.addEventListener("click", function (e) {
+      if (!box.contains(e.target)) setOpen(false);
+    });
   }
 
   function renderTopics() {
@@ -2190,7 +2711,7 @@
     $("#q").addEventListener("input", debounce(function () {
       state.q = $("#q").value; renderList();
     }, 180));
-    $("#sort").addEventListener("change", function (e) { state.sort = e.target.value; renderList(); });
+    wireSort();
     $("#augonly").addEventListener("change", function (e) {
       state.win = e.target.checked ? "aug" : "all"; renderList();
     });
