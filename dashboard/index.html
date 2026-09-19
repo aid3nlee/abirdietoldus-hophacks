@@ -1,0 +1,1144 @@
+<title>Narrative Phylogeny</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+  @font-face {
+    font-family: "Unconformism";
+    src: url(data:font/ttf;base64,AAEAAAANAIAAAwBQT1MvMlsidAUAAAFYAAAAYGNtYXDC8D8uAAAC/AAAAa5jdnQgACECeQAABLQAAAAEZ2FzcAAAABAAAEnEAAAACGdseWbXdyt4AAAFXAAAQRRoZWFkLq+i8QAAANwAAAA2aGhlYQbBAt4AAAEUAAAAJGhtdHihbg3oAAABuAAAAURsb2NharJ6ugAABLgAAACkbWF4cACXAJUAAAE4AAAAIG5hbWWpJdc7AABGcAAAAoVwb3N0eTXOAwAASPgAAADMcHJlcGgGjIUAAASsAAAABwABAAAAAQAA5d+dRV8PPPUACwPoAAAAAOYFsAgAAAAA5gWwCQAh/voDZAMBAAAACAACAAAAAAAAAAEAAAMB/voAWgOSAAAAAANkAAEAAAAAAAAAAAAAAAAAAABRAAEAAABRAJIABAAAAAAAAgAAAAEAAQAAAEAAAAAAAAAABAICAZAABQAAAooCvAAAAIwCigK8AAAB4AAxAQIAAAIABQMAAAAAAAAAAAADAAAAAAAAAAAAAAAAQ0xHUgBAAAAgHgMg/zgAWgMBAQYAAAABAAAAAAHSArEAAAAgAAEBbAAhAPoAAAFNAAAA+gAAAPoAAAEbADABMAAuAq0AMADfAC4BPwAtAUAAMAH9AC4A8gAxAa8ALQDqAC4B/gAvAjMAMAIZAC8CRQAwAfUALwJGADACBwAuAkAAMAIpADACJgAvAkoALQHjADADKwAuAikALAImAC8B5QAuAh0AMAJWADACNAAvApkALwJ9ADACOgAwAksALgIyADACmgAwAwkALwKbADAClwAvAjcALwMEADACcQAwAiUALwJ6ADAChAAvAmEAMQOSADECZgAuAk4AMAKTAC4CdwAuAhMALAIFAC4B/wAuAfMALgIbADACAwAuAg0AMAEzADABVwAxAbsAKwDnAC4CSQAtAbEALgHUAC4BtQAuAhIALgGEADEBnAAwAl4AMAHzAC4BqgAwAjkAMAICADABygAwAiQAMQD6AAAAAAADAAAAAwAAABwAAQAAAAAAqAADAAEAAAAcAAQAjAAAABwAEAADAAwAAAANACIAJQApAC4AOQA9AFoAegCgIBogHv//AAAAAAANACAAJQAnACsAMAA9AD8AYQCgIBggHP//AAH/9v/k/+L/4f/g/9//3P/b/9X/sAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAKAAAACAAIAAgABgAGAAYAAAEGAAABAAAAAAAAAAECAAAAAwAAAAAAAAAAAAAAAAAAAAEAAAQFBgAABwAICQoACwwNDgAPEBESExQVFhcYAAAAGQAaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1AAAAAAAANjc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC4Af+FsASNAAAhAnkAAAAUABQAFAAUABQAaACiAUYBeAG2AfICOAJeAowCsAMgA3QD/gSUBP4FggXwBkwG0gdIB5gIGgjqCXAKDgpwCugLfAvqDHQM+g14DewOXg6wD04P0BBWENwRmBImEqITEBOQFAwUoBUyFaQWJhaMFvYXThe2GCIYrhk4GaIZ9BpaGswa+ht8G84cQByeHQIdTh22HiAefB7SH1IfviAUIIogigACACEAAAEqApoAAwAHAAAzESERJzMRIyEBCejHxwKa/WYhAlgAAAAAAgAw//oA6QLlACMAOAAAEzYzMhceARcWFxYdAQ4BBwYjIicmJyYnJjU0NjU0JyY1NDc2EzY7ATIXHgEVFA4BIyImJyY1NDc2SBAGBRIXEwMEEwQBBAoQERMWDwECEAMBBQsCBUYIHQgSFhEGDCoeFQ0JFQMMAtgNCQw1PFhaGDMVNRgNFiEXH0lKEggDCwILESlPExQf/dAEFhEPGR8ZHgUMHBcKDzsAAQAuAdwBAQLOACQAABM2MzIXFjI3NhcWFRQGBw4BIyImJyYjIgYVFAYjIicmLwE3PgFeBQknGAUGDA8MJBsCAxsJChEDBAMGEx8REgYFAgIOCQ0CzQEqBwcJBhIYDU8HDiAaEhMfCRAXDQlZVRYNCAAAAAADADAADgJ7AjIAOgBUAHMAAAE2MzIXFhcWFRQHDgEVFCIHDgEUBgcGBwYUBwYHBgcGBwYHBiMiJyYnJjU0Nz4CNTQ2NzY1NDc2NTQFNjsBMhcWFRQHBgcGBwYjIiYnJjU0NjU+AQU2MzIXFjc2MzIXFjMyFhcWFxYVFAYHBgcjIicmNTQBkw4OCQ0TEQQECAwKBwcMKgEFDxIJCgUIBQYREAkECA0JBBQfAwYQJicFB1cJ/tcaEwQPGjMKDwINOgUICQwSIgECEgGXDQYHCAoTEAEGDhMEBRIBAgQGEhISHQY2IBECHhQHCTILCQgLFQoIBxEQCA5HBBAWGRARExkcBQYoJQcECwQJCyQJCxoYTgUIWAMDBRp/DgQGOhEeOygRCxEDEQYBCRIiKgILAxcckwcICQcECw0aCQwHDBIaCA8OAT4kFyAAAQAuAecArwLHAB4AABM2MzIXHgEVFAcGBwYHDgEjIiYnJjU0NzY1NDc2NzZoBAwTEw0EBQQJCQ0JDBMWDwgEBgkEAwgNAsEGDgoMFyEFBCorEg4GCxYLBwYOEgwLBgMZMwAAAAEALf/nAQ4CTQAoAAATNjMyFhcWFRQGBwYHDgEVFhcWFBcWFRQGBwYjIiYnJicmNTQ3NjU0NqgMDRkvBAEKEx0ZEAgBEw0IGAYLChMUJQcsCBUREEoCRwYkGgUHCA0PGTIgHh2BJBoSCBcuFhAHBxAMUh9TVkwzLgcLYgABADD/4AERAmUAJgAAEzYzMhYXHgEdAgcOAQciJyY1NDc2Nz4BNzY1NCcmNTQnLgE1NDZQDAkOJScxISEcHBwZGBYBBAkKIwYECgcsHw4TAl8GGiQtaW8NU2JUKwEYFgsIBRYPD2oiFy9aCgcNDiofFQ8UJQAAAAABAC4AVQHNAgcALwAAEzYzMh8BFRQWOwEXFhUUBw4BIyIHBhUUBw4BIyImJyYnJicmNTQ3NjsCMjY3PgHNDBUWEBMOQ0MJCQ0IFiMzCgkFBSINExwFBgQCNF4BCEoFDhkLBAIGAfwLCww7Og4SERYaEAkFBANDPwoHDTEqMwMDCAw1CQUoGDcnFgAAAAEAMf+zAMEArwAXAAA3NjMyFx4BHQEOAQcGIyInJjU0Nz4DdA0RChANCAIqIwgGDhYPIQoFBAWfEAgHFx8RPlgNAxkSBgovDxZAEwABAC0AnQGAATkAHAAAATYzNhcWFRQPAgYHBiMiJyY1NDc+ATMyFjMyNgEdLgQIDhsSElthCxMNIRkOBAYSFg4SERxpATEGAgwVJh0VFAECBQcoFgsJDRkQAg0AAAEALgAgALkAvwAUAAA/ATMyFhcWFRQHDgEjIicmJyY1NDZgEgEHOQIEEg8MBwQPNQwDHbgHIgUOCiAbFw4FEiMJChgsAAAAAAIALwApAdACrQAcAEoAAAEmIyIHBgcGBwYVFBceARcWMzI3PgE3NjU0Jy4BJzYzMhcWFxYzMhYVFBcWFxYVFAYHBgcOASsBLgEnLgEnNCcmNTQ3PgE3PgE3NgEmCg0UERIOEwEEAQIPEwwOBxwTDgoSBAYWUxsJChwOGBoJCCcMHQUCChEOISMkHxgnGRQoPgEPDwUFEgcHNQwZAg4HEBAwPQMMJxMKMjAVDQcFDRYlLR4lOViiBQcEGRo0CggaO4oyCyQpLCIcHRACBg4baCcMHh8nGxcRbBUaVgYMAAAAAQAwABQCAQK/ADYAABM+ATcyFhcWFRIXFhceARcWFRQHBiMiLwImNTQ3PgE/AScmJyMiBgcGIyInLgE1NDc2NDY3Nr0JQBMQOQUFAhAGKhwRDBoQARw4VaIbIAUKIiw1AgIFAQYxDwwNCQUhNAoJNhohAmsUPgIjDBF//sUWCgMDCBElKR0GAQMHFRoXCA0bEQICenkFKxQNAQQ3HBAKCQpAGR8AAAAAAQAvAA4B5wKcAGAAAAEUBhUUBwYVFBcWMzI3NjcyNjMyFx4BFRQHBgcGBwYjIjU0JyY1NDc+ATc+ATc+ATc2NzY1NCcjIgYHDgEHIyImJyY1NDc+ATc2NzYzMhceARcWMzIXHgEXFRQGBwYVFAYBUB4MDA0CCxcYLRwDCAEOEAwFBAaLixEQHiwOHwEEMhQOPwsHIgYKCAoHAgw1EQ8ODwMUNwUEBwUSIzUYGRQNCRsRCw8IBxQOBgEGCxAdARQGJwUJBwgMDgMBBAUEARUQFSIwBgQCAQoJDgYLGSkIBBVBCgdNGA8rDRQIDSkdAz0gHw0CHQ0MFBscFhoiMxARAQIHDBMpHiE6GyUYEBUIBS4AAAAAAQAwABkCFQK+AGsAAAE2MzIXFhceARcWFRQHBhUUFxYXFjMyFRQHBhUUBhUUBw4BBwYjIicuAScmNTQ3NjMyFxYXFjI3Njc+ATQnJiMiBwYHIyInJjU0Njc2Mjc2NTQnIyIGBwYjIgYVFAYjIiYnNTQ3PgE3Njc2MgE0GAsPHiIQIw0FARUEERYEAwUPDAgkIhwrLBAEESUmIxISDw8KCR0dGREUHScXEAgLDBgaCgkjChYQIQgPFyImJBIBDlcDAgcNPh0NEjsBGRNDIRkXFRgCtggJChIlIjoJDhkzCQYJEhgNDEY2Gg4NCiQEAyQcFAUCExMfHR4YFxMUFxkJBwoNEwwRIgYGBgUCDR4tEhIPFycmDwsDJwgFVREJFDAQDiExJUMQDA8OAAAAAQAvABEBygKyAEkAABM2MzIXFhUUBwYVFB8BNz4BNzY9ASY1NDY3NjMyFxYzMhceARcVFAYHBiMiJyYnJjU0NzY1NCcmIyIPAScmJyY1NDc2NTQ3Njc2ag8REBMnExABAzszJQYEAQ4WBQcLCg0EBQ4LBAEHBAsaBAgmEQgEBwYHITQ3MSEiDw8GCAsKBQQCow8KEjsoMy8TCQUcBAMMDwk8IhEbLR4FAQoNGRRErBdVuwwiAggZDRACMEgWHQkKExILChkWGxUvOCgvJB4eGAAAAAABADAAKAIVAqcAWwAAATYzMhYXFhUUBw4BIyIHBhUUFx4BMzI+ATMyFx4BFx4BFxYVFAcOAQcGIyInJicuATU0NzYzFhcWMzI3Njc+ATU0JyYiBwYHDgEjIicmJy4BJyYnJjU0Nz4BNzYBPC4LJicUEAEFHDJcThcHBAUGARg0GCIrIjgMAwkBCRAJWScHD0kdCRYSFQkKGB0LDConCw0TCwcmDxIhIBcQDhMcDCUMBBAGCRUWIA0jOk4CowQZIRkQBgMaDRMGEAcXCgcEExgTOx0GGQIVOVQlEikEAR0JCgchExEODwIHCAcHEAsPETYOBg8PHRUIDSg5FkEhMR0dHSMUCAQBAgACAC4ALgHWAqcAEgBKAAABJiMiBwYHBhUUFxYzMjY3NjU0AjYzMh4BFxYVFAYHBgcGFRQzMhYXFhQXHgEXFRQGBw4BByInJicuAScmNTQ3PgE3PgE3NjU0NjMBOxcLGyEPDxMHDTsVMwoIfQgKBxETAiIFCxMaEBUaTRMXERQeARUdHT1GSBQTKR4QBwkGAgwGCQYQDlYGAScPHQ0GCQ8LDiIfEhAMFgF/EgYKAQ1EFQ0IDR4VBgodERUIExZVJgYkMB8gFAEEBiwgGh0oV0AYBzUMEBwWEgYHWgAAAQAwAB8CEAKPADwAAAE2MzIWFxYVFAcGBwYHBgcGBwYHDgEjIiYnJjU0NzY3Njc2NzY1NCcmIyIGBwYjIicuATQ2Nz4BMz4BNzYBnhoJFC0KBAoLChQJEAwDBwUIBg8ZFBkZDAoJBAQOFhILCQMOJZAeCw0WDQkcHAIEDxsofxxAAoUKPCoSBQwVGTRtEyRKGhIJLCQSER8OIiAODxgaJTxGLgwPAwETCQQKB0EaJQUJBQINAgMAAAMAMAAaAfgC1gASACUAWwAAASYjIgcGFRQWMzI3PgE1NCcuAQMmIyIGBwYVFBcWFxYzMjc2NTQnNjMyFxYXFjMyHgEVFAcOAQcGFRQXFhcWFRQHBgcGIyInLgEnNDY/AScuAScmNTQ3Njc+ATIBXhUJBxU9IB0GDiAtAQUPDQ8iJU4NDyUlIQ4DDxwlnhAbFRFAExIMCSkaBgUkDgcWPggBDiFLJDA3JTElARAaES8oFgwJAQQtEjgSATUUDypEICICBjMeCAQZHQEjDBkRFQkMEBEEAhwlFw6IDwEEDQ4vMiwZFxI5CwYDBBIyZQ0SGiBIIhAUGUZDLzgpGhUSEhcPHA8KTCgRIwAAAAACAC8AGAH3AsYAEgBRAAABJiMiBwYHBhUUHwE3PgE3NjU0JzYzMhceAhceARUUBwYUFxYVFhcWFRQHBiMiJy4DJyYnIyIHBgcGIyInJicuATU0NzY3NjU0NjMyNjM2AUcMDhk1Hw0NHyAnGBUKDlwGFkEUByouAwwSAgMFCQQCAgsMDg8WGBAPAQIEAgIKHSQlEgQTKCkjHBMBBiYTIwYLHBYXAjAKIBMfGw0OCgsWDRQTGxUQnAMLAyAnAglKIQsMDiY6USBLLDwDGg4PEBIMKCA0aAIMDwQCEhMkHiMcEQtZORoFBiEYAgAAAAIALQChAhkCIAAXADQAABM2PwEXFhUUBgcGBw4BBwYjIiY1NDc+ARc2MzIXHgEXFhUUBw4BIyInJiMiBwYjIiY1NDc2sjaFZBMSFQ4Qf1xJIAsLGSMICS8TQlpzLSMZDRQHCBkbHiU3On0lCw0ZIggPAhgFAgEWFg0SIAYGBgMKDQQoHRURFBDsBAUDCRAVFA0OEA0EBQ4EJhsTEB8AAAACADAADwG0Ap8ARgBXAAABNhcWFxYXFhcWFRQGBwYHBhUUFxYVFAcGIyInJicmJyY1NDc2Mjc2MzI+ATU0JyYjIgcGBw4BBw4BIyInJjU0Nz4BNzY3NgM+ATIXFh8BBw4BIyYnJjU0AQgECh4HMSMeBgESGh8UGwICFwoDBRAUBgoFCwcJCg0MEQ4nGg8NEhEMKx8tIg8FDBEQBglJERgXKQ8VMwckJAwKCgsNCyoSIAsDApsEAwUBBSAbWQ0WICgfJAUFFg0JEgYmDAUICxYhESEbFgoOCwoUGhQWDgwBAhAYLDcSCw8WHFpRExAIDgMG/eEOFgsKHiAUERcBOBEHCgAAAAQALgAXAv4CuAAoAE0AZwCRAAABJiMiBwYHBgcUFhceATMyNjc2Nz4BNzU0JicuAScmJyYjIgcGIyInJic2OwEfAR4BFx4BHQEUBgcGBw4BBwYjIicuAScmNTQ3PgE3PgEXND4BNDU0KwEOAQcGFRQXFhcWMzI3Njc+ASc2OwEyFhcWFRQXFhUUFxYXHgEVFAYjIi8BBwYHBiMiJyYnLgE9ATY3NgFwCygkEygqLAEnFR2IIj+MGRQRDAUBBgsMHB80GxUEBQ4PEAQQIpQMWDaJTy8rEiYRBQ8mMyBkIisviHAbExMqCQcVJBVA2wEBCggkWg0LAwkVDQkIFBkMCh9kKDcWFxAIDwkJBTEHCxYkEycfEwgUOB8WEAtXHQoGAQwlAloHBQpGSV00eg0TKDokHC4fJjAbHRcTEhgSHQwHBwkCBGQDAygYHBQoL0MbSygmZiYXLQcJQBAWJ1ZqMTYnMTcgNOECBAIDAQYBOB4cMhIDBAYECQwXEl11EQUJDRIRCw0YGg2DAwQeCxEiQCcRKB0QAQYuEBYbGkUaTwAAAgAsACgB9gKzABEAWwAAEyYjIgcGFRQfATc2NzY1NCcmJzYzMhcWFx4CFxYXFhcWFx4CFx4BFAcGIyInLgInJjU0Jy4BIyIHBgcGBwYVBgcGBwYjIicuAT0BNjc+ATc2NTQ3NjMyNzbwCgYKExABBC4vBQQVD18KCwkGHxAcJg0PIxYFBhkVBQsHAwQaDQ4eIRALCgkDCAkGDBEZDA8tMAQTAg4HFgYIDA0KBQISBQgFBAghBQQEBAHZEzcvEwgEFgQEAwQIHyUZ5AoBBQECGBUbOXAZDDFNFR8ZFSAyHg0OEAoTJAoWFxQQCwYGBwMEBR4tQQ4HAwEOCw8aInhUGXAEBAwSEmkNDwAAAAMALwAjAfYC1gAWACwAbwAAASYjIgcGFRQWHwIzMjc2Nz4BNTQnJicmIyIHBgcGFRQzMhcWMzI3Njc2NTQTFAYVFAYHBgcGIyInLgEnJicmNTQnJj0BNCcmNTQ3NjU0Njc2NRYXFjMyFhceARcWFRQXFhUUBwYUFx4BFxYVFAcGAVMNQBgSPRUKBx8JHA9OGhAHJhRCGxEOCC4QCCUYDgQEBx8hBAK3FSoXGkZUPBoLFBUFAgYEBgUFBgYFIRMNDxIeGRYeJBcWEBoPEBoKGx0cDhcFBwFeCwMJFQ9mIRUBBhwZDw8TMBQK5wUCByASBxMGAxgaCgYDEf6ABRgEByIMDxYcBQg2OhwGBDgzIhxYFEQICyMgBgUPFioEAgEEBgoKCQUNERwFBhweFhwpEAoVFyAbLDARDRIAAAABAC4ANAG1AqIAQQAAATYzMhcWFxYVFAcOASMiJiMiBw4BBw4BBwYVFBceARceATMyFxYXFhUUBgcGIyImJy4CNTQnLgEnJjU0Nz4BNzYBNhoKCSAWDQ8CBBwSCRIKFS8ZExgZDwkVEAcrExVVFjgGCwMBBw0WOzxCMAMQCR0ZEQYGQholKzYCnwMIBhYbIw8GDA8GEwoNGBkUFjEgHh8OIQcHDhkpFgYIBwcGCg4dAgYIBggWEyMrJyR9ZyghFRsAAAAAAgAwACMB7gLHABwAUgAAEyYjIgcGFRQXHgIXFjMyNz4BNz4BNzY1NCcuASc2OwEeARcWMzIXFjMyFxYXFhUUBwYHBgcOAQciDgEVFAcGIyI1NCcuAScuAScmNTQ3PgE3NugTDxQKBgoCBgQBBh0JDwk5EAQWBRsFDVaqBCccKBkIDQcIDQwMDVk1DAgEGyEXBgZPDwEjHCcnJBAIEQcCAQUJCgQECQ0QAjgIDAhFZj0NKBwHKgUEOBYFIQcmLRQLH0ukAQEECAsLCl46TDQVDwxWKR0LDUEFCAcCBBMNBggGDkevo0gfHw0EFhIPCQwAAQAwAB0CJQK0AGcAABM2NzIWFxYVFAcOASMiDgEHBgcGFRQXFh8BNzY3NjMyFhcWFRQHDgErAiIGBwYVFBcWFxQXFjMyNzY3NjMyFxYVFAcOASMiBgcGBwYjIicuAScmJyYnLgE9ATQnLgEnJjU0Nz4BNzbhCGxkMgsGCAYZPC4oMh03DA8DAwYDMmh1FAcWEAMBBwcYHRYRNIIOEggEAwkGFQUsbywZDg8SGQIENhoSSwpmGxsWBgQCFwECDAkJBQwHBRoCCQQHIzs9Aq4EAhEmFQwOCwgDBAoEBwYIHwwKCxgPBAcQAhkkCg8WDg8KDAcJDwoOBxELCQcCBRUMEhknDAYOGREBBRMUBAMJBwsMCw8JYxwIFiwjrw08EQoSFw0CAgAAAAABAC8AJAIGAqYATgAAEzYzMhYzMjY7ATIXFhcWFRQGIyInJiMiBwYjIgcOARUUFx4BMzI3PgI3NjMyFhUUBwYHIgcGBwYVFBcWFRQHBiMiJyYnJicuASc0Njc25Q4jFVYRBREDDBMVFQoIFBUMKhUODzA5GhwaFBACAgoODBYRRFANHhofIhEQDgZMlCMSEAgsBQknDQwKBAQEDwEFDSICpAIDARESExAVFxQFAwgLEg4bGQcWGxMGBQsLAgUsKBUREAICAxwOERM6HhErBAEeGI0wCw3dMR0PDSIAAQAvACUCaQKvAGEAABM2MhceAR8BFRQGBwYjIicmIyIHBgcGFRQXHgEXFjMyNzYnJj0BNjMyFxYzMjc2NzYzMhcWFRQXFhUUFhUUDwIjIicmBgcOASMiJy4BJy4BJyYnJjU0NzY3NjU0Njc2NzbnHW4CAUodHg4XBAcLFiIqFxwuMzYHBzIfFycYAwMNIAYrEhEWFyEVEh0GCg0TFQsKCAIDGQoQCQsIFxxLPQ8kODQuHxQECQYYAwsMCEYSEwcGAqEOBAQkHh8gHBMFARYiCQ8vMkofIyVBDQkFAw4eJwcvBQUIBwQBCgsHCBQSFAoyDQYMGAEJCwQcIh4CBRkuHxkQHwoqclEMOgUEAw1LBgYHBgAAAQAwABYCTQLOAFwAABM2MzIXFhcWFxYzMjc+ATU0JyYnJjU0Njc2MzIXHgEXFhceARcWFxYUFxYVFAcGIyInLgE1NCcmJy4BIyIHBgcGBwYVFBcWFRQHBgciJicmPQE0JyYnJicmNTQ3NmYeCx4VDQIEDwIjHRA6IwQKEAgIDhMMBwQZNQwPAwMQAwUHBQcGBwkcCQwTJQgHBAQVCgIBAk1LBgQTCAQNKRk+DQ4IDQwFCgYPCgKuICMXS4oPAgECCxIEGDkmEB4RExAWAQQpGCBEM2AlOg4KOAcGMjsUHAMEIw0MBgcrMUQBAgIBBwYPMEUdCgUSLwEgFBYiETIWJZdIHRIaLCUVAAAAAAEAMAAfAggC0gBYAAATNjMyFxYXFhUUBiMiLwEHBhcWFxYVFAcGFRQWFxYzMjYzMhcWFRQHBiMGBwYjIicuATU0JyY3PgE3MjU0JzQnLgEnJiMiDwEnJjU0Nz4BNzYzMhcWMzI3NtE8O1APIwgCGhACHCwHCQICCwQCARQQChAICAcjIg4ZDy41HBU8WCEUGggHCRMnLh4BCw8KDgYZEAksEhABAgcNDgcDBQQIBRAZAswGCRFAFgINGgIEEhMLNxYKGAkgDBc2SwcEAiYOHikWDQIGBQkFGw4LDAsSJBcBGggEAWeZOgUDAQMTERQPCh0SCw0DAwQGAAAAAAEALgARAhsCvgBPAAABNhYXFjMyNzYzMhcWFRQGBw4BFRQXFhcUBgcOAQcGBwYnJicmNCcuAicmNTQ2NzYzMhYXHgEzMjY3NjU0JyY1NCcmJy4BNTQ2Nz4BOwEyAW8EAxMPEgwGCAsPFCkfODIeBwoBCA4KRSQVDgsGCRMWFg4WHAQPCQ4IBhYnBAIcDhEvBwgGBScpHQwFBQ0LFygpYQK7AwEIBgEBDR04GxEFBAkPBx4kZUZGOChDBQMHBQUGBAQIDQgcMgYZNC8iBwMsHhMdMhseYE4GBRAeBgcYChEcHRALCgUAAAABADAAEAIBAtQATwAAEzYzMhYXFhUUFxYzMjc2NTQ3PgMzMhYzHgEXFhUUBwYHBhUUFhcWHwEHDgEHBiMiJicmIyIVFBcWHQEGBw4BBwYjIicmLwImJyY1NDY+DRIVKQ0ODwMKECFTFgkECwgGAgkDFg0OEwYJZCdZExUbGwMEEhcDBhI0OkMNAwIPAQ4JDxMHChEZHRETAgQFFQQCxg4kHyAuMkYOJFkLBhQJAwgBAQEJFRwbDxAXYyUJCFAKDB4fJiEZBAEoOkMEAQgzSAYkEwwIAQERFCEieXsbY4suGAAAAAABADAAFwJqAr0ANQAAEzYzMhceARceARceARcWMzI3PgI3NjMyFxYVFAYVDgEHBgcOAQcGIyInJicuAScmJyY1NDZKCg8aEQwcAgMWAgQZCQcKBT4QUVsMCAwNEiIBAxcYGFZaNSMpHy8VEggGEgQFBhoJArYHFA5VHhNYHDqBDwoKAwgHAQEPHiABCAIZGQMEBwgMEhY/NzgoQjRFGH46HRUAAAEALwAAAtkCngBuAAABNjIXHgEXHgEXHgEVFAYVBgcGIicuAT0CNCYnJiMiDgEHBgcGBw4BByMiJicmIyInJiMiBwYVFBcWFRQXFhUUKwEmJyY0JyYnJicmNTQ3PgE3NjMyFx4BMzIXFhcWFxYXFhcWMzI3PgE3PgE3NgIPHiAVGxUBASILCQ8BBBUVFhEgFRcKAQIGCQoBCAQEBQUiEAQWJjJpCQMUEAUEBAcICQgHLwMYExQFBQwEAwgDAQkDChkeFwsmBwUIBR8bJSULDQgFBBAEAxQCCBoIBwKPDw8VMTJE8hENOxUCBwEUFBIOGisqCQU8rAYBGywFGywnCQoRASA7exANBAcoNEleGSYeFhMpARcYFgUE91cHC3cvBgEYBhkkECEKBhURJSMFBgYDHxI4CB03BwUAAAABADAADgJqAtUAWAAAATYzMhYXHgEXFhcWFxYVFAYHBiMiJyYnJicmJyYjIhUUFxYVFAcVDgEjLgEnLgEnJicmJyY1NDc+ATMyFx4BFx4BMzIXHgEXFhcWMzI2Jy4CJy4BNTQ3NgG8ChAWLAwICAoCDwYFEAUKFBkbHGsTFCIjEjAHBBIGAQQeDg4tCQQKAxEMBQcMEAQaDAUDDTcQDTUIBA8YHiMmFAcMBwICAQgJAwQKAQQCygssJBlKii1oKQsnNRgRChQXVyIhHyAUNSeEWiIKAgICDBQBIxEIoggqlygfNxQVIQkNAQNCIBk+FCEfHh8UCQcQB15WBwl2Ig0DCwAAAAIALwAjAmoC0gArAFwAAAEmIyIHBiMiBwYHBhUUFxYXFhUUFx4BFzMyNzY3PgQ3NjU0JicmJy4BJzYzMhYzHgEXFjIWFx4BFxYdARQHDgEHBiMiJyYnLgEnJicmPQE+ATc2NDc2NzYzMgF7EhEiGRMDBBcsHwcDDhsPFg4YKhkjByULDxIMBQsFDQgPFhMNFmkcDgEGAho8DhEELwkMJgkaDhicRQYMEyYkGRI4Cw42EwIUJwwXJgowGgoCLAYVDxEfbBsNCQ9DEAkEBg0JBAEHGQYJDRALGwodIRgcIC8XEA2iDgEDGg4RMQwQSBlFaxctJDxnCAEICQUEGgoOeilDDkpGQBMQEBwJKQACAC8AHgIIAv4AIABbAAABJiMiBw4BBwYVFBYVFAcGBxUUFxYXFjMyNz4BNTQmJyYnNjMyFx4BFxYXFhcWFxUUBwYHDgErASImJyYjIhUUFxYfAQcGIyInLgEnJicuATU0JyY1NDc2NzY3NgFYFA0XKh8RCgsBEgcCCQUQJTQoHxopBw4RYhwNDgQfTRIMDxgGAgQiFyQRQA4IHFkHAwYHBgoEBBEPDAYEFSYHBwIBDQYMBwQTEh46Am0GFQ8PExQNAQQBFQ0FIQsXBAMQKhsXaiwTEA0RmAIBBDQdEhgkViQTBh9hQBsMGgYDAQYFCQ44NxIPAQQaEA8uFlsaIQYMrWsZEwsJHjYAAAAAAgAwAA0C0gKzADsAhgAAASYjIgcGBwYjIicmIyIHBgcGFRQXHgEXFhcWMzI3NjU0IyInJicmNTQ3PgEzMhcWMzIXFjc+ATc2NTQmJzYzMhcWFx4BFxYVFAcGFRQWFxYXFhUUBiMiJyYjIicmIyImIyIHBgcGIyInJjU0Jy4BNTQnJjU0JyYnJicmNTQ3PgE3Njc2Mjc2AaYrBQQFBBQNCgcMFg8YGCwMAwYIHR0gHRgXFRUYBgoTFAkMCQgKDRYgJAIEDQsMCAwIAjDVEhcsI1QbPTUaBA4GDRIaFBgdEgwKDAcJFRYFAgcCHRsvaSQEFyNNCQo6CwoKCwMEAgcHDR4fCwcGGA0aAhASDA0LCQMGFSY5DwsPHio2HiIIBwYHCQMODBokERAPDQYPEA0NAgIoOQsVLTi1BQ0dEypMTwwoai8SCQoLCQwWHC4VHQcIFxgBESEFAhAhDAQEAzkGBwkICgkKC0JFAw4bFyM3PCENDAsLFAAAAAIAMAAPAj8C1wAUAGEAAAEmIyIGBwYHFAYVFBcWMzI3PgE1NCc+ATczMhYXFhUUBw4BDwEXFhcWFx4BFxUUBwYjIicuATU0JicmIyIVFBcWFxQWFRQHBiMiJy4BJy4CJy4BJy4BJyY1NDc+ATc2NzYBbhMhFxATGgEBCgMKHSUVLsEUHSUHN0cePgMGGSQrDhMUGS8lFwEUExIRHSBOTwwGAwgEBQQBJAcMLRsNGAIBBgMBAQ4CAw0FBQ8KDw0WExACQA8HFBwTAwsCJAcCEAg2EAyTCwYBGyBBThISJS0mLhMYDhUxJy8lBhMREBESXxQFTQcDEAUaIDQEDAM+DgMdDkMdDSUkGilUITBNBAINGRcOCwIEEQ8AAAAAAQAvABcB9gLwAFYAABM2MzIWFx4CFRQGBwYjIicmIyIHBgcGFRQWMzIXFhceARcWFRQHBgcOASMuAScuAScmNTQ3NjMyFxYVFBcWMzI3PgE1NCYnJicmJyYnLgEnJjU0Nz4BoSBSHRYVDQkECw8PFQwHCAwODg4NDDMLDFkeJRkQBxMiDiUbGiE4PDYkOwoJBQ8fJiMSCyJIJhIUCA0gJ0kUCQYhHTcKCBcHMwLgEAgWDRMsBBEQCAkBAQkKBAQJDiQrDiUZGRhGNEw6FxMNBgETIhY+GRYhFQ0lNh0DBAgbDg8PGBcUHSMMAwkHEA49HBoePyYNLQABADAAEgJJAwEATAAAATI2NzYzMhceARcWFRQHDgEjIgYHBhUUFhcWHQEGBw4BByIGIyInJicmPQE2NTQnJjU0JyYjIgYHBiMiJyYjIiY1NDY1Njc+ATc2NzYBQBU9CRsSGiMaEAsPBQdhLhMJBAIRBwYBCQYKDAMIAkEOBggHAREGCwwbFS4JCgIIFBQFBAoBAw8MG0JiBwwC5xMCBQgGChEaGyAIDRgECgQdPtUJCEkZZBQNBwIBSx0cGCsSITqrIAkMCA0MEAICERIxFQIJARQPCgUBBAMFAAAAAQAvAA0CWQLkAFoAAAE2MzIXFhcWFxYXFBYVFAYHDgEHDgEHBiMiJyYnLgEnLgEnJjU0NzY1NCcmNTQ2NzYzMhcWHQIUFx4BFxYVFBYzMjY1JzQ9ASY1NDc2NTQnJicmJzQmNTQ3NgHXBAshDRcZCAQDBQEVCwwiJx4gIxgIIS4KGAw/Dg49BxUDBAQGAwoVFxsSCxkCDwkKYR8kSgEBBwgHEgYFAwUQFQLiAg0VLg1oVEQDDAQ1oh4gIxMPCQICEwQGAjYUFXoYSS0PCRAHBBgiRzYZDBshFDAjG7cwAzAHCgcQMyIRAQEBAQIBCxAVREEkcxohIw0YAgoQFQAAAAEAMQAKAjEC9gBUAAATFBYVFBYfARYzMjc+ATc2NzY1NDc2NzY3Njc2MzIXFhcWFRQHBgcGBwYHBgcGFRQHDgEHBiMiJy4BNTQmJyY1NCcuAScmNTQnLgE1NDc2MhYXFhcWyTcXDg4GBw8QAgsBCAIGBQQECBwKEw0JDBgbCAkOFgUBCQgKCwoeAgIOHRAOEx4QGzcKFgsEKQkLHhQKDRYsIwQEDw8CJwZ2BQYyHB0QUw03CC4KGg4SCAcjTSgPBgQXGRwcGB8UHjwHGRIvNSJkCyceLSEYDR4QNA4GeRAnCwcUCWcPERMMPCYeFh8NFCchHx4kAAAAAQAxABUDZALVAGYAAAE2MzIXFhUUBwYHBgcGHQEUBwYHDgIHBgcGIyInLgEjIgYVFAcOASInLgEnLgE1NCcuAScmJy4BJyY1NDc2MhceARcWFxYXFhcWFRQzMjc2NTQvATc+ATMeARceARcWMzI3PgE3NgL1EgsVGCUFBwQCCAULCgkECAMBAQwZJDt9ECkHBSU3EhQgFRkuBAEhCQonBQMPCBIHCRITKhMUEAMECRsICA4QEAMCCQoKExE+ExgrCAhgJRAHJAYBEAELAs0IGSZDFypGKCUZEQwGDSMgKhIaFBkmECJoDRgpBQM9FA4EBR0QBDYKDhAUgh0bKxVoExgNERISEBEmKDASNy8lHiIUIgEDERMkKB4dMAEjGh1jEwdiGkMW+QABAC7/+AI0AuMAYwAAEzYyFx4BFx4BFxYXFjMyNz4BNzY3NjMyFhUUBhUUBwYHDgIHBhQWFxYXFhcWFx4BFxYVFAYjIiYnJicuAScmNAcGBwYHBgcGIyInJjU0NzY3Njc2NTQnJicmJyY1NCcmNTQ2RQYcEBUsAgIiCgcKCQsPGg4gDSYOAQQQLgMJFhgDDRMGHiMFBxwcFBINCBUJDRURFDQHBxwNTggLDw8EAwoOLCQdEhklKBASJhALFhQMDQgGMg4PAtwHCAszEBJHCAcUGDYcKRlHBgEtDwMbCBcLHC4GGCMLNQo0AwQrKhYUGBEZExsfGyYoFBccD2QJCwwCARIPChBeSRklKis0FCBDEw0JDxIQHx8KBggOWhkTDiwAAAAAAQAwAAwCHQLkAEwAAAE2MzIXFhceARcWFRQHBgcGBwYPARcWFxYVFAYVDgEHBiMiJy4BJy4BJy4BJyYnJicmNTQnJjU0Njc2MzIWFx4BFxYzMjY1NDY3Njc2Ac0OAwoVFgMBBAEBExkWGgcMJQ8GBhMQAQIGDAwPLx0KBQIBCAEBBgwMEhBHSgkHDQoHCRQxEQ4kFRYLCB0xERcVGQLgBBUWFAUcBQMGChYeKjIHDlQjPj0oJRYDDwUtFwUGKg8ZKSlAIyYUDw0aFkZIBgQJBxkYMgYEIxsXHBodEQUGSRMbICQAAQAuAAUCYQJ2AFwAABM2OwEWMzI3MzIXHgEVFAYHDgEHDgEHDgEVFDMyNzYzMh4BFx4BFRQHBgciBiMiJyYjIgcGIyImJyY1NDc2NzY3Njc2NzY1NDc2NTQnIyIHBiMiJyYjIicmNTQ3Nl8UiBUSYV8MAgwXEQcNHg4TCwZDDhg0HBdCcgEUFAUJDQUECm8mbhsOKCQNGRUSCxEaFRUBCi0gDg0sNhsoEQ4WBBcjJAoGDBcdLSQVDQ8CZw8CAhwVExwgGx8OKgwHXQwYPQcGAwQFBAsOEyIvCBEBBgICAwMPFRQMBgRDKh8IBzA7HCgGBBMQBwkBEhIDBywbFhAYGgAAAAACAC4AFQJGAcsAFgBEAAABIiciJiMiBwYHBhUUFx4BMz4BNTQnJic2MzIXHgEXHgMVFCMiJyYnJicmIyIHDgEHBgcOASMiJicmJyY1NDc+ATc2ASQDCAEEARQqHxASEgsMDy9CCwxaDyUuEiJOCg4mRhIqDhESGhgODAgJBAIvAgQgFhciNDAxDQoKIApLDgQBQQIBFQ8ZGxQTFQ0FAUIvHQoKhQUHDlIfLTImFBRXCgoNDBcUEgs6AwkRCwUaNw80OhIsPhVIAwEAAAACACwAIQHjAqQAFQBHAAABJiMiBw4BBwYVFBceATMyNjc2NTQmAzYzMhcWFRQPATc2MzIXFhcWFRQHDgIHBiMiLwEHBgcOASMiJyY1NDc2NzY3PgE3NgFSFgoMEBQVBwYFBxkbIDMKARn8BwkYDwoBAhgvQygnNSENAQQiNhsfKU8pEQMEEAsNDxYODAICCgkDAgQHCQErCAoMGhgSCgcUGBEzKQMHESEBfgMPCkI1KJ4YLxIYORcVEQwvQDYNDicQDA4SDAcRDRIEIBpcQalyPAoOAAEALgAjAdQB/AA6AAATNjMyFxYXFhUUDwEnJiMiBwYVFBceAxcWMzI3Njc2MzIfAQcGBwYPAScuASMiJicmNTQ3PgE3PgG7HA0ZTzALBBEMJSYeRScQHggRDBYHCQkUNSQnDgoPDw8DBAMFTyJGRxwEBj8JKwMDFiAYHAH1BxIKJhALKBELCww/GRceGAcJBAcDAwwIIQsUFCcpCQ0pEgIBEDMNO1UaHiEvKx8VAAAAAgAuACEBzwJUABEARgAAASYjIgcGDwEXFhcyNjc2NTQmEzYzMhceARcWFxYVFAcOASMiBwYjIicmJy4BNCY1NDY/ATY3Njc2MzIXFjMyNTQnNCY1NDYBFQsHCBQ3EQwOFkMYDhAXJ0EHChgZCAUBAg8NFQwMFyUWGyAaLzo3DRYKCBAPGTsYEAYNIC4UBgQBAQgBJAYKGiIXDBMBBhAXBgk1ATAGJA0mUnReURkYFg0FBggHCzAMJhYELyIiHB40FQgIAxMJHhkRCBkFIRsAAAIALgAdAcICEAASAEoAAAE2NTQmJyYjIgcGBwYVFBcWMzInNjMyFxYXFhUUBw4BBwYjIicmJy4BLwEiFRQXHgEzMjc+ATMyFhUUBwYHIyInJicuAT0BNzY3NgE4IhcTEAQPHywYDRkeOyAyBxMwHSsYDAcJLBkcGhkUQBsEDQMEAQ8NNzNBIA0NDRUYSSk3FkgyKRkPChEpVTYBUw0kERwDAgwRGg8FCQkKvwINEysUKyoRFSoLDAEBCgEFAQEFHSsnICQNCBoXLh8RAh0XOSE9PUgeSSMVAAEAMP/4Ae4C9QBhAAATNjsBHgEXFhceARcWHQEGByMiJicuASMiDwIVFB8BNzYzMhcWFxYVFAcGBwYHBgcGFRQXHgEXFAcGIyImJyYnJicmNTQ2NTcnLgEnJicmNTQ2NzY3PgE1NCcmNTQ3NjU0+RcjDh4UDhQHBzQHEAMeAg0rDQsoDSEiFAIGCFBcDhkGBgoIAgUHCxxCLRsLBwMBHgkFAxQaFQQEDw8BASYaExAVBAERCQ0XEg4CBi0XAuwJAQUKDhEQQw0bGxBBBC8dGiosG0IWLhESBAUKCw4NDQQQJwgJAQEGAwoFEAkXKWMiCwoYFRgaIB8UAgcDHgEBBw0RCwIGEDEHDAMDCgwEEB41cUQkBA8AAAACAC7++gHTAc8AEgBfAAABJiMiBw4BFRQWFzMyNz4BNTQmJzYzMhceARcWFxYXFhUUBwYHDgIHBiMiJyYnLgEnJjU0NzYzMhcWFxYVFBcWMzI3PgE3NTQjIgcOASMiJy4BNTQ3Njc2NzY3PgE3NgEyDw0OFBZJLiAJGRgUIxNUAwozMRc8AwsFBAYFBAcIBwoaCBIsEQUFDxBNDRsBBikHBAsLCyAZDAMIFwsCDAgdGBcrORgsOgQHAwITERcOFhMnATsHCgtMDA4VAg4MLw8QHZkBEwlGFD44NRoXHydDgRIPICsECQMEBAQ2ECQqDQdFAQIeHQkKEQ4CByVGIzESDgULFGM1FRAbAwIgHRMMHw4cAAABADAAFwHdAqIARwAAEzYzMhcWFRQHDgIHBhUUFxYXFjMyNzY3PgE3MzIXHgEXFhceARcVFAYHBiMiJicmJyYjIgcGFRQGBwYjJy4BJyYnJic1NDZIDw4NFxUBAQMDAQMCBAQFCwQFBBcPEBgPKSAZOAwKBAYMAQUJFRIXHwQIHQwQExAoDRMMCTYSCwQHFggBCgKQEhgWDgoHBRsYCRQNCAoLISAIBxkQBgEQDVQqIwQIUSgZEg0KFT45Zx4MDyKHOCwKBSQYLkWNRhhPFjowAAAAAAIAMAAXAQICeAAUADgAABM2MzIXFhcWFRQHDgErASYvAjU0FjQzMhUUNhUUFxYXFhcWFRQHBiMiJy4BJyYnJjU0JyY9ATQ3PBQoCgsjDgcJCA8SDRwdGwJdEhMOCRANAwkQEQsLDxEQDAUDDQsJChACWCADCikXCg8TEwwBFBIfCxSkBgQDAgUGDRV4ISdDIB0TCxAOISkbNicVDxcaHQkKEgAAAgAx/xABJQH1ABMARgAAEzYzMhcWFRQHDgEjIicmNTQ3PgETFBYVFBceARUUBw4BBwYjIicuAScmNTQ3NjMyFhUUFjMyNzY1NCYnJjU0NzY3NjMyFxaMFhYSCiQECCQLHCQUAQQKgg8ICAwBBR0hEA4VIhYUDSQXEgwNGhIKBwYFEAoPAgQTEQ8QDxAB5g8KITYRCxUpKhgNCgYoGP78CC0HDAgJbDgdDVFBCAQOCRASMysjGhUZDRAXBwYhLXIRGyIHDBMMDRMUAAAAAQArAB0BiwJoAE4AABM2MzIXHgEVFAYVFAYVFDMyNzY3Njc2MzIXFhUUBwYHBgcGBwYVFxQVFhcWFx4BFxYUDwEnJicmJyYjIgYHDgEHBiMiLwE3NTQnJjU0NzY/DRANBwsIAQEPBAMLNE8bFA0ODwwBBx8RCgkpJQEDJyMlGAwCAQ4CHCElFSotCgYFAgMKDQMGExoVAgMFAwQCWQ8JDSMsBiILCh0GQgEEOlYVDxUTDgsHPRILEg8rJgoBAQEKIR8OCAoNBBA/EgMFFg4qLREgKx8CASEbRx83GjJtUCAnAAAAAQAuABcAtwKwABsAABM2MhcWFxYXFhUUIyInLgEnLgEnJicmNTQ3PgE+ByYHFAQFCx0iBQMLKwgMBQIEBgQBAgoCpQsFDImqLnhdUgEEMRMaIUVlNyMhDwMHxgABAC0AGgIZAZsAWwAAEzYyFx4BFxY3Njc0Njc2MzIXFhceARUUBgcGIyInJiMiJjU0JicmBw4BBwYHBiMiJy4BJy4BJyMiBhUUBwYdARQGBwYnLgYnJjU0Njc2MzIXMhYzMjc2tBYSDQwoBwcJAwE6EhYIEhc1CQIOAwgKCg0ODAUGCg4IBgoQGQUDDAoKCAYcHQYCEggBBxkIBw0UDw0HCwkGBwMHAREFChIaCwUCBAEKCg4BlQYICCsNDQICBAovBQUbPk4ZLyQiEAcJFBMlGh5DCAYFCDsoIBURAQQzOBctBSAJCw4NNREwIgsICAUKEAoWChsFQmgXDwoRAQENEAAAAAEALgAgAYEBwQA4AAATNjMyFx4BFxYVFAcGIyInJj0BNCcmNTQmIyIHDgEPARYUFwcGIyInLgEnNCcmNTQzMhYzFjMyNza0EhglHRMXGh0LCAwZFgoNBxAMBQMPDg8QAQERFQ4MEBoPAQkGJQEIAgYJCxQYAbgJEwwlQERvOA8MJBEvDV4LBQ8NDwEDDRUXH3gfFRkQGTE+QTQeFC0BAREWAAAAAgAuACUBpQHaAB4ASwAAASYjIgcGBwYVFBceARcWMzI3PgI3PgE3NjU0Jy4BJzYzMhYXFhcWFxYzMhYXHgEdAQ4BBwYjIicmJyYnLgEnLgEnJjU0NzY3Njc2AQ8SBw0gFAkgBwULESwWDggCCQYCDBgCAQQFFHQQBwhKBwsNEgwNBAUkAwILBz1KDhwhDAQVDhIQKAYBDQQJAQU8Cw4SAUsFEAkQMw0GEw0LBg8GAQcEAQcgCgIHDRgbFpIEDgQGAQQMDU8TDiUTDVpVFgUHBAQBCAgtEAInCRYYDglbPwsVHgAAAgAu/3IBhgHQABIAPgAAAS4BIyIHBhUUFxYzMh8BNzY1NCc2MzIXHgEXFRQGBwYHBiMiLwEUFhUHDgEiJicmJyYnLgInJicmNTQ2NzYBKgQbFCsdCAMGCQwdHxAafiIZJDQsGQEPGhwOLxENDQ8EEA4NFCEDAwUEBgMJBQIECAwZICoBBhweOBAGBQYOERELEyALvxEoIj5PFEU2FxgCDQUFGFwYGBULIw4NBwQqEzssJEgqPSAfIA4SAAACAC7/fQHfAbEAEgBEAAABIyIGBwYVFBceATI2Nz4BNTQmJzYzMhcWFRQHBhUUFxYVFBcWFQYjIicmJyY1NiYnJiMiBwYjIicuAScuATU0Nz4BNzYBEgkjLhYQAwQLMBEPFCMJTCcqUBwbAgMSCA4OAR0JCCkOCAEZAQMGBxIuQgoSHBMRGyEKCTgbFwEvGiAYCAUICwQGDhI2DAkEewgfHCQHFCAaPD4bEwwkITRTBBBCIg0URwYRDyYCBAgRGlcqIRUUPRIPAAEAMQAqAVUB1AAzAAA3NCY1NCcmNTQ3PgE7ATI3Njc2MzIXFhUUBhUOASMiBw4BFBcWHQEOAQciBiMiJyYnJicmVhQKBwMGMQ8BDhgWHhgeMwoNAQI5CwIbEQ0CAgIMFgEGAgsPKAECBwjzBzwGCx4WCgcHDRsICQQECg0uAggBBx8JBxg4FDAnHS8YBAEMHkYsDhQAAAAAAQAwAC0BbQIQAEUAABM2MzIXFhUUBw4BDwEXHgEXHgEXFhUUBw4BBwYjIicuAScmNTQ3NjMyFxYzMjc2NTQnLgEnLgEnLgEnNTQ3Njc2Nz4BNzbBCxIgGg4CAwkQExIILQ4QCgYDCA0iMQULPT0SCgUGBggWCwg1LwkMDQoHEyQ8KxMWCAEMDQkNDgonCQkCDgIZDg4DFiUTBwgKBRMOECA+GA0RIzIfBQEcCQsRGBYVDBAEFQIEEQ8OCAQBAQsUFxYoDSQbHQMFCgcNCQgAAAEAMAAeAi8CWgBHAAATNjMyFxYVFAcGFRQWFxYzMjc2MzIXFhceARUUBwYHBgcGFRQWFxYVFAcOAQcGIyInLgEnJicmIyIPAScuASc0Njc2NzY1PgHhCxcmCwYGAgoFBRIPCkkUEBYWFQsFGAhaWgEBDQQEAgMNFQcEBg8bDQQHEgELGRw5Eg4XAR44RQQFAQQCUAoYDBcWBgIIDzAGBQEGBQYQCQ0TNQoDAgQBAwQVbggKDwcUHxcLBA8aJz9xBwEEBw8MNRcUDgUHBAVHMhcAAAAAAQAuAB8BxAHKAD8AAAE2MzIXHgEVFAYHBgcOAQcGIyInLgE1NCcmNTQ3PgEzMhcWFRQHBhUUFx4CFR4BFxYzMjc+ATc2PQE0JjU0NgFiDAkKIBkKDwUFBAhAMBkiPC8ZLgkLBAUdEgkJFQICBQIDAwIuGAYFCRQTDQsaAQkBwQkWEQ4REFQODB4+ZBkOLRc9CAoXHHgzDxIXAwhGCxwiCBcPBAsHAQ4rCgMKCg8aQEANBRIDGxQAAAEAMAAeAXwB9QA5AAATNjMyFhUUFxYXFhcWMzI3NjU0JyY1NDc2MzIXFhcWFRQHDgEHBgcOASMiJyYnLgEnJicmJyYnJjU0OwsKBy4JEgwZGRAHDQoMAQEJERUREw8DARIEGQcMBgcPDgcEEAsKHwMECBQ5BhgXAeoLLAcFFCcdOSUZLzQhEwsNERUPHRINKAgSSkAMZRAbGxoVAQINDDsPEQodgww0Lx0SAAABADAAJgILAc0AWgAAATYzMhceARUUBgcGIyI1NCcmLwEUBhUUBgcGIyInLgInLgE1NCcmJzQuAScmNTQ3NjMyFxYXFhcWMzI3NjU0JyY1NDc2MzIXFhceARcWMzI3NjU0Jy4BNTQ2AaUGEiYSBw8aFQQJJxokLBoWHwgHFRYJAhgRAgEPCQoCBgsDFgQIGBENHQgJDgkEBQQEAQIIDxUIBCoNCRYXIxIEAQQEBQsMAckELhN/Lz9gCwIIBBMZKxcBHgkIRAkJDQMeGQgHGwgKBQYPBBcpDlYuEwgOBw9KVBMNCgcXEQoeBBEPHAEILx8lGCUBAzY4CAkxDA0iAAAAAQAwACYB0AHqAEsAAAE2MzIXFBcWFRQGFQ4BBwYVFBceARceARUUBhUOASInJicmIyIVFAcGFRQHDgErAS4BJyY1NDc2NzY1NCcuATU0MzIWFx4BMzI3PgEBOQkOHAUNBwEDDRUjIBIbFx4SAQMPHg0HGEwXCggHEw0ICQYRIQUDEA4BARI7KR4KMwoLMAwHEREqAeYEDQEcEwwBCAIVFxQhGAYYDhsQFBgVAgwEIx8QCRhKDQkGBREOJBgKAiEVDA8qGBQMAwUKEjs/HzstERMnJSQ+AAAAAQAw/1wBmwGuADkAAAE+ATMyFx4BHQEUBgcGBw4DBw4BBwYjIicuATU0Nz4CNTQnJicuAScmNTQ2MzIWFx4BMzI0NzYBKQYgFBIUDQUECgwQAR0NEQIFGA4LBAMOGh4BAxIKBQtHJxkFBB4VCTMWEDgFBw0PAWgbKxUOEBoMIRMMDi8FVStFFjZUCggHDUMqEAgaQQYTEQ0dSSghEQsNGyoxHRY5EBwiAAAAAAEAMQAiAfMBzwBTAAATMjc2MzIXFjMeARcWFRQHBgcOARUUMzI3Nj8BFxYVFAcOASMiIycjIgcGBwYHBiMiJyYzNTQmJyY1NDY1PwE2NDY3NTQmJyYjIgcGIyInJicmNTRmEEQNIkEOCiIdFAoIBREOEDgFBB0eKikREAkHHQwBAgIDDBYeGmMlDA4cCwcCAQECAQMoJywCBw4FCg8cUAwDCBQKAgG7EQMHBgEKFBAVEgokEBJXBgcGBwIDEhEVEBINFQEFCAMOCwQVDAECBgMEDQQRBB0nJww6DwYHBQIBBxUCCDgOBjMAAAAAAAAQAMYAAQAAAAAAAQAMAAAAAQAAAAAAAgAHAAwAAQAAAAAAAwAvABMAAQAAAAAABAAUAEIAAQAAAAAABQAPAFYAAQAAAAAABgAUAGUAAQAAAAAACgAcAHkAAwABBAkAAQAYAJUAAwABBAkAAgAOAK0AAwABBAkAAwBeALsAAwABBAkABAAoARkAAwABBAkABQAeAUEAAwABBAkABgAoAV8AAwABBAkACgA4AYcAAwABBAkAEAAYAJUAAwABBAkAEQAOAK1VbmNvbmZvcm1pc21SZWd1bGFyQ2FsbGlncmFwaHIgOiBVbmNvbmZvcm1pc20gUmVndWxhciA6IDE1LTA0LTIwMjZVbmNvbmZvcm1pc20gUmVndWxhclZlcnNpb24gMDAxLjAxMVVuY29uZm9ybWlzbS1SZWd1bGFyQ3JlYXRlZCB3aXRoIENhbGxpZ3JhcGhyLmNvbQBVAG4AYwBvAG4AZgBvAHIAbQBpAHMAbQBSAGUAZwB1AGwAYQByAEMAYQBsAGwAaQBnAHIAYQBwAGgAcgAgADoAIABVAG4AYwBvAG4AZgBvAHIAbQBpAHMAbQAgAFIAZQBnAHUAbABhAHIAIAA6ACAAMQA1AC0AMAA0AC0AMgAwADIANgBVAG4AYwBvAG4AZgBvAHIAbQBpAHMAbQAgAFIAZQBnAHUAbABhAHIAVgBlAHIAcwBpAG8AbgAgADAAMAAxAC4AMAAxADEAVQBuAGMAbwBuAGYAbwByAG0AaQBzAG0ALQBSAGUAZwB1AGwAYQByAEMAcgBlAGEAdABlAGQAIAB3AGkAdABoACAAQwBhAGwAbABpAGcAcgBhAHAAaAByAC4AYwBvAG0AAAAAAgAAAAAAAP+1ADIAAAAAAAAAAAAAAAAAAAAAAAAAAABRAAAAAQACAQIAAwAEAAUACAAKAAsADAAOAA8AEAARABMAFAAVABYAFwAYABkAGgAbABwAIAAiACMAJAAlACYAJwAoACkAKgArACwALQAuAC8AMAAxADIAMwA0ADUANgA3ADgAOQA6ADsAPAA9AEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVABVAFYAVwBYAFkAWgBbAFwAXQEDAkNSBG5ic3AAAQAB//8ADw==) format("truetype");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+
+  /* A typed lab sheet with a tree drawn on it. Everything is ink on paper:
+     no cards, no shadows, no rounded corners. Rules and space do the
+     separating. One accent (ballpoint blue) and one warning (red pencil). */
+  :root {
+    --paper:    #f3f3ef;
+    --paper-2:  #e8e8e2;
+    --ink:      #1c1c1a;
+    --ink-2:    #5a5a54;
+    --rule:     #c9c9c1;
+    --hair:     #dedcd5;
+    --pen:      #20477c;
+    --pen-soft: #dfe5f0;
+    --red:      #a4382c;
+    /* Ink wash, light -> dark. One hue, five steps: enough to rank a node by
+       eye, few enough that adjacent steps never blur. */
+    --w1: #dde2e6; --w2: #b0bcc8; --w3: #7b8ea3; --w4: #4a6480; --w5: #21405e;
+    --type: "Courier Prime", "Courier New", ui-monospace, monospace;
+    --hand: "Unconformism", "Bradley Hand", "Segoe Print", cursive;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #17181a;
+      --paper-2:  #212326;
+      --ink:      #ecebe6;
+      --ink-2:    #aeaca4;
+      --rule:     #3a3c3f;
+      --hair:     #2a2c2f;
+      --pen:      #85aee4;
+      --pen-soft: #1b2a3f;
+      --red:      #e58575;
+      --w1: #24384b; --w2: #31587d; --w3: #4a7aa8; --w4: #7fa8cf; --w5: #c6dbec;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:    #17181a;
+    --paper-2:  #212326;
+    --ink:      #ecebe6;
+    --ink-2:    #aeaca4;
+    --rule:     #3a3c3f;
+    --hair:     #2a2c2f;
+    --pen:      #85aee4;
+    --pen-soft: #1b2a3f;
+    --red:      #e58575;
+    --w1: #24384b; --w2: #31587d; --w3: #4a7aa8; --w4: #7fa8cf; --w5: #c6dbec;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--type); font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { margin: 0; font-weight: 700; text-wrap: balance; }
+  p { margin: 0; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--pen); outline-offset: 2px; }
+  .vh {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
+  .sheet { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+  /* ---------- typed header ---------- */
+  .head { padding: 16px 20px 12px; border-bottom: 2px solid var(--ink); }
+  .head h1 { font-family: var(--hand); font-weight: 400; font-size: 27px; line-height: 1.1; letter-spacing: .01em; }
+  .head .sub { color: var(--ink-2); font-size: 12.5px; margin-top: 3px; max-width: 74ch; }
+  .head .counts { color: var(--ink-2); font-size: 12px; margin-top: 6px; }
+  .head .counts b { color: var(--ink); font-weight: 700; }
+
+  .cols { display: grid; grid-template-columns: 290px minmax(0, 1fr); flex: 1; min-height: 0; }
+
+  /* ---------- left column: the index of lineages ---------- */
+  .rail { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--rule); }
+  .rail-top { padding: 12px 16px 10px; display: grid; gap: 8px; border-bottom: 1px solid var(--rule); }
+  .rail input[type="search"] {
+    width: 100%; padding: 5px 2px; border: 0; border-bottom: 1px solid var(--rule);
+    background: none; color: var(--ink);
+  }
+  .rail input[type="search"]::placeholder { color: var(--ink-2); }
+  .rail input[type="search"]:focus { border-bottom-color: var(--pen); outline: none; }
+  .railrow { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .railrow select {
+    flex: 1; padding: 3px 2px; border: 0; border-bottom: 1px solid var(--rule);
+    background: none; color: var(--ink);
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 12px; }
+  .chips button {
+    padding: 1px 0; border: 0; background: none; cursor: pointer; color: var(--ink-2);
+    border-bottom: 2px solid transparent;
+  }
+  .chips button:hover { color: var(--ink); }
+  .chips button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
+  .aug { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+  .aug input { accent-color: var(--pen); margin: 0; }
+  .count { padding: 6px 16px; font-size: 11.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
+  .list { overflow-y: auto; flex: 1; min-height: 0; }
+  .fam {
+    display: grid; gap: 3px; width: 100%; text-align: left; cursor: pointer;
+    padding: 9px 16px 9px 13px; background: none; border: 0;
+    border-bottom: 1px solid var(--hair); border-left: 3px solid transparent;
+  }
+  .fam:hover { background: var(--paper-2); }
+  .fam[aria-current="true"] { background: var(--paper-2); border-left-color: var(--pen); }
+  .fam-txt {
+    font-size: 11.5px; line-height: 1.4; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .fam-meta { font-size: 11px; color: var(--ink-2); }
+
+  /* ---------- right column: the sheet itself ---------- */
+  .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; }
+  .lin { padding: 14px 20px 12px; border-bottom: 1px solid var(--rule); }
+  .lin h2 { font-size: 13px; }
+  .lin .root {
+    margin-top: 5px; font-size: 12.5px; color: var(--ink-2); max-width: 86ch;
+    border-left: 2px solid var(--rule); padding-left: 9px;
+  }
+  .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .warn {
+    margin-top: 9px; max-width: 84ch; font-size: 11.5px; color: var(--ink-2);
+    border-left: 2px solid var(--red); padding: 2px 0 2px 9px;
+  }
+
+  /* Controls are typed words, underlined in pen when they are the live one. */
+  .bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px;
+    padding: 8px 20px; border-bottom: 1px solid var(--rule); font-size: 12.5px;
+  }
+  .grp { display: flex; align-items: baseline; gap: 8px; }
+  .grp > b { font-weight: 400; color: var(--ink-2); }
+  .bar button {
+    padding: 1px 0; border: 0; background: none; cursor: pointer;
+    color: var(--ink-2); border-bottom: 2px solid transparent;
+  }
+  .bar button:hover { color: var(--ink); }
+  .bar button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
+  .bar .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
+  .bar .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .scrub { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; }
+  .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
+  .scrub output { font-size: 11.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
+
+  .plot { padding: 6px 20px 0; }
+  .pulse { display: block; width: 100%; height: 52px; }
+  /* Faint ruling behind the diagram, the way the paper it would be drawn on
+     is ruled. Kept under 5% contrast so it never competes with the tree. */
+  .draw {
+    padding: 0 20px 12px;
+    background-image: repeating-linear-gradient(
+      to bottom, transparent 0 25px, color-mix(in srgb, var(--ink) 4%, transparent) 25px 26px);
+  }
+  .tree { display: block; width: 100%; touch-action: none; cursor: grab; }
+  .tree.dragging { cursor: grabbing; }
+
+  .key { padding: 2px 20px 12px; font-size: 11.5px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 18px; }
+  .key span { display: flex; align-items: center; gap: 5px; }
+  .wash { display: flex; }
+  .wash i { width: 17px; height: 9px; display: block; }
+
+  /* ---------- the selected variant ---------- */
+  .insp { border-top: 1px solid var(--rule); padding: 13px 20px 20px; }
+  .insp h3 { font-size: 12.5px; display: inline; }
+  .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
+  .spec {
+    margin: 9px 0 0; padding: 10px 12px; font-size: 12.5px; line-height: 1.55;
+    white-space: pre-wrap; overflow-wrap: anywhere; max-width: 90ch;
+    background: var(--paper-2); border-left: 2px solid var(--pen);
+  }
+  .mut { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; font-size: 11.5px; }
+  .mut .lbl, .rels .lbl { color: var(--ink-2); }
+  .tok { font-size: 11.5px; padding: 0 4px; }
+  .tok.add { color: var(--pen); background: var(--pen-soft); }
+  .tok.del { color: var(--red); text-decoration: line-through; }
+  .rels { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 11.5px; }
+  .rels button {
+    padding: 0; border: 0; background: none; cursor: pointer; color: var(--pen);
+    border-bottom: 1px dotted var(--pen);
+  }
+  .rels button:hover { border-bottom-style: solid; }
+  .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
+  .flags { margin-top: 9px; font-size: 11.5px; color: var(--red); }
+
+  /* ---------- the same lineage as numbers ---------- */
+  .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
+  .tbl summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
+  .tbl summary:hover { color: var(--ink); }
+  .tscroll { overflow-x: auto; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+  th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; }
+  td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  td.k { color: var(--ink); font-weight: 700; }
+  td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--paper-2); }
+  tbody tr[aria-current="true"] { background: var(--pen-soft); }
+
+  .note { padding: 10px 20px 24px; color: var(--ink-2); font-size: 11.5px; max-width: 88ch; }
+  .note b { color: var(--ink-2); font-weight: 700; }
+  .loading { padding: 36px 20px; color: var(--ink-2); }
+
+  .tip {
+    position: fixed; z-index: 20; max-width: 360px; pointer-events: none; opacity: 0;
+    transition: opacity .09s; background: var(--paper); border: 1px solid var(--ink);
+    padding: 8px 10px;
+  }
+  .tip.on { opacity: 1; }
+  .tip .t { font-size: 11.5px; line-height: 1.45; }
+  .tip .m { margin-top: 5px; font-size: 11px; color: var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  @media (max-width: 880px) {
+    body, .sheet { height: auto; }
+    .cols { grid-template-columns: 1fr; }
+    .rail { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .list { max-height: 240px; }
+    .stage { overflow-y: visible; }
+  }
+</style>
+
+<div class="sheet">
+  <header class="head">
+    <h1>Narrative Phylogeny</h1>
+    <p class="sub">Darwin drew the first one of these by hand in a notebook in 1837. This one is drawn from
+      395 million tweets: a claim appears, gets reworded, and the rewordings compete.</p>
+    <p class="counts" id="corpus"></p>
+  </header>
+
+  <div class="cols">
+    <aside class="rail">
+      <div class="rail-top">
+        <label><span class="vh">Search lineages</span>
+          <input id="q" type="search" placeholder="search a phrase&hellip;" autocomplete="off"></label>
+        <div class="railrow">
+          <label for="sort">sort by</label>
+          <select id="sort">
+            <option value="notable">notability</option>
+            <option value="emis">total spread</option>
+            <option value="nv">variant count</option>
+            <option value="depth">depth</option>
+            <option value="drift">drift</option>
+            <option value="coord">coordinated share</option>
+          </select>
+        </div>
+        <div class="chips" id="topics" role="group" aria-label="Filter by topic"></div>
+        <label class="aug"><input type="checkbox" id="augonly"> August 17&ndash;31 only (clean sample)</label>
+      </div>
+      <p class="count" id="count"></p>
+      <div class="list" id="list"></div>
+    </aside>
+
+    <main class="stage">
+      <div id="stage-body" class="loading">Loading lineages&hellip;</div>
+    </main>
+  </div>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var RAMP = ["--w1","--w2","--w3","--w4","--w5"];
+  var TOPIC_LABEL = {
+    politics:"Politics", conflict:"Conflict", migration:"Migration", identity:"Identity",
+    health:"Health", crypto:"Crypto", fandom:"Fandom", sports:"Sport"
+  };
+  var NEWS = { politics:1, conflict:1, migration:1, identity:1, health:1 };
+
+  var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
+  var state = { q:"", sort:"notable", topic:"all", win:"all", famId:null, fam:null, nodes:null,
+                topo:null, colorBy:"drift", xMode:"tree", cut:Infinity, sel:0, playing:false,
+                tableOpen:false };
+  // auto = the view is still the fitted default, so a resize or a relayout may
+  // refit it; any manual pan or zoom clears the flag and the view is left alone.
+  var view = { k:1, tx:0, ty:0, auto:true };
+  var layout = null;
+  var MAX_TREE_H = 620;
+
+  var $ = function (s) { return document.querySelector(s); };
+  var fmt = function (n) { return n.toLocaleString("en-US"); };
+  var css = function (v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  // A, B, ... Z, AA, AB -- spreadsheet-style, so a tree of any size gets short
+  // labels that stay readable inside a node.
+  function letter(k) {
+    var out = "";
+    for (k += 1; k > 0; k = Math.floor((k - 1) / 26)) {
+      out = String.fromCharCode(65 + (k - 1) % 26) + out;
+    }
+    return out;
+  }
+
+  // A label set inside a filled mark takes white or ink by the fill's own
+  // luminance, so it clears contrast at either end of the ramp and in both
+  // themes -- the ramp inverts in dark mode, so a fixed choice would fail.
+  function inkOn(hex) {
+    var h = String(hex).replace("#", "");
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    if (h.length < 6) return css("--ink");
+    var lin = function (c) {
+      c = parseInt(c, 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    var lum = 0.2126 * lin(h.slice(0, 2)) + 0.7152 * lin(h.slice(2, 4)) + 0.0722 * lin(h.slice(4, 6));
+    return lum > 0.19 ? "#1c1c1a" : "#ffffff";
+  }
+
+  // Parent/child structure and the node letters are properties of the lineage,
+  // not of any one layout, so they are computed once per family and shared by
+  // the diagram, the inspector and the table.
+  function topology(nodes) {
+    var kids = nodes.map(function () { return []; });
+    var root = 0;
+    nodes.forEach(function (nd, i) {
+      if (nd.p === null || nd.p === undefined) root = i; else kids[nd.p].push(i);
+    });
+    kids.forEach(function (ks) {
+      ks.sort(function (a, b) { return nodes[a].t0 - nodes[b].t0 || nodes[b].n - nodes[a].n; });
+    });
+    var label = new Array(nodes.length), order = [root];
+    for (var i = 0; i < order.length; i++) {
+      label[order[i]] = letter(i);
+      kids[order[i]].forEach(function (k) { order.push(k); });
+    }
+    return { kids: kids, root: root, label: label, order: order };
+  }
+
+  // Hours are stored relative to the first tweet in the corpus so every family
+  // shares one clock; this turns one back into a readable date.
+  function hourLabel(h) {
+    var d = new Date(CORPUS_T0 + h * 3600e3);
+    return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"numeric", timeZone:"UTC" }) + " UTC";
+  }
+  function dayLabel(h) {
+    var d = new Date(CORPUS_T0 + h * 3600e3);
+    return d.toLocaleString("en-US", { month:"short", day:"numeric", timeZone:"UTC" });
+  }
+
+  function notability(f) {
+    return f.depth * Math.log10(Math.max(10, f.emis)) * (1 + f.drift);
+  }
+
+  /* ---------------- family list ---------------- */
+
+  function filtered() {
+    var q = state.q.toLowerCase().trim();
+    var out = FAMS.filter(function (f) {
+      if (state.win !== "all" && f.win !== state.win) return false;
+      if (state.topic === "news") { if (!f.topics.some(function (t) { return NEWS[t]; })) return false; }
+      else if (state.topic !== "all") { if (f.topics.indexOf(state.topic) < 0) return false; }
+      if (!q) return true;
+      return f.q.indexOf(q) >= 0 || f.top.toLowerCase().indexOf(q) >= 0 || f.root.toLowerCase().indexOf(q) >= 0;
+    });
+    var key = {
+      notable: notability, emis: function (f) { return f.emis; }, nv: function (f) { return f.nv; },
+      depth: function (f) { return f.depth * 1000 + Math.log10(f.emis); },
+      drift: function (f) { return f.drift; }, coord: function (f) { return f.coord_share; }
+    }[state.sort];
+    return out.sort(function (a, b) { return key(b) - key(a); });
+  }
+
+  function renderList() {
+    var rows = filtered();
+    $("#count").textContent = fmt(rows.length) + " lineages" + (state.q ? ' matching "' + state.q + '"' : "");
+    var shown = rows.slice(0, 400);
+    if (state.famId !== null && !shown.some(function (f) { return f.id === state.famId; })) {
+      var cur = FAMS.find(function (f) { return f.id === state.famId; });
+      if (cur) shown.unshift(cur);
+    }
+    var html = shown.map(function (f) {
+      var tags = f.topics.map(function (t) { return TOPIC_LABEL[t].toLowerCase(); }).join(", ");
+      return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '">' +
+        '<span class="fam-txt">' + esc(f.top) + "</span>" +
+        '<span class="fam-meta">' + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
+        (tags ? " &middot; " + tags : "") + "</span></button>";
+    }).join("");
+    $("#list").innerHTML = html || '<p class="loading">Nothing matches that phrase.</p>';
+    var cur = $('.fam[aria-current="true"]');
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+    if (rows.length > 400) {
+      $("#list").insertAdjacentHTML("beforeend",
+        '<p class="loading">Top 400 of ' + fmt(rows.length) + " \u2014 narrow it with the search or a topic.</p>");
+    }
+  }
+
+  /* ---------------- tree layout ---------------- */
+
+  // Two ways to place the same lineage, and they answer different questions.
+  //
+  //   tree  -- the classic rooted tree. One row per generation, a child sits
+  //            directly below the wording it was derived from, parents centred
+  //            over their children. Structure is the subject: you can see the
+  //            branching factor, which wordings are siblings, and how deep the
+  //            lineage runs. Horizontal position carries no measure.
+  //   time  -- a variant sits at the hour it was first observed, so the gap
+  //            along an edge is the real waiting time before the rewording
+  //            appeared. Structure is harder to read; timing is exact.
+  function buildLayout(nodes, mode, width) {
+    if (mode === "tree") return buildTreeLayout(nodes);
+
+    var t = state.topo, kids = t.kids, root = t.root;
+
+    var slot = 0, y = new Array(nodes.length).fill(0);
+    (function walk(i) {
+      if (!kids[i].length) { y[i] = slot++; return; }
+      kids[i].forEach(walk);
+      y[i] = (y[kids[i][0]] + y[kids[i][kids[i].length - 1]]) / 2;
+    })(root);
+
+    var t0 = Math.min.apply(null, nodes.map(function (n) { return n.t0; }));
+    var t1 = Math.max.apply(null, nodes.map(function (n) { return n.t0; }));
+    var maxD = Math.max.apply(null, nodes.map(function (n) { return n.d; }));
+    var padL = 26, padR = 118;
+    var inner = Math.max(120, width - padL - padR);
+    var span = Math.max(1, t1 - t0), lspan = Math.log1p(span);
+    var frac = mode === "log"
+      ? function (h) { return Math.log1p(Math.max(0, h - t0)) / lspan; }
+      : function (h) { return (h - t0) / span; };
+    var xOf = function (n) { return padL + frac(n.t0) * inner; };
+
+    var rowH = nodes.length > 90 ? 12 : nodes.length > 40 ? 16 : 21;
+    return {
+      root: root, kids: kids, t0: t0, t1: t1, maxD: maxD, padL: padL, inner: inner, rowH: rowH,
+      x: nodes.map(xOf), y: y.map(function (v) { return 16 + v * rowH; }), frac: frac,
+      height: 16 + slot * rowH + 18, mode: mode
+    };
+  }
+
+  // Classic layout. Leaves take consecutive columns in sibling order and every
+  // parent is centred over its children, which is the textbook tidy tree and,
+  // because sibling subtrees occupy disjoint column ranges, cannot collide.
+  // Node area still carries spread, so the range of radii is kept narrow --
+  // enough to rank two nodes by eye, not so much that the rows lose their grid.
+  function buildTreeLayout(nodes) {
+    var t = state.topo, kids = t.kids, root = t.root;
+    var maxN = Math.max.apply(null, nodes.map(function (n) { return n.n; }));
+    var r = nodes.map(function (n) { return 12.5 + 8 * Math.sqrt(n.n / maxN); });
+    var maxR = Math.max.apply(null, r);
+    var slotW = 2 * maxR + 14;
+
+    var slot = 0, col = new Array(nodes.length).fill(0);
+    (function walk(i) {
+      if (!kids[i].length) { col[i] = slot++; return; }
+      kids[i].forEach(walk);
+      col[i] = (col[kids[i][0]] + col[kids[i][kids[i].length - 1]]) / 2;
+    })(root);
+
+    var maxD = Math.max.apply(null, nodes.map(function (n) { return n.d; }));
+    // The deepest lineage in the corpus runs 15 generations; tighten the rows
+    // past nine so it still fits the frame without being scaled into mush.
+    var TOP = 46, LEVEL = maxD > 9 ? 66 : 80;
+    var x = col.map(function (c) { return maxR + 3 + c * slotW; });
+    var levelY = [];
+    for (var d = 0; d <= maxD; d++) levelY.push(TOP + d * LEVEL);
+
+    return {
+      mode: "tree", root: root, kids: kids, label: t.label, r: r, x: x, maxD: maxD,
+      y: nodes.map(function (n) { return levelY[n.d]; }), levelY: levelY,
+      natW: Math.max.apply(null, x) + maxR + 4,
+      natH: TOP + maxD * LEVEL + 48
+    };
+  }
+
+  function metricOf(n) {
+    if (state.colorBy === "drift") return n.drift;
+    if (state.colorBy === "coord") return n.acc ? n.co / n.acc : 0;
+    return Math.log10(Math.max(1, n.n)) / 4.6;     // spread, log-scaled to ~40k
+  }
+  function rampColor(v) {
+    var i = Math.max(0, Math.min(RAMP.length - 1, Math.round(v * (RAMP.length - 1))));
+    return css(RAMP[i]);
+  }
+  var METRIC_LABEL = {
+    drift: ["drift from the root", "identical", "fully reworded"],
+    coord: ["coordinated share", "none", "all accounts"],
+    spread: ["spread, log scale", "1", "40k+"]
+  };
+
+  /* ---------------- drawing ---------------- */
+
+  function drawTree() {
+    if (state.xMode === "tree") return drawClassicTree();
+    var svg = $("#tree"); if (!svg || !layout) return;
+    var nodes = state.nodes, L = layout;
+    var W = svg.clientWidth || 800;
+    var parts = [];
+
+    // Ticks measure elapsed time since the root phrasing, which is the quantity
+    // the axis actually encodes -- calendar dates would imply a linear scale.
+    var elapsed = L.t1 - L.t0, ticks = [];
+    if (L.mode === "log") {
+      [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512].forEach(function (o) {
+        if (o <= elapsed) ticks.push(o);
+      });
+    } else {
+      var stepH = elapsed > 240 ? 48 : elapsed > 96 ? 24 : elapsed > 24 ? 12 : 6;
+      for (var o = 0; o <= elapsed; o += stepH) ticks.push(o);
+    }
+    ticks.forEach(function (o) {
+      var gx = L.padL + L.frac(L.t0 + o) * L.inner;
+      parts.push('<line x1="' + gx + '" y1="4" x2="' + gx + '" y2="' + (L.height - 16) +
+        '" stroke="' + css("--hair") + '" stroke-width="1"/>');
+      var lbl = o === 0 ? "root" : o < 24 ? "+" + o + "h" : "+" + Math.round(o / 24) + "d";
+      parts.push('<text x="' + gx + '" y="' + (L.height - 4) + '" font-size="9.5" fill="' + css("--ink-2") +
+        '" text-anchor="middle" font-family="' + css("--type") + '">' + lbl + "</text>");
+    });
+
+    // The crawl thins 15x on 1 September, so a lineage that appears to stop
+    // there may only have gone unobserved. Draw the seam rather than hide it.
+    if (META.cliff_h > L.t0 && META.cliff_h < L.t1) {
+      var cx0 = L.padL + L.frac(META.cliff_h) * L.inner;
+      parts.push('<line x1="' + cx0 + '" y1="4" x2="' + cx0 + '" y2="' + (L.height - 16) +
+        '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>');
+      parts.push('<text x="' + (cx0 + 4) + '" y="13" font-size="9.5" fill="' + css("--red") +
+        '" font-family="' + css("--type") + '">Sep 1 \u2014 crawl thins 15\u00d7</text>');
+    }
+
+    // lifespan bars: how long the variant kept being posted after it appeared
+    nodes.forEach(function (n, i) {
+      if (n.t0 > state.cut || n.t1 <= n.t0) return;
+      var x0 = L.x[i];
+      var x1 = L.padL + L.frac(Math.min(n.t1, L.t1)) * L.inner;
+      if (x1 - x0 < 3) return;
+      parts.push('<line x1="' + x0 + '" y1="' + L.y[i] + '" x2="' + x1 + '" y2="' + L.y[i] +
+        '" stroke="' + css("--rule") + '" stroke-width="1.5" stroke-linecap="round" opacity=".33"/>');
+    });
+
+    // edges: drop down from the parent, then run forward in time to the child
+    nodes.forEach(function (n, i) {
+      if (n.p === null || n.p === undefined) return;
+      if (n.t0 > state.cut || nodes[n.p].t0 > state.cut) return;
+      var px = L.x[n.p], py = L.y[n.p], cx = L.x[i], cy = L.y[i];
+      parts.push('<path d="M' + px + "," + py + "V" + cy + "H" + cx +
+        '" fill="none" stroke="' + css("--rule") + '" stroke-width="1.4" stroke-linecap="round"/>');
+    });
+
+    // nodes: area is spread, fill is the selected metric, ring flags coordination
+    var maxN = Math.max.apply(null, nodes.map(function (n) { return n.n; }));
+    nodes.forEach(function (n, i) {
+      var faded = n.t0 > state.cut;
+      var r = 2.6 + 7.4 * Math.sqrt(n.n / maxN);
+      var coord = n.acc ? n.co / n.acc : 0;
+      parts.push('<circle class="nd" data-i="' + i + '" cx="' + L.x[i] + '" cy="' + L.y[i] + '" r="' + r.toFixed(2) +
+        '" fill="' + rampColor(metricOf(n)) + '" stroke="' + (coord > 0.15 ? css("--red") : css("--paper")) +
+        '" stroke-width="' + (coord > 0.15 ? 2 : 1.5) + '" opacity="' + (faded ? 0.1 : 1) +
+        '" style="cursor:pointer"/>');
+      if (i === state.sel && !faded) {
+        parts.push('<circle cx="' + L.x[i] + '" cy="' + L.y[i] + '" r="' + (r + 4.5).toFixed(2) +
+          '" fill="none" stroke="' + css("--pen") + '" stroke-width="1.6"/>');
+      }
+    });
+
+    // direct labels on the few heaviest variants only
+    var top = nodes.map(function (n, i) { return [n.n, i]; })
+      .sort(function (a, b) { return b[0] - a[0]; }).slice(0, 4);
+    top.forEach(function (p) {
+      var i = p[1]; if (nodes[i].t0 > state.cut) return;
+      parts.push('<text x="' + (L.x[i] + 11) + '" y="' + (L.y[i] + 3.4) + '" font-size="10" fill="' + css("--ink-2") +
+        '" font-family="' + css("--type") + '">' + fmt(nodes[i].n) + "</text>");
+    });
+
+    svg.setAttribute("height", L.height);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + L.height);
+    svg.innerHTML = '<g transform="translate(' + view.tx + "," + view.ty + ") scale(" + view.k + ')">' +
+      parts.join("") + "</g>";
+  }
+
+  // No line drawn by hand lands perfectly straight. The deviation is seeded
+  // from the node index, so it is identical on every redraw and the tree does
+  // not shimmer while the time scrub runs.
+  function bow(x1, y1, x2, y2, seed) {
+    var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var h = Math.sin(seed * 12.9898) * 43758.5453;
+    var off = ((h - Math.floor(h)) - 0.5) * Math.min(6, len * 0.08);
+    return "M" + x1.toFixed(1) + "," + y1.toFixed(1) +
+      "Q" + ((x1 + x2) / 2 - dy / len * off).toFixed(1) + "," + ((y1 + y2) / 2 + dx / len * off).toFixed(1) +
+      " " + x2.toFixed(1) + "," + y2.toFixed(1);
+  }
+
+  // The classic view. One row per generation, ruled and numbered in the right
+  // gutter, with the height of the tree bracketed on the left -- the two things
+  // a rooted tree is normally read for. Selecting a node shades its subtree and
+  // rings its parent, so the family relations the diagram encodes are visible
+  // rather than inferred.
+  function drawClassicTree() {
+    var svg = $("#tree"); if (!svg || !layout) return;
+    var nodes = state.nodes, L = layout, sel = state.sel;
+    var W = svg.clientWidth || 800;
+    var GL = 56, GR = 76;                       // gutters: height bracket, level numbers
+    var avail = Math.max(160, W - GL - GR);
+
+    // The default view fits the whole tree; a pan or a zoom takes over from it.
+    // The floor keeps a 200-variant lineage from fitting itself into
+    // illegibility -- past that point it is pannable instead of shrunk.
+    if (view.auto) {
+      view.k = Math.max(0.5, Math.min(1, avail / L.natW, MAX_TREE_H / L.natH));
+      view.tx = GL + Math.max(0, (avail - L.natW * view.k) / 2);
+      view.ty = 0;
+    }
+    var H = Math.min(MAX_TREE_H, L.natH * view.k) + 6;
+    var sy = function (cy) { return cy * view.k + view.ty; };
+    var body = [], gutter = [];
+
+    // The widest lineage here is 188 variants across one row -- far past what
+    // fits on a screen at a readable size. Say so instead of quietly showing a
+    // slice of it.
+    var shown = Math.min(1, avail / (L.natW * view.k));
+    if (shown < 0.995) {
+      gutter.push('<text x="' + GL + '" y="' + (H - 5) + '" font-size="11.5" fill="' + css("--ink-2") +
+        '" font-family="' + css("--hand") + '">showing ' + Math.round(shown * 100) +
+        "% of a wide tree, drag to pan and scroll to zoom</text>");
+    }
+
+    // Level rules are solid hairlines: a dashed rule reads as a threshold, and
+    // the only threshold on this page is the 1 September collection cliff.
+    L.levelY.forEach(function (cy, d) {
+      var yy = sy(cy);
+      if (yy < 10 || yy > H - 6) return;
+      gutter.push('<line x1="' + GL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - GR + 10) +
+        '" y2="' + yy.toFixed(1) + '" stroke="' + css("--hair") + '" stroke-width="1"/>');
+      gutter.push('<text x="' + (W - GR + 16) + '" y="' + (yy + 4).toFixed(1) + '" font-size="11.5" fill="' +
+        css("--ink-2") + '" font-family="' + css("--hand") + '">level ' + d + "</text>");
+    });
+
+    var yTop = sy(L.levelY[0]), yBot = sy(L.levelY[L.maxD]);
+    if (L.maxD > 0 && yTop > 10 && yBot < H - 6) {
+      var bx = 24, mid = (yTop + yBot) / 2;
+      gutter.push('<line x1="' + bx + '" y1="' + yTop.toFixed(1) + '" x2="' + bx + '" y2="' + yBot.toFixed(1) +
+        '" stroke="' + css("--rule") + '" stroke-width="1"/>');
+      [yTop, yBot].forEach(function (yy) {
+        gutter.push('<line x1="' + (bx - 4) + '" y1="' + yy.toFixed(1) + '" x2="' + (bx + 4) + '" y2="' + yy.toFixed(1) +
+          '" stroke="' + css("--rule") + '" stroke-width="1"/>');
+      });
+      gutter.push('<text transform="rotate(-90 ' + (bx - 6) + " " + mid.toFixed(1) + ')" x="' + (bx - 6) +
+        '" y="' + mid.toFixed(1) + '" text-anchor="middle" font-size="11.5" fill="' + css("--ink-2") +
+        '" font-family="' + css("--hand") + '">height ' + L.maxD + "</text>");
+    }
+
+    // The subtree of the selected wording: everything descended from it. This
+    // is the population the lineage-total figure in the inspector counts.
+    // (Skipped for the root: "the subtree of the root" is the whole tree.)
+    if (sel !== L.root && L.kids[sel] && L.kids[sel].length) {
+      var members = [], stack = [sel], byD = {};
+      while (stack.length) {
+        var cur = stack.pop();
+        members.push(cur);
+        L.kids[cur].forEach(function (k) { stack.push(k); });
+      }
+      members.forEach(function (i) {
+        var d = nodes[i].d, e = byD[d] || (byD[d] = [Infinity, -Infinity]);
+        e[0] = Math.min(e[0], L.x[i] - L.r[i]);
+        e[1] = Math.max(e[1], L.x[i] + L.r[i]);
+      });
+      var ds = Object.keys(byD).map(Number).sort(function (a, b) { return a - b; });
+      var pad = 13, left = [], right = [];
+      ds.forEach(function (d, i) {
+        var yy = L.levelY[d] + (i === 0 ? -pad : i === ds.length - 1 ? pad : 0);
+        left.push((byD[d][0] - pad).toFixed(1) + "," + yy.toFixed(1));
+        right.push((byD[d][1] + pad).toFixed(1) + "," + yy.toFixed(1));
+      });
+      body.push('<polygon points="' + left.concat(right.reverse()).join(" ") + '" fill="' + css("--ink") +
+        '" fill-opacity=".05" stroke="' + css("--ink-2") + '" stroke-opacity=".7" stroke-width="1.1" ' +
+        'stroke-dasharray="1 4" stroke-linecap="round" stroke-linejoin="round"/>');
+    }
+
+    // Edges run rim to rim rather than centre to centre, so a node never has a
+    // line crossing its own label.
+    nodes.forEach(function (n, i) {
+      if (n.p === null || n.p === undefined) return;
+      var faded = n.t0 > state.cut || nodes[n.p].t0 > state.cut;
+      var dx = L.x[i] - L.x[n.p], dy = L.y[i] - L.y[n.p];
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      body.push('<path d="' + bow(L.x[n.p] + dx / len * L.r[n.p], L.y[n.p] + dy / len * L.r[n.p],
+        L.x[i] - dx / len * L.r[i], L.y[i] - dy / len * L.r[i], i + 1) +
+        '" fill="none" stroke="' + css("--ink-2") + '" stroke-width="1.3" stroke-linecap="round" opacity="' +
+        (faded ? 0.12 : 1) + '"/>');
+    });
+
+    var pi = nodes[sel] ? nodes[sel].p : null;
+    if (pi !== null && pi !== undefined) {
+      body.push('<circle cx="' + L.x[pi].toFixed(1) + '" cy="' + L.y[pi].toFixed(1) + '" r="' + (L.r[pi] + 4.5).toFixed(1) +
+        '" fill="none" stroke="' + css("--pen") + '" stroke-width="1.3" stroke-dasharray="3 3" opacity=".85"/>');
+    }
+
+    // Only mark the cliff per node where the distinction bites: inside a
+    // lineage that straddles it. A wholly post-September family is flagged once
+    // at the top instead of on every circle.
+    var markCliff = state.fam.win === "span";
+    nodes.forEach(function (n, i) {
+      var faded = n.t0 > state.cut;
+      var fill = rampColor(metricOf(n));
+      var coord = n.acc ? n.co / n.acc : 0;
+      var op = faded ? 0.12 : 1;
+      body.push('<circle class="nd" data-i="' + i + '" cx="' + L.x[i].toFixed(1) + '" cy="' + L.y[i].toFixed(1) +
+        '" r="' + L.r[i].toFixed(1) + '" fill="' + fill + '" stroke="' +
+        (coord > 0.15 ? css("--red") : css("--paper")) + '" stroke-width="' + (coord > 0.15 ? 2.4 : 2) +
+        '" opacity="' + op + '" style="cursor:pointer"/>');
+      if (i === sel) {
+        body.push('<circle cx="' + L.x[i].toFixed(1) + '" cy="' + L.y[i].toFixed(1) + '" r="' + (L.r[i] + 5).toFixed(1) +
+          '" fill="none" stroke="' + css("--pen") + '" stroke-width="1.8" opacity="' + op + '"/>');
+      }
+      body.push('<text x="' + L.x[i].toFixed(1) + '" y="' + (L.y[i] + 3.9).toFixed(1) +
+        '" text-anchor="middle" font-size="11" font-weight="600" fill="' + inkOn(fill) +
+        '" font-family="' + css("--type") + '" opacity="' + op + '" pointer-events="none">' +
+        L.label[i] + (markCliff && n.t0 >= META.cliff_h ? "*" : "") + "</text>");
+    });
+
+    body.push('<text x="' + L.x[L.root].toFixed(1) + '" y="' + (L.y[L.root] - L.r[L.root] - 9).toFixed(1) +
+      '" text-anchor="middle" font-size="12" fill="' + css("--ink-2") + '" font-family="' + css("--hand") +
+      '">root</text>');
+
+    // Direct-label the few heaviest wordings only; the rest are in the tooltip
+    // and in the table below.
+    nodes.map(function (n, i) { return [n.n, i]; })
+      .sort(function (a, b) { return b[0] - a[0]; }).slice(0, 4)
+      .forEach(function (pair) {
+        var i = pair[1];
+        if (nodes[i].t0 > state.cut) return;
+        body.push('<text x="' + L.x[i].toFixed(1) + '" y="' + (L.y[i] + L.r[i] + 12).toFixed(1) +
+          '" text-anchor="middle" font-size="9.5" fill="' + css("--ink-2") + '" font-family="' + css("--type") +
+          '">' + fmt(nodes[i].n) + "</text>");
+      });
+
+    svg.setAttribute("height", H);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML = gutter.join("") +
+      '<g transform="translate(' + view.tx + "," + view.ty + ") scale(" + view.k + ')">' +
+      body.join("") + "</g>";
+  }
+
+  // Family emission curve: one series, so no legend -- the heading names it.
+  function drawPulse() {
+    var svg = $("#pulse"); if (!svg) return;
+    var byHour = {};
+    state.nodes.forEach(function (n) {
+      (n.spark || []).forEach(function (p) { byHour[p[0]] = (byHour[p[0]] || 0) + p[1]; });
+    });
+    var hs = Object.keys(byHour).map(Number).sort(function (a, b) { return a - b; });
+    if (!hs.length) { svg.innerHTML = ""; return; }
+    var W = svg.clientWidth || 800, H = 56, pad = 26;
+    var h0 = hs[0], h1 = hs[hs.length - 1], mx = Math.max.apply(null, hs.map(function (h) { return byHour[h]; }));
+    var X = function (h) { return pad + (h1 > h0 ? (h - h0) / (h1 - h0) : 0) * (W - pad - 118); };
+    var Y = function (v) { return H - 14 - (v / mx) * (H - 22); };
+    var pts = [], area = ["M" + X(h0) + "," + (H - 14)];
+    for (var h = h0; h <= h1; h++) {
+      var v = byHour[h] || 0;
+      pts.push(X(h) + "," + Y(v)); area.push("L" + X(h) + "," + Y(v));
+    }
+    area.push("L" + X(h1) + "," + (H - 14) + "Z");
+    var cutX = state.cut === Infinity ? null : X(Math.min(state.cut, h1));
+    var cliffX = (META.cliff_h > h0 && META.cliff_h < h1) ? X(META.cliff_h) : null;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML =
+      '<path d="' + area.join("") + '" fill="' + css("--pen") + '" opacity=".16"/>' +
+      '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<line x1="' + pad + '" y1="' + (H - 14) + '" x2="' + (W - 118) + '" y2="' + (H - 14) + '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
+      (cliffX !== null ? '<line x1="' + cliffX + '" y1="4" x2="' + cliffX + '" y2="' + (H - 14) + '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
+      (cutX !== null ? '<line x1="' + cutX + '" y1="4" x2="' + cutX + '" y2="' + (H - 14) + '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
+      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" font-family="' + css("--type") + '">' + esc(dayLabel(h0)) + "</text>" +
+      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" text-anchor="end" font-family="' + css("--type") + '">' + esc(dayLabel(h1)) + "</text>" +
+      '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '" font-family="' + css("--type") + '">peak ' + fmt(mx) + "/h</text>";
+  }
+
+  /* ---------------- inspector ---------------- */
+
+  function renderInspector() {
+    var n = state.nodes[state.sel]; if (!n) return;
+    var el = $("#inspector"); if (!el) return;
+    var T = state.topo;
+    var isRoot = n.p === null || n.p === undefined;
+    var coord = n.acc ? n.co / n.acc : 0;
+    var add = (n.add || []).map(function (t) { return '<span class="tok add">+' + esc(t) + "</span>"; }).join("");
+    var del = (n["del"] || []).map(function (t) { return '<span class="tok del">' + esc(t) + "</span>"; }).join("");
+
+    var mutation = isRoot
+      ? '<p class="mut"><span class="lbl">earliest phrasing in the corpus &mdash; the root of this lineage</span></p>'
+      : '<p class="mut"><span class="lbl">changed from ' + T.label[n.p] + "</span>" + add + del +
+        (add || del ? "" : '<span class="tok">wording only</span>') +
+        '<span class="lbl">' + Math.round(n.sim * 100) + "% of the words kept</span></p>";
+
+    // Every relation the diagram draws is a word you can click.
+    var kids = T.kids[state.sel];
+    var sibs = isRoot ? [] : T.kids[n.p].filter(function (k) { return k !== state.sel; });
+    var more = function (rest) { return rest > 0 ? '<button disabled>+' + rest + " more</button>" : ""; };
+    var rels = '<p class="rels"><span class="lbl">relations</span>' +
+      (isRoot ? "<button disabled>root</button>" : relChip("parent", n.p)) +
+      (kids.length
+        ? kids.slice(0, 8).map(function (k) { return relChip("child", k); }).join("") + more(kids.length - 8)
+        : "<button disabled>no children, a dead end</button>") +
+      sibs.slice(0, 6).map(function (k) { return relChip("sibling", k); }).join("") + more(sibs.length - 6) +
+      "</p>";
+
+    // Only the flags that are actually raised. An unlit warning is noise.
+    var fl = [];
+    if (n.obf > 3) fl.push(n.obf + " homoglyph characters \u2014 possibly filter evasion, possibly just styling");
+    if (coord > 0.15) fl.push("coordinated accounts present");
+
+    el.innerHTML =
+      "<h3>Wording " + T.label[state.sel] + "</h3><span>generation " + n.d +
+        " &middot; first seen " + esc(hourLabel(n.t0)) + "</span>" +
+      '<blockquote class="spec">' + esc(n.txt) + "</blockquote>" + mutation + rels +
+      '<p class="figs"><b>' + fmt(n.n) + "</b> retweets &middot; <b>" + fmt(n.acc) + "</b> accounts &middot; <b>" +
+        fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
+        "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
+        (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
+      (fl.length ? '<p class="flags">' + fl.join(" &middot; ") + "</p>" : "");
+  }
+  function relChip(kind, i) {
+    return "<button data-i=\"" + i + '">' + kind + " " + state.topo.label[i] + "</button>";
+  }
+
+  /* ---------------- table twin ---------------- */
+
+  // Colour and area are the diagram's encodings; this is the same lineage as
+  // numbers, so nothing on the page is readable only as a colour.
+  function renderTable() {
+    var T = state.topo, nodes = state.nodes;
+    var rows = T.order.map(function (i) {
+      var n = nodes[i];
+      return '<tr data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
+        '<td class="k">' + T.label[i] + "</td><td>" + n.d + "</td><td>" +
+        (n.p === null || n.p === undefined ? "\u2014" : T.label[n.p]) + "</td><td>" +
+        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" +
+        (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
+        Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
+        '<td class="txt">' + esc(n.txt.slice(0, 160)) + (n.txt.length > 160 ? "\u2026" : "") + "</td></tr>";
+    }).join("");
+    return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
+      "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
+      '<div class="tscroll"><table id="vartable">' +
+      "<thead><tr><th>node</th><th>level</th><th>from</th><th>retweets</th><th>accounts</th>" +
+      "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
+      rows + "</tbody></table></div></details>";
+  }
+  function syncTable() {
+    var t = $("#vartable"); if (!t) return;
+    Array.prototype.forEach.call(t.querySelectorAll("tr[data-i]"), function (tr) {
+      tr.setAttribute("aria-current", String(+tr.dataset.i === state.sel));
+    });
+  }
+  function selectNode(i) {
+    state.sel = i; drawTree(); renderInspector(); syncTable();
+  }
+
+  /* ---------------- stage ---------------- */
+
+  function renderStage() {
+    var f = state.fam;
+    var isTree = state.xMode === "tree";
+    var ml = METRIC_LABEL[state.colorBy];
+    var wash = RAMP.map(function (v) { return '<i style="background:' + css(v) + '"></i>'; }).join("");
+
+    var warn = f.win === "aug" ? "" :
+      '<p class="warn">' + (f.win === "sep"
+        ? "Lives entirely after 1 September, where the crawl collects 1.4M tweets a day against August's 22.0M. Its spread is undercounted by roughly 15× next to an August lineage."
+        : "Crosses 1 September, where crawl volume drops 15×. Any fall-off after that point is partly our collection thinning, not the narrative dying.") + "</p>";
+
+    // The cliff is a dashed rule on a time axis and a marked node in the tree,
+    // so the sentence pointing at it has to follow the layout.
+    var seam = isTree
+      ? (f.win === "span"
+          ? "so counts before and after 1 September are not comparable; the wordings marked * are the ones that first appeared after it. "
+          : "so counts before and after 1 September are not comparable. ")
+      : "so counts either side of the dashed rule are not comparable. ";
+    var geom = isTree
+      ? "Each row is one generation, and a parent sits centred over its children. Horizontal position carries no measure here — " +
+        "it only packs the tree, so switch the layout to <i>time</i> to see how long a rewording took to appear. "
+      : "Horizontal distance is real waiting time; vertical position only keeps sibling lineages apart. ";
+
+    $("#stage-body").className = "";
+    $("#stage-body").innerHTML =
+      '<div class="lin">' +
+        "<h2>Lineage " + f.id + "</h2>" +
+        '<p class="root">' + esc(f.root) + "</p>" +
+        '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
+          fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
+          Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
+          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+        warn +
+      "</div>" +
+      '<div class="bar">' +
+        '<span class="grp" id="colorby"><b>shade</b>' +
+          btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
+          btn("coord", "coordination", state.colorBy) + "</span>" +
+        '<span class="grp" id="xmode"><b>layout</b>' +
+          btn("tree", "tree", state.xMode) + btn("log", "time", state.xMode) + "</span>" +
+        '<span class="scrub"><button class="act" id="play">play</button>' +
+          '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
+          '" aria-label="Show wordings first seen up to"><output id="cutout"></output></span>' +
+        '<button class="act" id="reset">reset view</button>' +
+      "</div>" +
+      '<div class="plot"><svg id="pulse" class="pulse" role="img" aria-label="Retweets per hour for this lineage"></svg></div>' +
+      '<div class="draw"><svg id="tree" class="tree" role="img" tabindex="0" aria-label="' +
+        (isTree
+          ? "Mutation tree as a rooted tree, one row per generation. Arrow keys move to the parent, a child or a sibling."
+          : "Mutation tree drawn against time. Arrow keys move to the parent, a child or a sibling.") +
+        '"></svg></div>' +
+      '<div class="key">' +
+        "<span>" + ml[1] + '<span class="wash">' + wash + "</span>" + ml[2] + " &mdash; " + ml[0] + "</span>" +
+        "<span>bigger circle, more retweets</span>" +
+        '<span><svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="none" stroke="' +
+          css("--red") + '" stroke-width="2"/></svg>coordinated accounts</span>' +
+        (isTree
+          ? "<span>pencilled ring, the subtree of the selected wording</span>" +
+            (f.win === "span" ? "<span>* first seen after 1 Sep</span>" : "")
+          : '<span><svg width="15" height="10" aria-hidden="true"><line x1="7" y1="0" x2="7" y2="10" stroke="' +
+            css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff</span>') +
+      "</div>" +
+      '<div class="insp" id="inspector"></div>' +
+      renderTable() +
+      '<p class="note"><b>How to read it.</b> Each circle is one distinct wording. A wording hangs off whichever ' +
+        "earlier wording it most resembles, so the root is the earliest phrasing <i>in this corpus</i> &mdash; not where " +
+        "the idea began. " + geom +
+        "Topic tags are a keyword heuristic, not a classifier. &ldquo;Coordinated&rdquo; means the account co-amplified " +
+        "content with others inside a 60&#8202;s window, repeatedly: evidence of coordination, not proof of automation. " +
+        "The crawl collected 22.0M tweets a day through 31 August and 1.4M a day after, " + seam +
+        "Tick <i>August 17&ndash;31 only</i> for a clean sample.</p>";
+
+    state.cut = f.t1;
+    view = { k: 1, tx: 0, ty: 0, auto: true };
+    relayout();
+    renderInspector();
+    wireStage();
+  }
+  function btn(v, label, cur) {
+    return '<button data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + label + "</button>";
+  }
+
+  function relayout() {
+    var svg = $("#tree"); if (!svg) return;
+    layout = buildLayout(state.nodes, state.xMode, svg.clientWidth || 800);
+    drawTree(); drawPulse(); updateCut();
+  }
+
+  function updateCut() {
+    var o = $("#cutout"); if (!o) return;
+    var shown = state.nodes.filter(function (n) { return n.t0 <= state.cut; }).length;
+    o.textContent = shown + "/" + state.nodes.length + " · " + dayLabel(state.cut);
+  }
+
+  function wireStage() {
+    var svg = $("#tree"), tip = $("#tip");
+
+    svg.addEventListener("pointermove", function (e) {
+      var t = e.target;
+      if (t.classList && t.classList.contains("nd")) {
+        var n = state.nodes[+t.dataset.i];
+        tip.innerHTML = '<div class="t">' + esc(n.txt.slice(0, 200)) + (n.txt.length > 200 ? "&hellip;" : "") + "</div>" +
+          '<div class="m"><span>' + fmt(n.n) + " retweets</span><span>gen " + n.d + "</span><span>" +
+          Math.round(n.drift * 100) + "% drift</span><span>" + esc(hourLabel(n.t0)) + "</span></div>";
+        tip.classList.add("on");
+        var w = tip.offsetWidth, h = tip.offsetHeight;
+        tip.style.left = Math.min(e.clientX + 14, innerWidth - w - 10) + "px";
+        tip.style.top = Math.max(8, e.clientY - h - 12) + "px";
+      } else { tip.classList.remove("on"); }
+    });
+    svg.addEventListener("pointerleave", function () { tip.classList.remove("on"); });
+    svg.addEventListener("click", function (e) {
+      if (e.target.classList && e.target.classList.contains("nd")) selectNode(+e.target.dataset.i);
+    });
+
+    // A tree is navigated by its relations, so give the keyboard the same four
+    // moves the diagram draws.
+    svg.addEventListener("keydown", function (e) {
+      var T = state.topo, n = state.nodes[state.sel], go;
+      var hasParent = !(n.p === null || n.p === undefined);
+      if (e.key === "ArrowUp") go = hasParent ? n.p : undefined;
+      else if (e.key === "ArrowDown") go = T.kids[state.sel][0];
+      else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        var sibs = hasParent ? T.kids[n.p] : [T.root];
+        go = sibs[sibs.indexOf(state.sel) + (e.key === "ArrowRight" ? 1 : -1)];
+      } else if (e.key === "Home") go = T.root;
+      else return;
+      e.preventDefault();
+      if (go !== undefined) selectNode(go);
+    });
+
+    $("#inspector").addEventListener("click", function (e) {
+      var b = e.target.closest(".rel[data-i]"); if (b) selectNode(+b.dataset.i);
+    });
+    var table = $("#vartable");
+    if (table) table.addEventListener("click", function (e) {
+      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i);
+    });
+    var details = $("#tabledetails");
+    if (details) details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+
+    // pan & zoom
+    var drag = null;
+    svg.addEventListener("pointerdown", function (e) {
+      drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty };
+      svg.classList.add("dragging"); svg.setPointerCapture(e.pointerId);
+    });
+    svg.addEventListener("pointerup", function (e) {
+      drag = null; svg.classList.remove("dragging");
+      try { svg.releasePointerCapture(e.pointerId); } catch (err) {}
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      view.auto = false;
+      view.tx = drag.tx + (e.clientX - drag.x); view.ty = drag.ty + (e.clientY - drag.y); drawTree();
+    });
+    svg.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var r = svg.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+      view.auto = false;
+      var k = Math.max(0.5, Math.min(8, view.k * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
+      view.tx = mx - (mx - view.tx) * (k / view.k);
+      view.ty = my - (my - view.ty) * (k / view.k);
+      view.k = k; drawTree();
+    }, { passive: false });
+
+    $("#reset").addEventListener("click", function () { view = { k:1, tx:0, ty:0, auto:true }; drawTree(); });
+    $("#colorby").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-v]"); if (!b) return;
+      state.colorBy = b.dataset.v; renderStage();
+    });
+    $("#xmode").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-v]"); if (!b) return;
+      state.xMode = b.dataset.v; renderStage();
+    });
+    $("#cut").addEventListener("input", function (e) {
+      state.cut = +e.target.value; drawTree(); drawPulse(); updateCut();
+    });
+    $("#play").addEventListener("click", play);
+    addEventListener("resize", debounce(relayout, 160));
+  }
+
+  function play() {
+    if (state.playing) return;
+    var f = state.fam, slider = $("#cut"), btn = $("#play");
+    var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { state.cut = f.t1; slider.value = f.t1; drawTree(); drawPulse(); updateCut(); return; }
+    state.playing = true; btn.textContent = "■ Playing";
+    var h = f.t0, step = Math.max(1, Math.round((f.t1 - f.t0) / 90));
+    var timer = setInterval(function () {
+      h += step;
+      if (h >= f.t1) { h = f.t1; clearInterval(timer); state.playing = false; btn.innerHTML = "&#9654; Play"; }
+      state.cut = h; slider.value = h; drawTree(); drawPulse(); updateCut();
+    }, 45);
+  }
+
+  function debounce(fn, ms) {
+    var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); };
+  }
+
+  /* ---------------- loading ---------------- */
+
+  function selectFamily(id) {
+    state.famId = id;
+    state.fam = FAMS.find(function (f) { return f.id === id; });
+    renderList();
+    var b = id % META.buckets;
+    var go = function (bucket) {
+      state.nodes = bucket[String(id)].nodes;
+      state.topo = topology(state.nodes);
+      state.sel = state.topo.root;
+      renderStage();
+    };
+    if (BUCKETS[b]) { go(BUCKETS[b]); return; }
+    $("#stage-body").className = "loading";
+    $("#stage-body").textContent = "Loading lineage " + id + "…";
+    fetch("phylo/trees-" + String(b).padStart(2, "0") + ".json")
+      .then(function (r) { return r.json(); })
+      .then(function (j) { BUCKETS[b] = j; go(j); })
+      .catch(function () {
+        $("#stage-body").textContent = "Could not load that lineage. Try another from the list.";
+      });
+  }
+
+  function renderTopics() {
+    var counts = {};
+    FAMS.forEach(function (f) { f.topics.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; }); });
+    var chips = ['<button data-t="all" aria-pressed="true">all</button>',
+                 '<button data-t="news" aria-pressed="false">news &amp; politics</button>'];
+    Object.keys(TOPIC_LABEL).filter(function (t) { return counts[t]; }).forEach(function (t) {
+      chips.push('<button data-t="' + t + '" aria-pressed="false">' + TOPIC_LABEL[t].toLowerCase() + "</button>");
+    });
+    $("#topics").innerHTML = chips.join("");
+  }
+
+  fetch("phylo/index.json").then(function (r) { return r.json(); }).then(function (data) {
+    META = data.meta; FAMS = data.families; CORPUS_T0 = Date.parse(META.t0);
+
+    $("#corpus").innerHTML =
+      "<b>" + fmt(META.n_families) + "</b> lineages &middot; <b>" + fmt(META.n_variants) +
+      "</b> distinct wordings &middot; <b>" + fmt(META.n_emissions) + "</b> retweets traced &middot; " +
+      "Aug 17 \u2013 Sep 17, 2026";
+
+    renderTopics();
+    renderList();
+
+    // Open on a prose narrative rather than a promotional template: both are real
+    // lineages, but the hashtag-block campaigns dominate the corpus by volume and
+    // would give a misleading first impression of what the method finds.
+    var pick = FAMS.filter(function (f) {
+      return f.ht < 1.5 && f.win === "aug" && f.topics.some(function (t) { return NEWS[t]; });
+    }).sort(function (a, b) { return notability(b) - notability(a); })[0] || FAMS[0];
+    selectFamily(pick.id);
+
+    $("#list").addEventListener("click", function (e) {
+      var b = e.target.closest(".fam"); if (b) selectFamily(+b.dataset.id);
+    });
+    $("#q").addEventListener("input", debounce(function () {
+      state.q = $("#q").value; renderList();
+    }, 180));
+    $("#sort").addEventListener("change", function (e) { state.sort = e.target.value; renderList(); });
+    $("#augonly").addEventListener("change", function (e) {
+      state.win = e.target.checked ? "aug" : "all"; renderList();
+    });
+    $("#topics").addEventListener("click", function (e) {
+      var c = e.target.closest("button[data-t]"); if (!c) return;
+      state.topic = c.dataset.t;
+      Array.prototype.forEach.call($("#topics").children, function (x) {
+        x.setAttribute("aria-pressed", String(x === c));
+      });
+      renderList();
+    });
+  }).catch(function () {
+    $("#stage-body").textContent = "Could not load the lineage index.";
+  });
+})();
+</script>

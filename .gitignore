@@ -1,0 +1,7 @@
+twitter-firehose/
+data/
+*.parquet
+.venv/
+__pycache__/
+dist/
+.dev/

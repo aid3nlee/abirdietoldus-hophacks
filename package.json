@@ -1,0 +1,15 @@
+{
+  "name": "narrative-phylogeny",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tracing how a claim gets reworded as it spreads, across 395M tweets. The analysis is a Python/DuckDB pipeline; this package only wraps the dev server and the static build.",
+  "scripts": {
+    "dev": "./run.sh serve",
+    "build": "./run.sh dist",
+    "preview": "./run.sh dist && python3 -m http.server 8000 --directory dist",
+    "status": "./run.sh status"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
