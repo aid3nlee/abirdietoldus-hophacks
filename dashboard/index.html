@@ -74,6 +74,7 @@
     --pen-soft: #1c2c40;
     --red:      #e2685a;
     --w1: #23344a; --w2: #2c4a72; --w3: #3d6a9e; --w4: #5992ca; --w5: #86bbf2;
+    --f1: #4c2824; --f2: #7e3730; --f3: #b64235; --f4: #d85446; --f5: #e5786c;
     --x-ink: #e7e9ea; --x-dim: #8b98a5; --x-line: #33373a; --x-blue: #1d9bf0;
     --x-card-bg: #15202b;
     --nav-overlay: rgba(21, 23, 26, .86);
@@ -201,24 +202,32 @@
   .aug { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
   .aug input { accent-color: var(--pen); margin: 0; }
   .count { padding: 6px 16px; font-size: 11.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
-  .list { overflow-y: auto; flex: 1; min-height: 0; }
+  .list { overflow-y: auto; flex: 1; min-height: 0; display: grid; gap: 6px; padding: 8px 10px; }
   .fam {
-    display: grid; gap: 3px; width: 100%; text-align: left; cursor: pointer;
-    padding: 9px 16px 9px 13px; background: none; border: 0;
-    border-bottom: 1px solid var(--hair); border-left: 3px solid transparent;
+    display: grid; gap: 5px; width: 100%; text-align: left; cursor: pointer;
+    padding: 9px 11px 9px 10px; background: var(--paper); color: inherit;
+    border: 1px solid var(--rule); border-left: 3px solid transparent; border-radius: 6px;
+    transition: background .12s ease, border-color .12s ease;
   }
   .fam:hover { background: var(--paper-2); }
   .fam[aria-current="true"] { background: var(--paper-2); border-left-color: var(--pen); }
+  .fam-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .fam-badges { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+  .fam-time { flex: none; font-size: 10px; color: var(--ink-2); }
   .fam-txt {
-    font-size: 11.5px; line-height: 1.4; color: var(--ink);
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    font-size: 11.5px; font-weight: 500; line-height: 1.4; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; text-overflow: ellipsis;
   }
   .fam-meta { font-size: 11px; color: var(--ink-2); }
   /* Behaviour badge. Colour separates the two accusatory classes from the
-     merely descriptive ones, so the list reads at a glance. */
+     merely descriptive ones, so the list reads at a glance. Pill-shaped so a
+     metadata tag reads as a tag, not as another clause of body text. */
   .kind {
-    display: inline-block; padding: 0 4px; margin-right: 5px; font-size: 10px;
-    letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor;
+    display: inline-flex; align-items: center; padding: 1.5px 7px; font-size: 9.5px;
+    font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    border: 1px solid currentColor; border-radius: 999px;
+    background: color-mix(in srgb, currentColor 12%, transparent);
   }
   .kind.farm, .kind.evade { color: var(--red); }
   .kind.burst { color: var(--pen); }
@@ -235,14 +244,12 @@
   #stage-body { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 0; }
   #stage-body.loading { display: block; }
   .lin { padding: 8px 20px 7px; border-bottom: 1px solid var(--rule); }
+  .lin summary { cursor: pointer; }
+  .lin summary h2 { display: inline; }
+  .lin summary:hover h2 { color: var(--ink); }
   .lin .hdr { display: flex; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
   .lin h2 { font-size: 14px; }
   .lin .hdr .figs { margin-top: 0; }
-  .lin .root {
-    margin-top: 4px; font-size: 12.5px; color: var(--ink-2); max-width: 96ch;
-    border-left: 2px solid var(--rule); padding-left: 9px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
   .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   .warn {
@@ -304,8 +311,13 @@
     font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums;
   }
 
-  .key { padding: 2px 20px 12px; font-size: 11.5px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 18px; }
+  .key {
+    padding: 9px 20px 12px; font-size: 11.5px; color: var(--ink-2);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .key-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 14px; }
   .key span { display: flex; align-items: center; gap: 5px; }
+  .key .sep { width: 1px; height: 11px; background: var(--rule); flex: none; }
   .wash { display: flex; }
   .wash i { width: 17px; height: 9px; display: block; }
 
@@ -518,7 +530,14 @@
 (function () {
   "use strict";
 
+  // Two ramps, same five-step shape, different hue: blue for the structural
+  // shadings (drift, spread) and a distinct red for the one shading that is
+  // a behaviour flag (coordinated share) rather than a measurement -- so
+  // "this node is bot-coordinated" doesn't read as just another shade of the
+  // same blue everything else is already wearing.
   var RAMP = ["--w1","--w2","--w3","--w4","--w5"];
+  var FLAG_RAMP = ["--f1","--f2","--f3","--f4","--f5"];
+  var RAMPS = { drift: RAMP, spread: RAMP, coord: FLAG_RAMP };
   var TOPIC_LABEL = {
     politics:"Politics", conflict:"Conflict", migration:"Migration", identity:"Identity",
     health:"Health", crypto:"Crypto", fandom:"Fandom", sports:"Sport"
@@ -555,7 +574,7 @@
   var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
-                tableOpen:false };
+                tableOpen:false, linOpen:true };
   // The board's camera. auto = it is still the fitted default, so a resize may
   // refit it; any pan or zoom clears the flag and the camera is left where the
   // reader put it. The zoom range is wide enough to be called free: the whole
@@ -641,21 +660,30 @@
     var d = new Date(CORPUS_T0 + h * 3600e3);
     return d.toLocaleString("en-US", { month:"short", day:"numeric", timeZone:"UTC" });
   }
+  // Relative-to-now, the way a feed timestamps a post: minutes/hours/days
+  // while it's recent, falling back to the absolute day once it's a week old
+  // so the sidebar doesn't just read "3mo" on every card.
+  function relTime(h) {
+    var diff = Date.now() - (CORPUS_T0 + h * 3600e3);
+    var min = 6e4, hr = 60 * min, day = 24 * hr;
+    if (diff < hr) return Math.max(1, Math.round(diff / min)) + "m";
+    if (diff < day) return Math.round(diff / hr) + "h";
+    if (diff < 7 * day) return Math.round(diff / day) + "d";
+    return dayLabel(h);
+  }
 
   function notability(f) {
     return f.depth * Math.log10(Math.max(10, f.emis)) * (1 + f.drift);
   }
 
-  // Name the behaviour class and show the numbers that produced it, so the
-  // call can be checked rather than taken. Nothing here is a verdict the
-  // reader has to accept: the evidence is the point.
+  // Show the numbers behind the classification, so the call can be checked
+  // rather than taken. The class name and its definition live once in the
+  // legend now, not repeated on every lineage -- the card badge in the rail
+  // already says which class this is.
   function kindLine(f) {
     var bits = [];
-    if (f.kind !== "organic") {
-      bits.push("<b>" + KIND_LABEL[f.kind] + "</b> \u2014 " + esc(KIND_NOTE[f.kind]));
-      if (f.why && f.why.length) bits.push("Evidence: " + f.why.map(esc).join("; ") + ".");
-    } else {
-      bits.push("<b>No structural flag.</b> " + esc(KIND_NOTE.organic));
+    if (f.kind !== "organic" && f.why && f.why.length) {
+      bits.push("Evidence: " + f.why.map(esc).join("; ") + ".");
     }
     if (f.offlang) {
       bits.push("Twitter tagged this lineage English and " +
@@ -663,7 +691,7 @@
                 "Tokenisation keeps only Latin characters, so this tree was built from " +
                 "its hashtags rather than from a reworded sentence.");
     }
-    return '<p class="why">' + bits.join(" ") + "</p>";
+    return bits.length ? '<p class="why">' + bits.join(" ") + "</p>" : "";
   }
 
   /* ---------------- family list ---------------- */
@@ -703,8 +731,12 @@
         ? '<span class="kind ' + f.kind + '">' + KIND_SHORT[f.kind] + "</span>" : "";
       if (f.offlang) badge += '<span class="kind offlang">non-English</span>';
       return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '">' +
+        '<span class="fam-top">' +
+          '<span class="fam-badges">' + badge + "</span>" +
+          '<span class="fam-time">' + esc(relTime(f.t0)) + "</span>" +
+        "</span>" +
         '<span class="fam-txt">' + esc(detwit(f.top)) + "</span>" +
-        '<span class="fam-meta">' + badge + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
+        '<span class="fam-meta">' + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
         (tags ? " &middot; " + tags : "") + "</span></button>";
     }).join("");
     $("#list").innerHTML = html || '<p class="loading">Nothing matches that phrase.</p>';
@@ -735,10 +767,24 @@
      something you can take apart with your hands without ever losing the
      arrangement the measurements produced -- let go and it comes back. */
 
+  // Retweet counts are power-law distributed: one viral wording and a long
+  // flat tail of everything else. Sizing purely off share-of-the-biggest
+  // (n / maxN) leaves that whole tail reading as the same size, because a
+  // node with 5% of the outlier's reach and one with 0.5% both round to
+  // "small" -- which is the uniform look this is meant to fix. Blending in
+  // each node's percentile rank keeps the tail visually ordered too, while
+  // the share term still lets a true outlier dominate the board.
   function radii(nodes) {
     var maxN = Math.max.apply(null, nodes.map(function (n) { return n.n; }));
-    var base = nodes.length > 120 ? 9.5 : nodes.length > 50 ? 11 : 12.5;
-    return nodes.map(function (n) { return base + 8 * Math.sqrt(n.n / maxN); });
+    var order = nodes.map(function (_, i) { return i; })
+      .sort(function (a, b) { return nodes[a].n - nodes[b].n; });
+    var rank = new Array(nodes.length);
+    order.forEach(function (i, k) { rank[i] = nodes.length > 1 ? k / (nodes.length - 1) : 1; });
+    var base = nodes.length > 120 ? 7.5 : nodes.length > 50 ? 9 : 10.5;
+    return nodes.map(function (n, i) {
+      var share = Math.sqrt(n.n / maxN);
+      return base + 15 * (0.4 * rank[i] + 0.6 * share);
+    });
   }
 
   // Leaves take consecutive slots in sibling order and every parent is centred
@@ -911,13 +957,14 @@
     if (state.colorBy === "coord") return n.acc ? n.co / n.acc : 0;
     return Math.log10(Math.max(1, n.n)) / 4.6;     // spread, log-scaled to ~40k
   }
-  function rampColor(v) {
-    var i = Math.max(0, Math.min(RAMP.length - 1, Math.round(v * (RAMP.length - 1))));
-    return css(RAMP[i]);
+  function rampColor(v, key) {
+    var ramp = RAMPS[key] || RAMP;
+    var i = Math.max(0, Math.min(ramp.length - 1, Math.round(v * (ramp.length - 1))));
+    return css(ramp[i]);
   }
   var METRIC_LABEL = {
     drift: ["drift from the root", "identical", "fully reworded"],
-    coord: ["coordinated share", "none", "all accounts"],
+    coord: ["coordinated share — behaviour flag", "none", "all accounts"],
     spread: ["spread, log scale", "1", "40k+"]
   };
 
@@ -1313,7 +1360,7 @@
     // at the top instead of on every circle.
     var markCliff = state.fam.win === "span";
     nodes.forEach(function (n, i) {
-      var fill = rampColor(metricOf(n));
+      var fill = rampColor(metricOf(n), state.colorBy);
       var coord = n.acc ? n.co / n.acc : 0;
       var c = S.circ[i];
       c.setAttribute("fill", fill);
@@ -1594,20 +1641,31 @@
 
   function renderKey() {
     var f = state.fam, ml = METRIC_LABEL[state.colorBy];
-    var wash = RAMP.map(function (v) { return '<i style="background:' + css(v) + '"></i>'; }).join("");
-    $("#key").innerHTML =
-      "<span>" + ml[1] + '<span class="wash">' + wash + "</span>" + ml[2] + " &mdash; " + ml[0] + "</span>" +
-      "<span>bigger circle, more retweets</span>" +
-      '<span><svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="none" stroke="' +
-        css("--red") + '" stroke-width="2"/></svg>coordinated accounts</span>' +
-      '<span><svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="' + css("--paper") + '" stroke="' +
+    var wash = RAMPS[state.colorBy].map(function (v) { return '<i style="background:' + css(v) + '"></i>'; }).join("");
+    var sep = '<i class="sep" aria-hidden="true"></i>';
+
+    var marks = [
+      "bigger circle, more retweets",
+      '<svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="none" stroke="' +
+        css("--red") + '" stroke-width="2"/></svg>coordinated accounts',
+      '<svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="' + css("--paper") + '" stroke="' +
         css("--pen") + '" stroke-width="1.25"/><path d="M5.5 6h4v3H8l-1.3 1V9H5.5z" fill="none" stroke="' +
-        css("--pen") + '" stroke-width="1.1" stroke-linejoin="round"/></svg>collapsed response group; *sampled replies</span>' +
-      "<span>pencilled ring, the subtree of the selected wording</span>" +
-      (state.xMode === "tree"
-        ? (f.win === "span" ? "<span>* first seen after 1 Sep</span>" : "")
-        : '<span><svg width="15" height="10" aria-hidden="true"><line x1="0" y1="5" x2="15" y2="5" stroke="' +
-          css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff</span>');
+        css("--pen") + '" stroke-width="1.1" stroke-linejoin="round"/></svg>collapsed response group; *sampled replies',
+      "pencilled ring, the subtree of the selected wording",
+      state.xMode === "tree"
+        ? (f.win === "span" ? "* first seen after 1 Sep" : "")
+        : '<svg width="15" height="10" aria-hidden="true"><line x1="0" y1="5" x2="15" y2="5" stroke="' +
+          css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff'
+    ].filter(Boolean);
+
+    var items = [
+      ml[0] + " &mdash; " + ml[1] + '<span class="wash">' + wash + "</span>" + ml[2]
+    ].concat(marks);
+
+    $("#key").innerHTML =
+      '<div class="key-row">' +
+        items.map(function (m) { return "<span>" + m + "</span>"; }).join(sep) +
+      "</div>";
   }
 
   function renderStage() {
@@ -1619,14 +1677,16 @@
 
     $("#stage-body").className = "";
     $("#stage-body").innerHTML =
-      '<div class="lin"><div class="hdr">' +
-        "<h2>Lineage " + f.id + "</h2>" +
-        '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
-          fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
-          Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
-          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
-        kindLine(f) + "</div>" +
-        '<p class="root">' + esc(detwit(f.root)) + "</p>" +
+      '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
+        "<summary><h2>Lineage " + f.id + "</h2></summary>" +
+        '<div class="hdr">' +
+          '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
+            fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
+            Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
+            "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+          kindLine(f) +
+        "</div>" +
+      "</details>" +
         warn +
       "</div>" +
       '<div class="bar">' +
@@ -1896,6 +1956,8 @@
     });
     var details = $("#tabledetails");
     if (details) details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+    var lin = $("#lindetails");
+    if (lin) lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
 
     $("#colorby").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-v]"); if (!b || b.dataset.v === state.colorBy) return;
