@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Put back what the export dropped: the cut text, engagement counts, and replies.
+"""Put back what the export dropped: the cut text and the engagement counts.
 
 Two separate losses, both repaired from the same scan of the firehose.
 
@@ -17,12 +17,13 @@ Two separate losses, both repaired from the same scan of the firehose.
    A retweet row does not accumulate its own likes, which is why these have to
    come from the original rather than from the amplification.
 
-3. RESPONSES. The mutation tree represents distinct wordings, not individual
-   tweets. A direct reply is therefore not another mutation. We attach a
-   collapsed response group to the matching real tweet instead: the number of
-   replies sampled from the firehose, its direct-reply subset, distinct
-   authors, and a few readable reply excerpts. For a conversation root the
-   group includes nested replies too.
+3. RESPONSES -- moved out of this stage. This used to attach a collapsed
+   reply group per wording. Stage 6 supersedes it and does better on both
+   counts: it reads quote tweets as well as replies (39.6M against 10.1M, and
+   36x the reach across the export's wordings), and it clusters and scores
+   them instead of only counting. The join here was also a disjunction over
+   10M reply rows, which plans as a nested loop. Nothing reads the old `rsp`
+   field any more -- see pipeline/06_comments.py.
 
 These are display repairs. Nothing here feeds the clustering, the distances,
 the tree or the spread figures, which is why it runs after step 4 rather than
@@ -59,7 +60,6 @@ CUT = "…"
 KEY = 40        # prefix bucket; a clipped body runs ~119 chars, so this is safe
 MAX_TEXT = 560  # twice a standard tweet: a guard against a pathological row
 SHOW = 5
-SHOW_RESPONSES = 4
 
 # Which count goes in which slot of the post card.
 METRICS = ["like_count", "reply_count", "retweet_count",
@@ -147,74 +147,9 @@ def resolve(con, want: list) -> dict[str, dict]:
     return {txt: best for txt, best in rows}
 
 
-def reply_groups(con, hit: dict[str, dict]) -> dict[str, dict]:
-    """Return collapsed response groups for the tweets matched to wordings.
-
-    ``reply_count`` is X's counter for the complete post, while this result is
-    the subset of reply rows the firehose happened to collect. They answer
-    different questions and must never be added or substituted for each other.
-    A root's conversation_id equals its own id, which lets us include its
-    nested replies; a tweet that is itself a reply gets only direct children.
-    """
-    seeds = []
-    for txt, b in hit.items():
-        tweet_id = b.get("tweet_id")
-        if tweet_id is None:
-            continue
-        tweet_id = str(tweet_id)
-        seeds.append((txt, tweet_id, b.get("conversation_id") == tweet_id))
-    if not seeds:
-        return {}
-
-    con.execute("CREATE OR REPLACE TEMP TABLE response_seed "
-                "(txt VARCHAR, tweet_id VARCHAR, is_thread_root BOOLEAN)")
-    con.executemany("INSERT INTO response_seed VALUES (?, ?, ?)", seeds)
-
-    rows = con.execute(f"""
-        WITH replies AS (
-            SELECT id, author_id, body, created_at, like_count,
-                   reply_to_status_id, conversation_id,
-                   row_number() OVER (PARTITION BY id ORDER BY version DESC) AS rn
-            FROM read_parquet('{FIREHOSE}')
-            WHERE reply_to_status_id IS NOT NULL
-        ), linked AS (
-            SELECT s.txt, s.tweet_id, s.is_thread_root,
-                   r.id, r.author_id, r.body, r.created_at, r.like_count,
-                   r.reply_to_status_id
-            FROM response_seed s
-            JOIN replies r
-              ON r.rn = 1
-             AND (r.reply_to_status_id = s.tweet_id
-                  OR (s.is_thread_root AND r.conversation_id = s.tweet_id))
-        )
-        SELECT txt, tweet_id, is_thread_root, id, author_id, body, created_at,
-               like_count, reply_to_status_id = tweet_id AS direct
-        FROM linked
-        ORDER BY txt, direct DESC, coalesce(like_count, 0) DESC, created_at ASC
-    """).fetchall()
-    groups: dict[str, dict] = {}
-    authors: dict[str, set] = {}
-    for txt, _tweet_id, thread, _id, author, body, _created, likes, direct in rows:
-        group = groups.setdefault(txt, {"n": 0, "acc": 0, "direct": 0,
-                                        "thread": bool(thread), "sample": []})
-        group["n"] += 1
-        group["direct"] += int(direct)
-        authors.setdefault(txt, set()).add(author)
-        # Direct replies come first, then the most-liked captured replies.
-        # That makes the excerpts answer what people said to this tweet,
-        # rather than filling the panel with a later reply-to-reply branch.
-        if len(group["sample"]) < SHOW_RESPONSES:
-            group["sample"].append({"txt": str(body or "")[:560],
-                                    "like": int(likes or 0),
-                                    "direct": bool(direct)})
-    for txt, group in groups.items():
-        group["acc"] = len(authors[txt])
-    return groups
-
-
-def apply(idx: dict, trees: list, hit: dict[str, dict], replies: dict[str, dict]) -> dict[str, int]:
+def apply(idx: dict, trees: list, hit: dict[str, dict]) -> dict[str, int]:
     """Rewrite in place. index.json keeps its own 180-char display slice."""
-    c = {"txt": 0, "met": 0, "rsp": 0, "root": 0, "top": 0}
+    c = {"txt": 0, "met": 0, "root": 0, "top": 0}
     for _, tree in trees:
         for fam in tree.values():
             for n in fam["nodes"]:
@@ -230,12 +165,6 @@ def apply(idx: dict, trees: list, hit: dict[str, dict], replies: dict[str, dict]
                 if any(met.values()):
                     n["met"] = met
                     c["met"] += 1
-                # Replies are keyed by the pre-repair wording, which may be
-                # shorter than the display text after the repair above.
-                rsp = replies.get(source_txt)
-                if rsp:
-                    n["rsp"] = rsp
-                    c["rsp"] += 1
     for f in idx["families"]:
         for field in ("root", "top"):
             b = hit.get(f.get(field))
@@ -281,11 +210,6 @@ def main() -> None:
     print(f"  full wording recovered for {got_text:,} of {clipped:,} clipped "
           f"({100 * got_text / max(1, clipped):.0f}%)")
 
-    print("  grouping replies that point to matched tweets...")
-    responses = reply_groups(duckdb.connect(), hit)
-    observed = sum(r["n"] for r in responses.values())
-    print(f"  attached {observed:,} sampled responses to {len(responses):,} wordings")
-
     for w in [w for w in want if w[3] and w[0] in hit][:SHOW]:
         b = hit[w[0]]
         print(f"    {len(w[0]):>3} -> {len(b['body']):>3} ch  "
@@ -295,11 +219,11 @@ def main() -> None:
         print("  --dry-run: nothing written")
         return
 
-    c = apply(idx, trees, hit, responses)
+    c = apply(idx, trees, hit)
     write(d, idx, trees)
     print(f"  rewrote {c['txt']:,} texts, attached counts to {c['met']:,} variants, "
-          f"grouped responses on {c['rsp']:,}, "
           f"fixed {c['root']:,} roots and {c['top']:,} captions  ({time.time() - t:.0f}s)")
+    print("  responses now come from pipeline/06_comments.py - run ./run.sh comments")
     left = clipped - got_text
     if left:
         print(f"  {left:,} stay clipped: the tweet they amplify is not in the crawl")

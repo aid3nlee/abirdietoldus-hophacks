@@ -11,6 +11,7 @@
 #   ./run.sh inspect     print the top clusters and what they amplify
 #   ./run.sh evolution   variant families, mutation trees, dashboard export
 #   ./run.sh enrich      put back the cut text and the platform's own counts
+#   ./run.sh comments    replies + quote tweets, stance-scored and clustered
 #   ./run.sh dist        assemble the static site into dist/
 #   ./run.sh serve       live dev server on :8000 (npm run dev)
 #   ./run.sh verify     check every shard opens as valid parquet
@@ -95,6 +96,16 @@ evolution)
     python3 pipeline/04_evolution.py "$@"
     ;;
 
+comments)
+    # The audience layer. Replies are only ~2% of this corpus, but a quote
+    # tweet is commentary too and there are four times as many of them, so
+    # this reads both and keeps them labelled apart. Comment clusters are
+    # built once across the whole corpus, which is what lets the board say a
+    # response template turns up under more than one lineage. Re-run after any
+    # re-run of evolution or enrich.
+    python3 pipeline/06_comments.py "$@"
+    ;;
+
 enrich)
     # Display repair, not analysis. Two things the export loses and this puts
     # back from the firehose: the text beyond the 140-char retweet cut, and the
@@ -123,6 +134,9 @@ print(n)" 2>/dev/null || echo 0)
     rm -rf dist
     mkdir -p dist/phylo
     cp dashboard/index.html dist/index.html
+    # The site is one page. /lineages.html is an alias for it so an
+    # older bookmark or slide link lands on the board instead of a 404.
+    cp dashboard/index.html dist/lineages.html
     cp data/export/phylo/*.json dist/phylo/
     echo "dist/ ready: $(du -sh dist | cut -f1), $(ls dist/phylo | wc -l | tr -d ' ') data files"
     echo "deploy the folder to any static host, or run ./run.sh serve"
@@ -139,6 +153,7 @@ serve)
     rm -rf .dev
     mkdir -p .dev
     ln -s ../dashboard/index.html .dev/index.html
+    ln -s ../dashboard/index.html .dev/lineages.html
     ln -s ../data/export/phylo .dev/phylo
     echo "serving dashboard/index.html live - edit it and refresh"
     echo
@@ -155,6 +170,7 @@ all)
     ./run.sh inspect
     ./run.sh evolution
     ./run.sh enrich
+    ./run.sh comments
     ;;
 
 status)
@@ -172,6 +188,17 @@ print(f"graph            {e:,} edges, {n[0]:,} clusters, {n[1]:,} accounts")
 PY
     else
         echo "graph            not built yet"
+    fi
+    if [ -f data/export/phylo/comments.json ]; then
+        python3 - <<'CMT'
+import json
+m = json.load(open('data/export/phylo/comments.json'))['meta']
+print(f"comments         {m['n_comments']:,} attached ({m['quotes']:,} quotes, "
+      f"{m['replies']:,} replies), {m['n_clusters']:,} templates, "
+      f"{m['n_reuse']:,} reused")
+CMT
+    else
+        echo "comments         not built yet"
     fi
     if [ -f data/export/phylo/index.json ]; then
         python3 - <<'PHYLO'
