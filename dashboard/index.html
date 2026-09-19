@@ -167,6 +167,63 @@
   :root[data-theme="dark"] #theme .ic-sun { display: none; }
   :root[data-theme="dark"] #theme .ic-moon { display: block; }
 
+  /* Off the desktop the dock is not a box at all, so the bar stays the flex
+     child of the sheet it has always been. */
+  .headdock { display: contents; }
+
+  /* The bar folds itself away so the board owns the whole sheet, and unfolds
+     when the pointer reaches the top edge. Folded, it leaves behind its own
+     2px rule and a short handle to aim at. Gated on a real pointer and on the
+     desktop layout: a touch screen has no hover to unfold it with, and below
+     881px the sheet is a scrolling document where a bar parked at the top of
+     the page would scroll out of reach. In both of those cases the bar stays
+     exactly where it was. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 881px) {
+    /* The dock's height IS the animation. It is a real box in the column, so
+       growing it pushes the board down by exactly the distance the bar gains
+       rather than covering the top of it -- and --head-h is measured from the
+       bar itself (see headDock() in the script) so the unroll always stops
+       flush, whatever the counts do to the bar's height at this width. */
+    .headdock {
+      --peek: 10px;
+      --head-h: 45px;
+      display: block; flex: none; position: relative; z-index: 6;
+      height: var(--peek); overflow: hidden;
+      /* Unrolls on the instant, rolls back a beat late, so crossing the top of
+         the board on the way somewhere else does not snatch it shut under the
+         cursor. The curve spends its speed early and lands soft, which is what
+         keeps 35px of travel from reading as a jump. */
+      transition: height .34s cubic-bezier(.32, .72, 0, 1) .22s;
+    }
+    .headdock:hover, .headdock:focus-within {
+      height: var(--head-h); transition-delay: 0s;
+    }
+    /* Anchored to the bottom edge of the dock, so the bar slides down out of
+       its own strip as the dock opens instead of being squashed: the rule
+       under it never moves relative to the board it divides. */
+    .headdock .head {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--paper);
+    }
+    /* A mark to aim at, not a button. It goes the instant the bar starts down
+       and only comes back once the bar has finished going up, so it is never
+       drawn over the words it is standing in for. */
+    .headdock::after {
+      content: ""; position: absolute; z-index: 2; top: 3px; left: 50%;
+      width: 30px; height: 2px; margin-left: -15px; border-radius: 2px;
+      background: var(--ink-2); opacity: .3; pointer-events: none;
+      transition: opacity .16s ease .46s;
+    }
+    .headdock:hover::after, .headdock:focus-within::after {
+      opacity: 0; transition-delay: 0s;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .headdock { transition-duration: 0s; }
+    .headdock::after { transition-duration: 0s; }
+  }
+
   .cols { display: grid; grid-template-columns: auto minmax(0, 1fr); flex: 1; min-height: 0; }
 
   /* ---------- left column: the index of lineages ---------- */
@@ -642,17 +699,21 @@
 </style>
 
 <div class="sheet" id="sheet" data-rail="open">
-  <header class="head">
-    <button class="fold" id="fold" type="button" aria-expanded="true" aria-controls="rail"
-            title="Hide the lineage list"><i class="ic ic-menu" aria-hidden="true"></i><span
-        class="vh" id="foldtext">Hide the lineage list</span></button>
-    <h1>Narrative Phylogeny</h1>
-    <p class="counts" id="corpus"></p>
-    <button class="fold" id="theme" type="button" aria-pressed="false"
-            title="Switch to the dark board"><i class="ic ic-sun" aria-hidden="true"></i><i
-        class="ic ic-moon" aria-hidden="true"></i><span
-        class="vh" id="themetext">Switch to the dark board</span></button>
-  </header>
+  <!-- The dock is the strip the folded bar hides behind, and the target that
+       brings it back down. See .headdock in the stylesheet. -->
+  <div class="headdock" id="headdock">
+    <header class="head">
+      <button class="fold" id="fold" type="button" aria-expanded="true" aria-controls="rail"
+              title="Hide the lineage list"><i class="ic ic-menu" aria-hidden="true"></i><span
+          class="vh" id="foldtext">Hide the lineage list</span></button>
+      <h1>Narrative Phylogeny</h1>
+      <p class="counts" id="corpus"></p>
+      <button class="fold" id="theme" type="button" aria-pressed="false"
+              title="Switch to the dark board"><i class="ic ic-sun" aria-hidden="true"></i><i
+          class="ic ic-moon" aria-hidden="true"></i><span
+          class="vh" id="themetext">Switch to the dark board</span></button>
+    </header>
+  </div>
 
   <div class="cols">
     <aside class="rail" id="rail">
@@ -1597,22 +1658,6 @@
     };
   }
 
-  // A long diagonal drawn across empty paper reads as a gap. The same distance
-  // walked as a drop, a turn and a drop reads as a bracket -- which is how
-  // every phylogeny has been drawn since they were drawn by hand, and why the
-  // horizontal run stops looking like distance and starts looking like
-  // structure. Siblings share a generation, so their turns land on one line
-  // and the row draws its own bar without anyone asking for one. The corners
-  // are square. A rounded one reads as a curve put there on purpose, and on a
-  // board where every other line is straight that is a promise of meaning the
-  // corner cannot keep.
-  function elbow(x1, y1, x2, y2) {
-    return "M" + x1.toFixed(1) + "," + y1.toFixed(1) +
-      "V" + ((y1 + y2) / 2).toFixed(1) +
-      "H" + x2.toFixed(1) +
-      "V" + y2.toFixed(1);
-  }
-
   // The subtree of the selected wording: everything descended from it, which is
   // the population the lineage-total figure in the panel counts. The circles
   // move, so it is a hull recomputed with them rather than a fixed band.
@@ -1677,22 +1722,18 @@
         "translate(" + P[i].x.toFixed(1) + "," + P[i].y.toFixed(1) + ")");
     }
 
-    // Edges run rim to rim rather than centre to centre, so a line never
-    // crosses a circle's own label. An elbow needs the child hanging clear
-    // below its parent to have anywhere to turn; a circle dragged sideways or
-    // pulled above the one it came from falls back to a plain straight
-    // segment, which is happy in any direction.
+    // One straight segment from a parent to a child, drawn rim to rim rather
+    // than centre to centre so a line never crosses a circle's own label. It
+    // is the shortest thing that can be drawn between two circles and the only
+    // one with nothing to interpret: no wobble, no corner, no curve. The
+    // length of a long edge is a real distance on the board, not a detour.
     for (i = 0; i < S.edges.length; i++) {
       var c = S.owner[i], pj = state.nodes[c].p, A = P[pj], B = P[c];
       var rp = L.r[pj], rc = L.r[c], dx = B.x - A.x, dy = B.y - A.y;
-      if (dy > rp + rc + 14) {
-        S.edges[i].setAttribute("d", elbow(A.x, A.y + rp, B.x, B.y - rc));
-      } else {
-        var len = Math.sqrt(dx * dx + dy * dy) || 1;
-        S.edges[i].setAttribute("d",
-          "M" + (A.x + dx / len * rp).toFixed(1) + "," + (A.y + dy / len * rp).toFixed(1) +
-          "L" + (B.x - dx / len * rc).toFixed(1) + "," + (B.y - dy / len * rc).toFixed(1));
-      }
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      S.edges[i].setAttribute("d",
+        "M" + (A.x + dx / len * rp).toFixed(1) + "," + (A.y + dy / len * rp).toFixed(1) +
+        "L" + (B.x - dx / len * rc).toFixed(1) + "," + (B.y - dy / len * rc).toFixed(1));
     }
 
     var sel = state.sel, par = state.nodes[sel].p;
@@ -2494,7 +2535,26 @@
     if (state.fam) { relayout({ fit: false }); renderKey(); }
   }
   // Wired once, against elements that no render replaces.
+  // The dock opens to the bar's real height rather than to a number typed into
+  // the stylesheet: the corpus line lands after the first fetch and rewraps
+  // whenever the sheet narrows or the inspector slides in, and a dock that
+  // opened to a guess would either clip the counts or leave a band of bare
+  // paper under them. Measuring the bar cannot feed back into the measurement,
+  // because the bar is positioned out of flow and its height is set by its own
+  // content, not by the dock it sits in.
+  function headDock() {
+    var dock = $("#headdock"), head = dock && dock.querySelector(".head");
+    if (!head) return;
+    var set = function () {
+      dock.style.setProperty("--head-h", head.offsetHeight + "px");
+    };
+    set();
+    if (window.ResizeObserver) new ResizeObserver(set).observe(head);
+    else addEventListener("resize", debounce(set, 160));
+  }
+
   function wireOnce() {
+    headDock();
     // The other half of the no-drag rules in the stylesheet. -webkit-user-drag
     // is a WebKit property and text stays draggable even where it is honoured,
     // so the event itself is refused; the context menu goes with it, except

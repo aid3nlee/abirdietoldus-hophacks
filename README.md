@@ -1,29 +1,44 @@
-# Coordinated Amplification & Meme Evolution — HopHacks 2026, Memetics Track
+# Phylogenetics of Inauthenticity — HopHacks 2026, Memetics Track
 
-Finding bot networks in 395M tweets from behaviour alone, then tracing how the
-narratives they push mutate over a month.
+How ideas mutate as they spread. 395M tweets, one month, reconstructed into
+lineages: a phrasing appears, gets reworded, the rewordings compete, and some
+win.
 
 ## The idea in one paragraph
 
-We do **not** start by deciding what counts as hate speech and searching for it.
-We start by finding accounts that amplify the same content within seconds of each
-other, repeatedly, over a month — a pattern organic users do not produce. Only
-*then* do we ask what those networks are pushing. Finding the network first and
-reading its content second keeps our assumptions out of the detector, and it
-means the findings can surprise us. The memetics payload is stage 4: within a
-confirmed network, how does a narrative mutate, and which mutations spread?
+A narrative is not a fixed string, it is a lineage. Someone posts a claim,
+someone else retweets it with a word changed, that version spreads or it does
+not, and a month later the phrasing in circulation is not the one that started.
+That is variation plus differential reproduction, which is all "evolution" ever
+means — and a retweet is literal replication, so the structure is really there
+rather than being a metaphor we impose. We reconstruct those lineages from the
+text alone: no seed list of terms, no decision in advance about what counts as
+worth tracing. Then we ask the evolutionary questions. Which mutation won? What
+did it beat? How fast does a wording turn over? The tree is the product.
+
+**Inauthenticity is a column on that tree, not the thesis.** The same pipeline
+notices when a lineage spread through accounts that move in lockstep, or reads
+like engagement farming, and it says so — but as evidence attached to a lineage,
+hedged, and never as the headline. We are not claiming to have caught bots. We
+are showing how ideas evolve, and pointing out where the evolution looks
+manufactured.
+
+> **Note on scope.** Analysis runs on the 138.1M English tweets (36.6% of the
+> corpus). See [Language scope](#language-scope) — this is a leftover filter,
+> not a technical limit, and it is the biggest single lever on the project.
 
 ## What the data actually is
 
 Source: `s3://calcifer-hot/hopkins-hackathon-2026/twitter-firehose-last-month/`
-396 zstd parquet shards, 55.7 GB, **395,352,258 rows / 377,271,528 distinct
-tweets**, `created_at` 2026-08-17 00:00 → 2026-09-17 14:32 UTC. Verified
-byte-exact against the S3 listing; all 396 shards open as valid parquet.
+396 zstd parquet shards, 52 GB on disk, **395,352,258 rows / 377,270,972
+distinct tweets**, `created_at` 2026-08-17 00:00 → 2026-09-17 14:32 UTC. All
+396 shards open as valid parquet.
 
 > The dataset README says "~363.5M distinct". That figure is ~3.6% low and looks
-> like a `approx_count_distinct` (HyperLogLog) estimate. The exact count, from an
-> exhaustive per-day pass, is **377,271,528**. We hit the identical wrong number
-> ourselves before checking it exactly — worth knowing if you quote the README.
+> like an `approx_count_distinct` (HyperLogLog) estimate. The exact count, from
+> `count(DISTINCT id)` over all 396 shards, is **377,270,972** — and it matches
+> `data/normalized/events/` row for row. We hit the HyperLogLog number ourselves
+> before checking it exactly; worth knowing if you quote the dataset README.
 
 ### ⚠️ The collection collapses on 2026-09-01 — read this before planning anything
 
@@ -108,9 +123,6 @@ twitter-firehose/*.parquet          52 GB raw
         │     data/graph/accounts.parquet    per-account behaviour features
         │     data/graph/clusters.parquet    author_id → cluster_id
         │
-        ├─ 03_label.py              Claude API, cluster exemplars only
-        │     data/labels/clusters_labeled.json
-        │
         ├─ 04_evolution.py          ~20 min end to end, six cached steps
         │     data/normalized/content_global.parquet   deduped English content
         │     data/evolution/tokens.parquet            tokens + evasion features
@@ -120,8 +132,31 @@ twitter-firehose/*.parquet          52 GB raw
         │     data/export/phylo/index.json             family index
         │     data/export/phylo/trees-NN.json          mutation trees, 24 buckets
         │
+        │   ── the four passes below all EXTEND an export that already exists ──
+        │      none of them touch clustering, distances or trees, so a failed
+        │      re-run cannot take the demo down
+        │
+        ├─ 03_label.py              ~3 s, no API needed
+        │     per-lineage keywords (100% coverage) + topics (~32%)
+        │     rewrites data/export/phylo/index.json in place
+        │     data/labels/lineages.json                durable copy
+        │
+        ├─ 05_enrich.py             display repair: full text + engagement counts
+        │
+        ├─ 06_comments.py           ~6 min, the audience layer
+        │     data/comments/scored.parquet             stance, tone, polarity
+        │
+        ├─ 07_deadends.py           ~6 min, scoped to showcase lineages
+        │     once-only rewordings that never spread — the failed mutations
+        │     adds dx / dxs per node to trees-NN.json
+        │
         └─ dashboard/               reads data/export/, published as an Artifact
 ```
+
+`03_label.py` runs numbered out of order on purpose: it is named for where it
+sits conceptually (labelling, after the graph) but it reads the export, so it
+runs after stage 4. Anything that only rewrites the export can run in any order
+after it.
 
 ### Stage contracts
 
@@ -222,13 +257,20 @@ the count is a lead rather than a verdict.
 ### Validation (396 shards, 31 days, English)
 
 ```
-54,851,440 distinct English messages
- 6,569,230 traceable (>=2 copies, >=5 content tokens), 65.2M emissions
-   436,335 usable blocking tokens -> 10.3M candidate pairs
-   524,865 pairs above Jaccard 0.45
-    24,438 families / 133,094 variants
-     4,004 families exported (>=3 variants, >=150 emissions), 40,412 variants
+377,270,972 distinct tweets in the corpus
+138,130,463 English  (36.6% -- see Language scope)
+ 54,851,440 distinct English messages, 121.7M emissions
+  6,569,230 traceable (>=2 copies, >=5 content tokens), 65.2M emissions
+    436,335 usable blocking tokens -> 10.3M candidate pairs
+    524,865 pairs above Jaccard 0.45
+     24,438 families / 207,471 variants
+     10,674 lineages exported (>=3 variants, >=50 emissions)
+            142,175 variants, 3,357,530 retweets traced
 ```
+
+The 47,370,164 English messages emitted exactly **once** are excluded from that
+funnel by `MIN_COPIES = 2`. They are not noise — under an evolution framing they
+are mutations that failed to reproduce, which is what stage 7 goes back for.
 
 Families split cleanly into two kinds, and the hashtag-per-variant number
 separates them:
