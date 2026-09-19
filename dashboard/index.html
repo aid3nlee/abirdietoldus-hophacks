@@ -531,7 +531,10 @@
      above its own row of words reads better than a label beside them. */
   .bar { display: grid; gap: 9px; font-size: 12.5px; }
   .grp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 13px; }
-  .grp > b { flex: 0 0 100%; font-weight: 400; font-size: 11px; letter-spacing: .04em; color: var(--ink-2); }
+  .grp > b {
+    flex: 0 0 100%; font-weight: 400; font-size: 11px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--ink-2);
+  }
   /* Scoped to the island rather than to .bar, because the timeline's own two
      words sit outside the shade/layout rows and would otherwise come up in the
      browser's grey button chrome next to them. */
@@ -540,20 +543,6 @@
     color: var(--ink-2); border-bottom: 2px solid transparent;
     transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
   }
-    padding: 1px 0; border: 0; background: none; cursor: pointer;
-    color: var(--ink-2); border-bottom: 2px solid transparent;
-    transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
-  }
-  .bar button:hover { color: var(--ink); }
-  .bar button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
-  .bar .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
-  .bar .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
-  .scrub { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; }
-  /* Uppercase in CSS, not in the label text, so it holds through the
-     play/pause swap the scrubber does while it runs. */
-  .scrub #play { text-transform: uppercase; font-size: 12.5px; }
-  .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
-  .scrub output { font-size: 13.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
   .isle-r button:hover { color: var(--ink); }
   .isle-r button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
   .isle-r .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
@@ -562,7 +551,12 @@
   /* The word that starts it carries a little more weight than the one that
      folds it away, because it is the only control on the sheet that makes the
      board move by itself. */
-  .isle-r #play { font-size: 13px; color: var(--ink); border-bottom-style: solid; border-bottom-width: 1px; }
+  /* Uppercase in CSS, not in the label text, so it holds through the
+     play/pause swap the scrubber does while it runs. */
+  .isle-r #play {
+    font-size: 13px; color: var(--ink); text-transform: uppercase;
+    border-bottom-style: solid; border-bottom-width: 1px;
+  }
 
   /* ---------- the timeline is a thing you start ----------
      The emission curve and its scrub handle used to sit on the sheet whether
@@ -804,14 +798,104 @@
   .cmt-cl .cib { color: var(--red); font-weight: 700; }
   .cmt-cl .spans { color: var(--pen); font-weight: 700; }
 
-  /* ---------- the same lineage as numbers ---------- */
-  .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
-  .tbl summary {
-    cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2);
-    transition: color var(--t-mid) ease;
+  /* ---------- the inspector dock ----------
+     The numbers used to fall out of a summary line and shove the board up the
+     page. They are a docked panel now, in the shape a developer console has:
+     a rule of tabs along the top, one pane open at a time, and a caret on the
+     right that folds the body away without taking the tabs with it. It sticks
+     to the foot of the stage, so the board stays in view while the numbers are
+     read instead of being scrolled off to reach them. Same paper, same pen:
+     a panel, not a card -- its top rule answers the header's. */
+  .dock {
+    position: sticky; bottom: 0; z-index: 12; margin-top: 4px;
+    background: var(--paper); border-top: 2px solid var(--ink);
   }
-  .tbl summary:hover { color: var(--ink); }
-  .tscroll { overflow-x: auto; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+  .dock-bar {
+    display: flex; align-items: stretch; gap: 14px;
+    padding: 0 8px 0 20px; background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .dock[data-open="false"] .dock-bar { border-bottom: 0; }
+  .dock-tabs { display: flex; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .dock-tabs::-webkit-scrollbar { display: none; }
+  .dock-tabs button {
+    flex: none; display: flex; align-items: center; gap: 7px; margin-bottom: -1px;
+    padding: 7px 14px; border: 0; background: none; cursor: pointer;
+    font-size: 14px; color: var(--ink-2); border-bottom: 2px solid transparent;
+  }
+  .dock-tabs button:hover { color: var(--ink); }
+  .dock-tabs button[aria-selected="true"] {
+    color: var(--ink); background: var(--paper); border-bottom-color: var(--pen);
+  }
+  /* The count belongs to its tab rather than to a sentence, so it is set off
+     the way the lineage badges are instead of left as another word. */
+  .dock-n {
+    font-size: 12px; font-weight: 700; letter-spacing: .03em; padding: 0 5px;
+    color: var(--ink-2); border: 1px solid var(--rule); font-variant-numeric: tabular-nums;
+  }
+  .dock-tabs button[aria-selected="true"] .dock-n { color: var(--pen); border-color: var(--pen); }
+  .dock-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .dock-sel { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .dock-sel b { color: var(--ink); font-weight: 700; }
+  #docktoggle svg { transition: transform .2s ease; }
+  .dock[data-open="false"] #docktoggle svg { transform: rotate(180deg); }
+  /* Fixed height, so opening and closing the dock is the only thing that ever
+     moves the board -- a tab switch must not resize it underneath the reader. */
+  .dock-body { height: min(274px, 32vh); overflow: hidden; }
+  .dock[data-open="false"] .dock-body { display: none; }
+  .dock-pane { height: 100%; overflow: auto; padding: 0 20px 14px; }
+  .dock-pane[hidden] { display: none; }
+  .dock-pane h4 {
+    margin: 0; padding: 12px 0 2px; font-size: 13px; font-weight: 400;
+    letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .dock-empty { padding: 20px 0; color: var(--ink-2); font-size: 14px; }
+
+  /* Node metadata: the whole record of one wording as a field list, which is
+     the reading the slide-in panel does not give -- that one is a tweet and a
+     sentence about it, this one is every number the pipeline recorded. */
+  .meta-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0 26px; margin: 0; font-size: 13.5px;
+  }
+  .meta-grid > div {
+    display: flex; align-items: baseline; gap: 8px; padding: 4px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .meta-grid dt { flex: none; min-width: 10.8em; color: var(--ink-2); }
+  .meta-grid dd {
+    margin: 0; flex: 1; min-width: 0; color: var(--ink);
+    font-variant-numeric: tabular-nums; overflow-wrap: break-word;
+  }
+  .meta-grid dd.dim { color: var(--ink-2); }
+  .meta-grid dd .tok { font-size: 12.5px; }
+  .meta-txt {
+    margin-top: 10px; font-size: 14px; color: var(--ink); max-width: 88ch;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+    border-left: 2px solid var(--pen-soft); padding-left: 10px;
+  }
+
+  /* Drift analytics: the lineage's rewording, as a distribution and as a
+     curve over generations. One series each, so the heading names it and no
+     legend is needed; the bars borrow the board's own drift wash so the two
+     readings of drift are the same colour language. */
+  .an-figs { display: flex; flex-wrap: wrap; gap: 2px 30px; padding: 10px 0 2px; }
+  .an-figs div { display: flex; align-items: baseline; gap: 7px; font-size: 13.5px; color: var(--ink-2); }
+  .an-figs b { color: var(--ink); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .an-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0 26px; min-width: 0; }
+  .an-chart svg { display: block; width: 100%; height: 112px; }
+  .an-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .an-top button {
+    display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left;
+    padding: 4px 0; border: 0; border-bottom: 1px solid var(--hair);
+    background: none; cursor: pointer; color: var(--ink-2); font-size: 13.5px;
+  }
+  .an-top button:hover { background: var(--paper-2); color: var(--ink); }
+  .an-top button[aria-current="true"] { background: var(--pen-soft); color: var(--ink); }
+  .an-top .k { flex: none; min-width: 3.4em; color: var(--ink); font-weight: 700; }
+  .an-top .v { flex: none; min-width: 4.5em; font-variant-numeric: tabular-nums; }
+  .an-top .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
   th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
   th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
@@ -957,7 +1041,6 @@
     .pulse { height: 50px; }
     .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 14px 8px; }
     .key { padding: 2px 14px 12px; gap: 5px 12px; }
-    .tbl { margin-inline: 14px; }
     .note { padding-inline: 14px; }
     .loading { padding-inline: 14px; }
 
@@ -979,7 +1062,6 @@
     .rail-top { padding-inline: 11px; }
     .draw { margin-inline: 11px; }
     .key { padding-inline: 11px; }
-    .tbl { margin-inline: 11px; }
     .xpost .av { width: 30px; height: 30px; }
   }
 </style>
@@ -2561,20 +2643,13 @@
       return '<tr data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
         '<td class="k">' + T.label[i] + "</td><td>" + n.d + "</td><td>" +
         (n.p === null || n.p === undefined ? "\u2014" : T.label[n.p]) + "</td><td>" +
-        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.rsp && n.rsp.n || n.cmt && n.cmt.n || 0) + "</td><td>" +
-        (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
-        Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
-        '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
+        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.cmt && n.cmt.n || 0) + "</td><td>" +
         (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
         Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
         '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
     }).join("");
-    return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
-      "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
-      '<div class="tscroll"><table id="vartable">' +
+    return '<table id="vartable">' +
       "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th><th>comments</th>" +
-      "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
-      rows + "</tbody></table>";
       "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
       rows + "</tbody></table>";
   }
@@ -2586,7 +2661,7 @@
     var T = state.topo, isRoot = n.p === null || n.p === undefined;
     var kids = T.kids[state.sel] || [];
     var coord = n.acc ? n.co / n.acc : 0;
-    var rsp = n.rsp, m = n.met;
+    var cmt = n.cmt, m = n.met;
     var out = [];
     var row = function (k, v, dim) {
       out.push("<div><dt>" + k + '</dt><dd' + (dim ? ' class="dim"' : "") + ">" + v + "</dd></div>");
@@ -2612,7 +2687,9 @@
         n.t0 < META.cliff_h);
     row("mixed-script words", n.mix > 0 ? String(n.mix) : "0", !n.mix);
     row("styled characters", n.obf > 0 ? String(n.obf) : "0", !n.obf);
-    row("responses observed", rsp ? fmt(rsp.n) + " from " + fmt(rsp.acc) + " accounts" : none, !rsp);
+    row("comments captured", cmt && cmt.n
+        ? fmt(cmt.n) + " (" + fmt(cmt.q) + " quote tweets, " + fmt(cmt.n - cmt.q) + " replies)"
+        : none, !(cmt && cmt.n));
     row("X replies / retweets", m ? fmt(m.reply || 0) + " / " + fmt(m.rt || 0) : none, !m);
     row("X likes / views", m ? fmt(m.like || 0) + " / " + fmt(m.views || 0) : none, !m);
 
@@ -3243,15 +3320,6 @@
     }
     syncDock();
 
-    var table = $("#vartable");
-    if (table) table.addEventListener("click", function (e) {
-      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i, true);
-    });
-    var details = $("#tabledetails");
-    if (details) {
-      details.addEventListener("toggle", function () { state.tableOpen = details.open; });
-      animateDetails(details);
-    }
     var lin = $("#lindetails");
     if (lin) {
       lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
