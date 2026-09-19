@@ -55,6 +55,25 @@
     --x-ink: #0f1419; --x-dim: #536471; --x-line: #cfd9de; --x-blue: #1d9bf0;
     --x-card-bg: #ffffff;
     --nav-overlay: rgba(255, 255, 255, .93);
+    /* ---------- motion ----------
+       One hand draws the board and one hand moves it. Every travel on the
+       sheet is written in these six values rather than in a number typed at
+       whichever rule happened to need it, so a panel, a fold and a chevron
+       read as the same gesture at three different sizes.
+       --ease spends its speed early and lands soft, which is what lets a long
+       travel arrive without a stop. --ease-out is its symmetric cousin for the
+       short ones, where an eased landing over 6px only reads as lag. And
+       --ease-back carries the one soft overshoot the springs on the board
+       already speak in, so a chip settling into place and a circle settling
+       onto its anchor are recognisably the same physics.
+       Everything built on them is switched off wholesale at the foot of this
+       sheet for a reader who asked for less motion. */
+    --ease:      cubic-bezier(.32, .72, 0, 1);
+    --ease-out:  cubic-bezier(.4, 0, .2, 1);
+    --ease-back: cubic-bezier(.2, .7, .2, 1);
+    --t-fast: .14s;
+    --t-mid:  .24s;
+    --t-slow: .34s;
     /* The chrome's three drawn marks, plus the pen square that boxes the map
        buttons. All four are alpha masks rather than pictures: the drawing
        supplies the shape and currentColor supplies the ink, so one file
@@ -128,7 +147,9 @@
 
   .sheet {
     display: flex; flex-direction: column; height: 100%; min-height: 0;
-    transition: margin-right .2s ease;
+    transition: margin-right var(--t-slow) var(--ease);
+    /* The sheet is drawn once, on arrival, rather than switched on. */
+    animation: fade .4s ease;
   }
   .sheet[data-panel="open"] { margin-right: var(--panel-w); }
 
@@ -149,8 +170,15 @@
     flex: none; align-self: center; width: 25px; height: 25px; padding: 0;
     display: grid; place-items: center; cursor: pointer;
     border: 0; background: none; color: var(--ink-2);
+    transition: color var(--t-mid) ease;
   }
   .fold:hover { color: var(--ink); }
+  /* The drawing is the button, so the drawing is what answers a press: it
+     leans in under the pointer and gives way under the click. Scaling the
+     mark rather than a box around it keeps that true. */
+  .fold .ic { transition: transform var(--t-mid) var(--ease-back); }
+  .fold:hover .ic { transform: scale(1.14); }
+  .fold:active .ic { transform: scale(.88); }
   /* One 14px cell per mark, with the drawing sized to fit inside it, so the
      wide three-bar menu and the tall crescent sit on the same optical centre
      as the round sun without three sets of measurements. */
@@ -193,7 +221,7 @@
          the board on the way somewhere else does not snatch it shut under the
          cursor. The curve spends its speed early and lands soft, which is what
          keeps 35px of travel from reading as a jump. */
-      transition: height .34s cubic-bezier(.32, .72, 0, 1) .22s;
+      transition: height var(--t-slow) var(--ease) .22s;
     }
     .headdock:hover, .headdock:focus-within {
       height: var(--head-h); transition-delay: 0s;
@@ -229,7 +257,8 @@
   /* ---------- left column: the index of lineages ---------- */
   .rail {
     display: flex; flex-direction: column; min-height: 0; width: 290px;
-    border-right: 1px solid var(--rule); overflow: hidden; transition: width .2s ease;
+    border-right: 1px solid var(--rule); overflow: hidden;
+    transition: width var(--t-slow) var(--ease);
   }
   /* Fixed-width children so the list does not reflow while the rail folds. */
   .rail > * { min-width: 290px; }
@@ -259,17 +288,17 @@
   .filt-v {
     flex: 1; min-width: 0; color: var(--ink); font-size: 12.5px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    transition: color .2s ease, opacity .2s ease;
+    transition: color var(--t-mid) ease, opacity var(--t-mid) ease;
   }
   .filt[data-open="true"] .filt-v { color: var(--ink-2); }
   .filt-chev {
     flex: none; width: 9px; height: 9px; align-self: center; color: var(--ink-2);
-    transition: transform .28s cubic-bezier(.4, 0, .2, 1), color .2s ease;
+    transition: transform var(--t-mid) var(--ease-out), color var(--t-mid) ease;
   }
   .filt[data-open="true"] .filt-chev { transform: rotate(180deg); color: var(--ink); }
   .filt-clip {
     display: grid; grid-template-rows: 0fr;
-    transition: grid-template-rows .32s cubic-bezier(.4, 0, .2, 1);
+    transition: grid-template-rows var(--t-slow) var(--ease-out);
   }
   .filt[data-open="true"] .filt-clip { grid-template-rows: 1fr; }
   .filt-clip > .chips { min-height: 0; overflow: hidden; }
@@ -278,8 +307,8 @@
     padding: 1px 0; border: 0; background: none; cursor: pointer; color: var(--ink-2);
     border-bottom: 2px solid transparent;
     opacity: 0; transform: translateY(-6px); pointer-events: none;
-    transition: opacity .22s ease, transform .26s cubic-bezier(.2, .7, .2, 1),
-                color .15s ease, border-color .15s ease;
+    transition: opacity var(--t-mid) ease, transform var(--t-mid) var(--ease-back),
+                color var(--t-fast) ease, border-color var(--t-fast) ease;
   }
   .filt:not([data-open="true"]) .chips button { transition-delay: 0s; }
   .filt[data-open="true"] .chips button {
@@ -304,9 +333,23 @@
     display: grid; gap: 5px; width: 100%; text-align: left; cursor: pointer;
     padding: 9px 11px 9px 10px; background: var(--paper); color: inherit;
     border: 1px solid var(--rule); border-left: 3px solid transparent; border-radius: 6px;
-    transition: background .12s ease, border-color .12s ease;
+    transition: background var(--t-fast) ease, border-color var(--t-fast) ease,
+                transform var(--t-fast) var(--ease-out);
+    /* Re-searching the corpus rewrites this whole list, so the rows come back
+       in the order they are read rather than all at once. The index is capped
+       in renderList: past a dozen rows the cascade is off the bottom of the
+       rail anyway, and an uncapped one would leave row 300 waiting nearly
+       five seconds for its turn. */
+    animation: rise var(--t-slow) var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 16ms);
   }
-  .fam:hover { background: var(--paper-2); }
+  /* Clicking a row also rewrites the list, to move one border from one row to
+     another. renderList hangs this on the container whenever the rows that
+     came back are the rows that were already there, so the cascade stays a
+     reply to the search box rather than a flinch at every selection. */
+  .list.nofx .fam { animation: none; }
+  .fam:hover { background: var(--paper-2); transform: translateX(2px); }
+  .fam:active { transform: translateX(1px) scale(.995); }
   .fam[aria-current="true"] { background: var(--paper-2); border-left-color: var(--pen); }
   .fam-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .fam-badges { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
@@ -353,41 +396,153 @@
      stage -- is the column the board stretches inside. */
   #stage-body { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 0; }
   #stage-body.loading { display: block; }
-  .lin { padding: 8px 20px 7px; border-bottom: 1px solid var(--rule); }
+  /* A different lineage is a different sheet of paper, so the board fades
+     rather than cutting. Opacity only: the tree's pointer maths reads a live
+     getBoundingClientRect, and a transform on anything above it would move
+     the map out from under the cursor for the length of the fade.
+
+     No fill-mode and no delay, here and on every entrance below that covers
+     something a reader needs. An animation that holds its first keyframe is
+     an animation that hides the board outright if it never gets to run --
+     which is exactly what a throttled tab, a background render or a headless
+     capture will do to it. Written this way the resting style is the visible
+     one and the keyframes are only borrowed on the way in, so the worst a
+     failed animation can cost is the animation. */
+  #stage-body.swap { animation: fade var(--t-mid) ease; }
+  /* The islands are free to travel, since nothing measures them; the board
+     itself is not, so it only fades. */
+  #stage-body.swap .isle-l { animation: rise var(--t-slow) var(--ease-out); }
+  #stage-body.swap .isle-r { animation: rise var(--t-slow) var(--ease-out); }
+
+  /* ---------- the two islands ----------
+     The board is the whole page now, so the two bands that used to sit above
+     it are laid on it instead: what this lineage *is* on the left, what the
+     drawing is *doing* on the right. They are paper resting on the map -- they
+     take their own clicks and let every other pixel through to the tree
+     underneath, which is why they are siblings of the SVG rather than anything
+     the pan and zoom maths has to know about. */
+  .isle {
+    position: absolute; z-index: 3;
+    background: var(--nav-overlay); border: 1px solid var(--rule);
+    border-radius: 15px 5px 13px 6px / 6px 14px 5px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .11);
+    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+  }
+  /* Both widths are a share of the board rather than a number, because the
+     point of the arrangement is the open water between them: on a 13" laptop
+     two fixed islands meet in the middle and there is no map left to read. */
+  .isle-l {
+    top: 11px; left: 11px; max-width: calc(100% - 22px);
+    /* Wide enough for the post and the figures side by side, but never so wide
+       that the right island has nowhere to sit: the second term reserves its
+       width plus the water on either side of it, whatever the board is doing. */
+    width: clamp(280px, min(58%, 100% - 300px), 700px);
+    max-height: calc(100% - 22px); overflow-y: auto; overscroll-behavior: contain;
+    padding: 9px 14px 12px;
+    /* Queried by .lin-body below, which needs the island's own width rather
+       than the viewport's -- folding the rail away widens the board, and with
+       it the island, without any media query noticing. */
+    container-type: inline-size;
+  }
+  .isle-r {
+    top: 11px; right: 11px; width: clamp(214px, 26%, 264px); max-width: calc(100% - 22px);
+    padding: 10px 14px 11px;
+  }
+  /* A caption on a card, not a heading in the document: the island names its
+     own sections at a whisper, so the post inside it stays the loudest thing
+     on the paper. */
+  .isle-hd {
+    margin: 12px 0 0; font-size: 10.5px; letter-spacing: .05em; color: var(--ink-2);
+  }
   .lin summary { cursor: pointer; }
-  .lin summary h2 { display: inline; }
+  .lin summary h2 { display: inline; transition: color var(--t-mid) ease; }
   .lin summary:hover h2 { color: var(--ink); }
-  .lin .hdr { display: flex; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
+  /* The post first and the reading of it beside: the wording is the evidence
+     and the figures are what we say about it, so they are two columns rather
+     than a stack that makes you scroll from one to the other. Below the
+     threshold there is not enough width for both to be legible, so they fall
+     back to one column in the same order. */
+  .lin-body { display: grid; gap: 2px 18px; align-items: start; margin-top: 7px; }
+  @container (min-width: 500px) {
+    .lin-body { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  }
+  .lin-post > .isle-hd { margin-top: 0; }
+  /* One column wide either way, so the header's parts stack rather than
+     sharing a row and wrapping raggedly halfway through a figure. */
+  .lin .hdr { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
   .lin h2 { font-size: 14px; }
-  .lin .hdr .figs { margin-top: 0; }
+  .lin .hdr .figs { margin-top: 5px; }
   .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   .warn {
-    margin-top: 9px; max-width: 84ch; font-size: 11.5px; color: var(--ink-2);
+    margin-top: 9px; font-size: 11.5px; color: var(--ink-2);
     border-left: 2px solid var(--red); padding: 2px 0 2px 9px;
   }
-
-  /* Controls are typed words, underlined in pen when they are the live one. */
-  .bar {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px;
-    padding: 8px 20px; border-bottom: 1px solid var(--rule); font-size: 12.5px;
+  /* The root wording is a real tweet, so the island draws it as one -- the
+     same card the inspector uses for every other variant, one size down,
+     because here it is the caption on the root of the tree rather than the
+     subject of the page. */
+  .isle-l .xpost { margin-top: 6px; padding: 10px 12px; font-size: 14px; line-height: 19px; }
+  .isle-l .xpost .av { width: 34px; height: 34px; font-size: 15px; }
+  /* X spreads the action row edge to edge, which needs a full-width card to
+     read as a row rather than as six numbers run together. In a column this
+     narrow they are left-aligned on a fixed gap instead, and wrap if they
+     must. */
+  .isle-l .xacts {
+    margin-top: 10px; font-size: 12px;
+    justify-content: flex-start; flex-wrap: wrap; gap: 3px 13px;
   }
-  .grp { display: flex; align-items: baseline; gap: 8px; }
-  .grp > b { font-weight: 400; color: var(--ink-2); }
-  .bar button {
+
+  /* Controls are typed words, underlined in pen when they are the live one.
+     One column now rather than one row: the island is narrow, and a label
+     above its own row of words reads better than a label beside them. */
+  .bar { display: grid; gap: 9px; font-size: 12.5px; }
+  .grp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 13px; }
+  .grp > b { flex: 0 0 100%; font-weight: 400; font-size: 11px; letter-spacing: .04em; color: var(--ink-2); }
+  /* Scoped to the island rather than to .bar, because the timeline's own two
+     words sit outside the shade/layout rows and would otherwise come up in the
+     browser's grey button chrome next to them. */
+  .isle-r button {
     padding: 1px 0; border: 0; background: none; cursor: pointer;
     color: var(--ink-2); border-bottom: 2px solid transparent;
+    transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
   }
-  .bar button:hover { color: var(--ink); }
-  .bar button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
-  .bar .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
-  .bar .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
-  .scrub { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; }
-  .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
-  .scrub output { font-size: 11.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
+  .isle-r button:hover { color: var(--ink); }
+  .isle-r button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
+  .isle-r .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
+  .isle-r .act:active { color: var(--pen); }
+  .isle-r .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  /* The word that starts it carries a little more weight than the one that
+     folds it away, because it is the only control on the sheet that makes the
+     board move by itself. */
+  .isle-r #play { font-size: 13px; color: var(--ink); border-bottom-style: solid; border-bottom-width: 1px; }
 
-  .plot { padding: 4px 20px 0; }
-  .pulse { display: block; width: 100%; height: 52px; }
+  /* ---------- the timeline is a thing you start ----------
+     The emission curve and its scrub handle used to sit on the sheet whether
+     anybody wanted them or not, which asked a reader to ignore a second chart
+     while reading the tree. Closed, it is one word under the controls; pressed,
+     the curve unrolls upward out of the button that asked for it. The clip is
+     a 0fr -> 1fr grid row rather than a height, so it travels to whatever the
+     chart actually measures instead of to a number typed in here. */
+  .tl { display: grid; gap: 7px; margin-top: 2px; border-top: 1px solid var(--hair); padding-top: 9px; }
+  .tl-clip { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--t-slow) var(--ease); }
+  .tl[data-open="true"] .tl-clip { grid-template-rows: 1fr; }
+  .tl-wrap { overflow: hidden; min-height: 0; }
+  /* The contents come in a beat behind the clip, so the curve lands on a box
+     that has finished opening rather than being drawn mid-travel. */
+  .tl-in {
+    display: grid; gap: 3px; opacity: 0; transform: translateY(5px);
+    transition: opacity var(--t-mid) ease, transform var(--t-mid) var(--ease-out);
+  }
+  .tl[data-open="true"] .tl-in { opacity: 1; transform: none; transition-delay: .1s; }
+  .tl-row { display: flex; align-items: baseline; gap: 12px; }
+  .tl-row .tl-x { margin-left: auto; font-size: 11.5px; }
+  .tl-in input[type="range"] { width: 100%; margin: 0; accent-color: var(--pen); }
+  .cutout {
+    font-size: 11px; color: var(--ink-2); text-align: right; white-space: nowrap;
+    font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pulse { display: block; width: 100%; height: 58px; }
   /* The board is a map, not a picture: a fixed window onto a canvas with no
      edges. The tree is what the page is for, so the window takes every pixel
      the sheet can spare; everything else is a caption on it. */
@@ -420,7 +575,11 @@
     background: var(--nav-overlay);
     border-radius: 13px 4px 11px 5px / 5px 12px 4px 13px;
     color: var(--ink-2); cursor: pointer; font-size: 15px; line-height: 1;
+    transition: color var(--t-mid) ease, transform var(--t-fast) var(--ease-out);
   }
+  /* The drawn square and its glyph give together, so a zoom step feels like
+     pressing a key rather than clicking a region. */
+  .nav button:active { transform: scale(.9); }
   .nav button::before {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background: currentColor;
@@ -455,14 +614,22 @@
     padding: 14px 20px 28px; background: var(--paper);
     border-left: 2px solid var(--ink); box-shadow: -18px 0 34px rgba(0, 0, 0, .07);
     transform: translateX(101%); visibility: hidden;
-    transition: transform .2s ease, visibility 0s linear .2s;
+    transition: transform var(--t-slow) var(--ease), visibility 0s linear var(--t-slow);
   }
-  .panel.on { transform: none; visibility: visible; transition: transform .2s ease; }
+  /* The sheet's margin runs on the same length and the same curve, so the
+     board is not still sliding over once the panel has landed on it. */
+  .panel.on { transform: none; visibility: visible; transition: transform var(--t-slow) var(--ease); }
+  /* Choosing another circle keeps the panel exactly where it is and changes
+     what is written on it. Fast and opacity-only: at this length it reads as
+     the page catching up with the click, not as a second animation. */
+  .insp.swap { animation: swap-in var(--t-mid) var(--ease-out); }
   .panel-x {
     float: right; margin: -2px -6px 0 10px; padding: 2px 6px; cursor: pointer;
     border: 0; background: none; color: var(--ink-2); font-size: 16px; line-height: 1;
+    transition: color var(--t-mid) ease, transform var(--t-mid) var(--ease-back);
   }
-  .panel-x:hover { color: var(--ink); }
+  .panel-x:hover { color: var(--ink); transform: rotate(90deg); }
+  .panel-x:active { transform: rotate(90deg) scale(.86); }
   .panel .figs { max-width: none; }
   .insp h3 { font-size: 13.5px; display: inline; }
   .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
@@ -498,7 +665,7 @@
   }
   .xmore {
     margin-top: 1px; padding: 0; border: 0; background: none; cursor: pointer;
-    font: inherit; color: var(--x-blue);
+    font: inherit; color: var(--x-blue); transition: color var(--t-fast) ease;
   }
   .xmore:hover { text-decoration: underline; }
   .xacts {
@@ -516,13 +683,15 @@
   .rels button {
     padding: 0; border: 0; background: none; cursor: pointer; color: var(--pen);
     border-bottom: 1px dotted var(--pen);
+    transition: color var(--t-fast) ease, border-bottom-color var(--t-fast) ease;
   }
   .rels button:hover { border-bottom-style: solid; }
   .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
   .flags { margin-top: 9px; font-size: 11.5px; color: var(--red); }
   .flags.mild { color: var(--ink-2); }
   .reply-excerpts { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
-  .reply-excerpts summary { cursor: pointer; color: var(--pen); }
+  .reply-excerpts summary { cursor: pointer; color: var(--pen); transition: opacity var(--t-fast) ease; }
+  .reply-excerpts summary:hover { opacity: .78; }
   .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
   .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
   .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 10.5px; color: var(--ink-2); }
@@ -542,7 +711,10 @@
     display: flex; height: 9px; border-radius: 4.5px; overflow: hidden;
     background: var(--hair); gap: 2px;
   }
-  .sbar span { display: block; min-width: 2px; }
+  .sbar span { display: block; min-width: 2px; transform-origin: left center; }
+  /* The split is a measurement being drawn, so it is drawn: the segments run
+     out from the left edge in the order they are listed underneath. */
+  .insp.swap .sbar span { animation: unroll var(--t-slow) var(--ease-out); }
   .s-endorse  { background: var(--st-end); }
   .s-dispute  { background: var(--st-dis); }
   .s-mock     { background: var(--st-moc); }
@@ -578,7 +750,10 @@
 
   /* ---------- the same lineage as numbers ---------- */
   .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
-  .tbl summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
+  .tbl summary {
+    cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2);
+    transition: color var(--t-mid) ease;
+  }
   .tbl summary:hover { color: var(--ink); }
   .tscroll { overflow-x: auto; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
   table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
@@ -588,25 +763,66 @@
   td.k { color: var(--ink); font-weight: 700; }
   td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
   td.txt span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-  tbody tr { cursor: pointer; }
+  tbody tr { cursor: pointer; transition: background var(--t-fast) ease; }
   tbody tr:hover { background: var(--paper-2); }
   tbody tr[aria-current="true"] { background: var(--pen-soft); }
 
   .note { padding: 10px 0 24px; color: var(--ink-2); font-size: 11.5px; max-width: 88ch; }
   .note b { color: var(--ink-2); font-weight: 700; }
   .loading { padding: 36px 20px; color: var(--ink-2); }
+  /* A fetch still in flight is the one place on the sheet where nothing else
+     is moving, so the words themselves carry the wait. Scoped to the stage:
+     the rail uses this same class for "nothing matches that phrase", which is
+     an answer and has finished happening. */
+  #stage-body.loading { animation: breathe 1.6s ease-in-out infinite; }
 
   .tip {
-    position: fixed; z-index: 40; max-width: 402px; pointer-events: none; opacity: 0;
-    transition: opacity .09s; background: var(--x-card-bg); padding: 12px 14px;
+    position: fixed; z-index: 40; max-width: 402px; pointer-events: none;
+    opacity: 0; transform: translateY(5px) scale(.985); transform-origin: bottom left;
+    transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-back);
+    background: var(--x-card-bg); padding: 12px 14px;
     border: 1px solid var(--x-line); border-radius: 16px;
     box-shadow: 0 6px 22px rgba(0, 0, 0, .13);
   }
-  .tip.on { opacity: 1; }
+  .tip.on { opacity: 1; transform: none; }
   .tip .xpost { margin: 0; padding: 0; border: 0; border-radius: 0; }
   /* The line under the card is this page talking about the post, not X, so it
      keeps the board's hand. */
   .tip .m { margin-top: 9px; font-size: 11px; color: var(--ink-2); }
+
+  /* ---------- the entrances ----------
+     Six of them for the whole sheet, and all of them short. The point of an
+     entrance here is that a row, a panel or a new lineage *arrives* rather
+     than appearing -- not that it makes a journey on the way. Anything
+     travelling further than about 6px on a board this dense stops being
+     punctuation and starts being the thing you are watching. */
+  @keyframes rise    { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes swap-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  @keyframes fade    { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes unroll  { from { transform: scaleX(0); } to { transform: none; } }
+  @keyframes breathe { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+  /* The theme button's own mark turns over as the board does, so the switch
+     has a subject rather than just a result. */
+  @keyframes turnover { from { transform: rotate(-140deg) scale(.55); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* ---------- crossing between the paper and the chalkboard ----------
+     Every colour on the sheet is a custom property, so flipping the theme
+     attribute repaints all of them in a single frame -- correct, and abrupt
+     enough to read as a fault. This is the one place the page wants a blanket
+     transition, so it takes one: setTheme() hangs .theming on the root for
+     the length of the cross-fade and takes it off again, which keeps a rule
+     this broad from sitting over every hover on the sheet for the rest of the
+     session. Only the three surface properties are carried; the tree, the
+     pulse chart and the legend are inline SVG that setTheme redraws outright,
+     and a transition on a replaced element has nothing to run from. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    :root.theming, :root.theming * {
+      transition: background-color var(--t-slow) ease, color var(--t-slow) ease,
+                  border-color var(--t-slow) ease !important;
+    }
+    :root.theming #theme .ic { animation: turnover .42s var(--ease-back); }
+  }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
@@ -631,6 +847,9 @@
     .list { max-height: min(32dvh, 240px); }
     .stage { overflow-y: visible; }
     .draw { flex: none; height: min(68dvh, 580px); min-height: 320px; }
+    /* Narrower board, narrower paper on it. */
+    .isle-l { width: min(52%, 400px); }
+    .isle-r { width: min(42%, 252px); }
     .panel { width: 100%; max-width: 100%; }
     .sheet[data-panel="open"] { margin-right: 0; }
   }
@@ -654,20 +873,21 @@
     .fam { min-height: 50px; padding-inline: 11px 14px; }
     .list { max-height: min(34dvh, 260px); }
 
-    .lin { padding: 8px 14px 7px; }
-    .lin .hdr { gap: 3px 10px; }
     .lin h2 { font-size: 13.5px; }
-    .lin .root { font-size: 12px; }
-    .bar { gap: 8px 16px; padding: 9px 14px; }
-    .grp { gap: 6px; flex-wrap: wrap; }
-    .scrub {
-      flex: 1 0 100%; min-width: 0; display: grid;
-      grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px;
+    /* Side by side, two islands on a phone leave no board between them, so
+       they stack instead: the lineage across the top, the controls across the
+       foot, and the map is the band of paper left in between. */
+    .isle-l {
+      top: 8px; left: 8px; right: 8px; width: auto; max-width: none;
+      max-height: 34%; padding: 8px 12px 10px;
     }
-    .scrub input[type="range"] { grid-column: 1 / -1; width: 100%; }
-    .scrub output { min-width: 0; overflow: hidden; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
-    .plot { padding: 4px 14px 0; }
-    .pulse { height: 46px; }
+    .isle-r {
+      top: auto; bottom: 8px; left: 8px; right: 46px; width: auto; max-width: none;
+      padding: 9px 12px 10px;
+    }
+    .grp { gap: 3px 12px; }
+    .zoomlbl { display: none; }
+    .pulse { height: 50px; }
     .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 14px 8px; }
     .key { padding: 2px 14px 12px; gap: 5px 12px; }
     .tbl { margin-inline: 14px; }
@@ -689,8 +909,7 @@
   @media (max-width: 380px) {
     .head { padding-inline: 11px; }
     .head .counts { margin-left: 34px; }
-    .rail-top, .lin, .bar { padding-inline: 11px; }
-    .plot { padding-inline: 11px; }
+    .rail-top { padding-inline: 11px; }
     .draw { margin-inline: 11px; }
     .key { padding-inline: 11px; }
     .tbl { margin-inline: 11px; }
@@ -982,6 +1201,7 @@
     return out.sort(function (a, b) { return key(b) - key(a); });
   }
 
+  var listSig = "";
   function renderList() {
     var rows = filtered();
     $("#count").textContent = fmt(rows.length) + " lineages" + (state.q ? ' matching "' + state.q + '"' : "");
@@ -990,7 +1210,7 @@
       var cur = FAMS.find(function (f) { return f.id === state.famId; });
       if (cur) shown.unshift(cur);
     }
-    var html = shown.map(function (f) {
+    var html = shown.map(function (f, i) {
       var tags = f.topics.map(function (t) {
         return (TOPIC_LABEL[t] || t).toLowerCase();
       }).join(", ");
@@ -1006,18 +1226,29 @@
             return '<span class="kw">' + esc(w) + "</span>";
           }).join("") + "</span>"
         : "";
-      return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '">' +
+      return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '"' +
+        // Capped: past a dozen rows the cascade has run off the bottom of the
+        // rail, and an uncapped index would leave row 300 waiting five
+        // seconds for a turn nobody is watching.
+        ' style="--i:' + Math.min(i, 11) + '">' +
         '<span class="fam-top">' +
           '<span class="fam-badges">' + badge + "</span>" +
           '<span class="fam-time">' + esc(relTime(f.t0)) + "</span>" +
         "</span>" +
         '<span class="fam-txt">' + esc(detwit(f.top)) + "</span>" + kw +
         '<span class="fam-meta">' + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
+          (f.dx ? " &middot; " + fmt(f.dx) + " died" : "") +
         (tags ? " &middot; " + tags : "") + "</span></button>";
     }).join("");
+    // Same rows in the same order means nothing arrived -- see .list.nofx.
+    var sig = shown.map(function (f) { return f.id; }).join(",");
+    $("#list").classList.toggle("nofx", sig === listSig);
+    listSig = sig;
     $("#list").innerHTML = html || '<p class="loading">Nothing matches that phrase.</p>';
     var cur = $('.fam[aria-current="true"]');
-    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+    if (cur && cur.scrollIntoView) {
+      cur.scrollIntoView({ block: "nearest", behavior: REDUCE ? "auto" : "smooth" });
+    }
     if (rows.length > 400) {
       $("#list").insertAdjacentHTML("beforeend",
         '<p class="loading">Top 400 of ' + fmt(rows.length) + " \u2014 narrow it with the search or a topic.</p>");
@@ -1044,6 +1275,55 @@
      arrangement the measurements produced -- let go and it comes back. */
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ---------------- motion helpers ----------------
+
+     Three of the sheet's animations run on elements that outlive the content
+     inside them -- the stage, the inspector -- so the browser has no new node
+     to start a keyframe on and re-adding the class alone would be folded into
+     the same style recalculation that removed it. Reading a layout property
+     in between forces the recalculation to happen, which is what makes the
+     second add a genuine change of state. */
+  function replay(el, cls) {
+    if (!el) return;
+    el.classList.remove(cls);
+    if (REDUCE) return;
+    void el.offsetWidth;
+    el.classList.add(cls);
+  }
+
+  /* A <details> snaps. This gives it the distance it is actually travelling.
+
+     The element is measured in both states inside one frame -- no paint
+     happens in between, so nothing flickers -- and then held open for the
+     length of the animation so a closing panel still has its contents to
+     show on the way down. The `toggle` listeners elsewhere read `open` after
+     it settles, which is why the final state is set in onfinish rather than
+     up front. Cancelled cleanly if it is clicked again mid-travel. */
+  function animateDetails(d) {
+    if (!d || REDUCE || !d.animate) return;
+    var sum = d.querySelector("summary");
+    if (!sum) return;
+    var run = null;
+    d.addEventListener("click", function (e) {
+      if (!sum.contains(e.target)) return;
+      e.preventDefault();
+      if (run) { run.cancel(); run = null; }
+      var opening = !d.open;
+      var from = d.offsetHeight;
+      d.open = opening;
+      var to = d.offsetHeight;
+      d.open = true;
+      d.style.overflow = "hidden";
+      run = d.animate([{ height: from + "px" }, { height: to + "px" }],
+                      { duration: 280, easing: "cubic-bezier(.32,.72,0,1)" });
+      run.onfinish = run.oncancel = function () {
+        run = null;
+        d.style.overflow = "";
+        d.open = opening;
+      };
+    });
+  }
   function median(a) {
     var v = a.slice().sort(function (x, y) { return x - y; }), m = v.length >> 1;
     return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
@@ -1787,28 +2067,38 @@
     });
     var hs = Object.keys(byHour).map(Number).sort(function (a, b) { return a - b; });
     if (!hs.length) { svg.innerHTML = ""; return; }
-    var W = svg.clientWidth || 800, H = 56, pad = 26;
+    // Inside a 264px island the chart is all curve: no left gutter, the peak
+    // named above the line and the two dates under it, so the series itself
+    // gets the whole width instead of sharing it with a legend.
+    var W = svg.clientWidth || 240, H = 58, padL = 2, padR = 2;
     var h0 = hs[0], h1 = hs[hs.length - 1], mx = Math.max.apply(null, hs.map(function (h) { return byHour[h]; }));
-    var X = function (h) { return pad + (h1 > h0 ? (h - h0) / (h1 - h0) : 0) * (W - pad - 118); };
-    var Y = function (v) { return H - 14 - (v / mx) * (H - 22); };
-    var pts = [], area = ["M" + X(h0) + "," + (H - 14)];
+    var cap = 17, base = H - 13, span = W - padL - padR;
+    var X = function (h) { return padL + (h1 > h0 ? (h - h0) / (h1 - h0) : 0) * span; };
+    var Y = function (v) { return base - (v / mx) * (base - cap); };
+    var pts = [], area = ["M" + X(h0) + "," + base];
     for (var h = h0; h <= h1; h++) {
       var v = byHour[h] || 0;
       pts.push(X(h) + "," + Y(v)); area.push("L" + X(h) + "," + Y(v));
     }
-    area.push("L" + X(h1) + "," + (H - 14) + "Z");
+    area.push("L" + X(h1) + "," + base + "Z");
     var cutX = state.cut === Infinity ? null : X(Math.min(state.cut, h1));
     var cliffX = (META.cliff_h > h0 && META.cliff_h < h1) ? X(META.cliff_h) : null;
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
     svg.innerHTML =
       '<path d="' + area.join("") + '" fill="' + css("--pen") + '" opacity=".16"/>' +
-      '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") + '" stroke-width="2" stroke-linejoin="round"/>' +
-      '<line x1="' + pad + '" y1="' + (H - 14) + '" x2="' + (W - 118) + '" y2="' + (H - 14) + '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
-      (cliffX !== null ? '<line x1="' + cliffX + '" y1="4" x2="' + cliffX + '" y2="' + (H - 14) + '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
-      (cutX !== null ? '<line x1="' + cutX + '" y1="4" x2="' + cutX + '" y2="' + (H - 14) + '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
-      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '">' + esc(dayLabel(h0)) + "</text>" +
-      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="9.5" fill="' + css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>" +
-      '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
+      '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") +
+        '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<line x1="' + padL + '" y1="' + base + '" x2="' + (W - padR) + '" y2="' + base +
+        '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
+      (cliffX !== null ? '<line x1="' + cliffX + '" y1="' + cap + '" x2="' + cliffX + '" y2="' + base +
+        '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
+      (cutX !== null ? '<line x1="' + cutX + '" y1="' + cap + '" x2="' + cutX + '" y2="' + base +
+        '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
+      '<text x="' + padL + '" y="10" font-size="9.5" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>" +
+      '<text x="' + padL + '" y="' + (H - 2.5) + '" font-size="9.5" fill="' + css("--ink-2") + '">' +
+        esc(dayLabel(h0)) + "</text>" +
+      '<text x="' + (W - padR) + '" y="' + (H - 2.5) + '" font-size="9.5" fill="' + css("--ink-2") +
+        '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>";
   }
 
   /* ---------------- the post, as X would draw it ----------------
@@ -1886,8 +2176,20 @@
   }
   function togglePost(post) {
     var open = post.dataset.expanded === "true";
+    var from = post.offsetHeight;
     post.dataset.expanded = open ? "false" : "true";
     post.querySelector(".xmore").textContent = open ? "Show more" : "Show less";
+    if (REDUCE || !post.animate) return;
+    var to = post.offsetHeight;
+    if (from === to) return;
+    // The clamp is applied the instant the attribute flips, so the card is
+    // already the wrong size for its contents; hiding the overflow for the
+    // length of the travel keeps the rest of the post from spilling past the
+    // rounded edge while the box catches up.
+    post.style.overflow = "hidden";
+    var run = post.animate([{ height: from + "px" }, { height: to + "px" }],
+                           { duration: 260, easing: "cubic-bezier(.32,.72,0,1)" });
+    run.onfinish = run.oncancel = function () { post.style.overflow = ""; };
   }
 
   /* ---------------- inspector ---------------- */
@@ -1917,7 +2219,7 @@
       (isRoot ? "<button disabled>root</button>" : relChip("parent", n.p)) +
       (kids.length
         ? kids.slice(0, 8).map(function (k) { return relChip("child", k); }).join("") + more(kids.length - 8)
-        : "<button disabled>no children, a dead end</button>") +
+        : "<button disabled>no surviving children</button>") +
       sibs.slice(0, 6).map(function (k) { return relChip("sibling", k); }).join("") + more(sibs.length - 6) +
       "</p>";
 
@@ -1943,6 +2245,7 @@
     // tweet being answered -- which is why `cmt` reaches 39,656 wordings where
     // the reply-only pass reached 9,922. Both are carried, never merged.
     var comments = commentBlock(n.cmt, state.famId, n.met && n.met.reply);
+    var deadends = deadEndBlock(n);
 
     el.innerHTML =
       "<h3>Wording " + T.label[state.sel] + "</h3><span>generation " + n.d +
@@ -1952,12 +2255,38 @@
         fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
         "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
         (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
-      comments +
+      comments + deadends +
       (fl.length
         ? '<p class="flags' + (n.mix > 0 ? "" : " mild") + '">' + fl.join(" &middot; ") + "</p>"
         : "");
     initPost(el);
+    Array.prototype.forEach.call(el.querySelectorAll(".reply-excerpts"), animateDetails);
+    replay(el, "swap");
   }
+  // Every wording on this tree spread at least twice -- that is what stage 4's
+  // MIN_COPIES=2 buys, and it is also survivorship bias built into the sample:
+  // the tree shows which phrasings won and can never show what they beat.
+  // 07_deadends.py goes back to the once-only messages and finds the
+  // rewordings of this phrasing that nobody ever repeated. They are not nodes
+  // -- they have no spread and no descendants, so there is nothing to draw --
+  // but they are the denominator the visible mutations were selected against,
+  // which is the whole reason a lineage is a claim about selection and not
+  // just a similarity diagram.
+  function deadEndBlock(n) {
+    if (!n.dx) return "";
+    var ex = n.dxs || [];
+    return '<p class="figs"><b>' + fmt(n.dx) + "</b> rewording" + (n.dx === 1 ? "" : "s") +
+      " of this phrasing " + (n.dx === 1 ? "was" : "were") + " posted once and never " +
+      "copied &mdash; mutations that did not take</p>" +
+      (ex.length
+        ? '<details class="reply-excerpts"><summary>' +
+          (ex.length === 1 ? "read one" : "read " + ex.length + " of them") + "</summary>" +
+          ex.map(function (t) {
+            return "<blockquote><p>" + esc(detwit(t)) + "</p></blockquote>";
+          }).join("") + "</details>"
+        : "");
+  }
+
   /* ---------------- comment ecology ---------------- */
 
   // Order runs endorse -> dispute so the bar reads as one polarity axis, with
@@ -2195,41 +2524,13 @@
       ? '<p class="warn">Lives entirely after 1 September, where the crawl collects 1.4M tweets a day against August\'s 22.0M. Its spread is undercounted by roughly 15× next to an August lineage.</p>'
       : "";
 
+    // A lineage switch tears down the board, and an interval still walking a
+    // cut through the family it was started on would keep restyling nodes that
+    // no longer exist.
+    stopPlay();
+
     $("#stage-body").className = "";
     $("#stage-body").innerHTML =
-      '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
-        "<summary><h2>Lineage " + f.id +
-          (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2></summary>" +
-        '<div class="hdr">' +
-          // What this lineage is about, in its own words: the vocabulary that
-          // survived every rewording. Sits above the figures because "which
-          // idea is this" is the question a reader has before any of them.
-          ((f.kw && f.kw.length)
-            ? '<p class="lin-kw">' + f.kw.map(function (w) {
-                return '<span class="kw">' + esc(w) + "</span>";
-              }).join("") + "</p>"
-            : "") +
-          '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
-            fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
-            Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
-            "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
-          kindLine(f) + famComments(f) +
-        "</div>" +
-        '<p class="root">' + esc(detwit(f.root)) + "</p>" +
-      "</details>" +
-      warn +
-      "</div>" +
-      '<div class="bar">' +
-        '<span class="grp" id="colorby"><b>shade</b>' +
-          btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
-          btn("coord", "coordination", state.colorBy) + "</span>" +
-        '<span class="grp" id="xmode"><b>layout</b>' +
-          btn("tree", "tree", state.xMode) + btn("time", "time ↓", state.xMode) + "</span>" +
-        '<span class="scrub"><button class="act" id="play">play</button>' +
-          '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
-          '" aria-label="Show wordings first seen up to"><output id="cutout"></output></span>' +
-      "</div>" +
-      '<div class="plot"><svg id="pulse" class="pulse" role="img" aria-label="Retweets per hour for this lineage"></svg></div>' +
       '<div class="draw">' +
         '<svg id="tree" class="tree" role="img" tabindex="0" aria-label="' + boardLabel() + '"></svg>' +
         '<p class="zoomlbl" id="zoomlbl"></p>' +
@@ -2239,14 +2540,77 @@
           '<button type="button" class="fit" id="zfit" title="Fit the whole lineage" ' +
             'aria-label="Fit the whole lineage">fit</button>' +
         "</div>" +
+
+        /* ---- the island on the left: what this lineage is ----
+           Folded down to its title when the board wants the room, and holding
+           the earliest phrasing as the post it actually was rather than as a
+           paragraph of quoted text. */
+        '<aside class="isle isle-l" id="isle-l" aria-label="About this lineage">' +
+          '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
+            "<summary><h2>Lineage " + f.id +
+              (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2></summary>" +
+            '<div class="lin-body">' +
+            // the evidence, on the far left
+            '<div class="lin-post">' +
+              '<p class="isle-hd">earliest phrasing in the corpus</p>' +
+              xpost(state.nodes[state.topo.root]) +
+            "</div>" +
+            // and what the corpus says about it, alongside
+            '<div class="lin-meta"><div class="hdr">' +
+              // What this lineage is about, in its own words: the vocabulary that
+              // survived every rewording. Sits above the figures because "which
+              // idea is this" is the question a reader has before any of them.
+              ((f.kw && f.kw.length)
+                ? '<p class="lin-kw">' + f.kw.map(function (w) {
+                    return '<span class="kw">' + esc(w) + "</span>";
+                  }).join("") + "</p>"
+                : "") +
+              '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
+                fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
+                Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
+                "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+              kindLine(f) + famComments(f) +
+            "</div>" + warn + "</div>" +
+            "</div>" +
+          "</details></div>" +
+        "</aside>" +
+
+        /* ---- the island on the right: what the drawing is doing ----
+           Shade and layout are always live, because they change what is on the
+           board; the timeline is not, because it is a second chart and it waits
+           to be asked. */
+        '<aside class="isle isle-r" id="isle-r" aria-label="Board controls">' +
+          '<div class="bar">' +
+            '<span class="grp" id="colorby"><b>shade</b>' +
+              btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
+              btn("coord", "coordination", state.colorBy) + "</span>" +
+            '<span class="grp" id="xmode"><b>layout</b>' +
+              btn("tree", "tree", state.xMode) + btn("time", "time ↓", state.xMode) + "</span>" +
+          "</div>" +
+          '<div class="tl" id="tl" data-open="false">' +
+            '<div class="tl-clip" id="tl-clip"><div class="tl-wrap"><div class="tl-in">' +
+              '<svg id="pulse" class="pulse" role="img" aria-label="Retweets per hour for this lineage"></svg>' +
+              '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
+                '" aria-label="Show wordings first seen up to">' +
+              '<output class="cutout" id="cutout"></output>' +
+            "</div></div></div>" +
+            '<p class="tl-row">' +
+              '<button class="act" type="button" id="play" aria-expanded="false" ' +
+                'aria-controls="tl-clip">&#9654; play</button>' +
+              '<button class="act tl-x" type="button" id="tlhide" hidden>hide</button>' +
+            "</p>" +
+          "</div>" +
+        "</aside>" +
       "</div>" +
       '<div class="key" id="key"></div>' +
       renderTable();
 
     renderKey();
+    replay($("#stage-body"), "swap");
     state.cut = f.t1;
     view = { k: 1, tx: 0, ty: 0, auto: true, note: "" };
     wireStage();
+    initPost($("#isle-l"));
     relayout({ bloom: true });
     renderInspector();
   }
@@ -2483,9 +2847,15 @@
       var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i, true);
     });
     var details = $("#tabledetails");
-    if (details) details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+    if (details) {
+      details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+      animateDetails(details);
+    }
     var lin = $("#lindetails");
-    if (lin) lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
+    if (lin) {
+      lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
+      animateDetails(lin);
+    }
 
     $("#colorby").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-v]"); if (!b || b.dataset.v === state.colorBy) return;
@@ -2505,6 +2875,12 @@
       state.cut = +e.target.value; restyle(); drawPulse(); updateCut();
     });
     $("#play").addEventListener("click", play);
+    $("#tlhide").addEventListener("click", hideTimeline);
+    // The root post on the left island expands the same way the inspector's does.
+    $("#isle-l").addEventListener("click", function (e) {
+      var m = e.target.closest(".xmore");
+      if (m) togglePost(m.closest(".xpost"));
+    });
   }
 
   // Shading and layout are each one live choice out of a row of words.
@@ -2528,8 +2904,19 @@
   // cascade -- the tree, the pulse chart and the legend (see css() above).
   // Only those three need an explicit rebuild; everything else in the
   // inspector, list and table is plain CSS and needs nothing further.
+  var themeTimer = 0;
   function setTheme(dark) {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    // .theming is what the blanket colour transition in the stylesheet hangs
+    // off. It is taken back off again as soon as the cross-fade is over, so a
+    // rule broad enough to catch every surface on the sheet is never sitting
+    // over an ordinary hover.
+    var root = document.documentElement;
+    if (!REDUCE) {
+      root.classList.add("theming");
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(function () { root.classList.remove("theming"); }, 420);
+    }
+    root.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (e) {}
     syncThemeButton();
     if (state.fam) { relayout({ fit: false }); renderKey(); }
@@ -2605,18 +2992,65 @@
     }, 160));
   }
 
+  /* ---------------- the timeline ----------------
+     Nothing on the board moves until somebody asks it to, so the emission
+     curve and its scrub handle stay folded away behind the word that plays
+     them. The chart is measured rather than given a width, which is why it is
+     drawn on the way open rather than at render time: there is nothing to
+     measure while it is still at nought. */
+  var playTimer = 0;
+
+  function stopPlay() {
+    if (playTimer) { clearInterval(playTimer); playTimer = 0; }
+    state.playing = false;
+    var btn = $("#play");
+    if (btn) btn.innerHTML = "&#9654; play";
+  }
+
+  function openTimeline() {
+    var tl = $("#tl");
+    if (!tl || tl.dataset.open === "true") return false;
+    tl.dataset.open = "true";
+    $("#play").setAttribute("aria-expanded", "true");
+    $("#tlhide").hidden = false;
+    drawPulse(); updateCut();
+    return true;
+  }
+
+  function hideTimeline() {
+    var tl = $("#tl"); if (!tl) return;
+    stopPlay();
+    tl.dataset.open = "false";
+    $("#play").setAttribute("aria-expanded", "false");
+    $("#tlhide").hidden = true;
+    // Folding the timeline away must not leave the board showing a slice of
+    // the lineage with nothing on screen left to say that it is one.
+    if (state.cut !== state.fam.t1) {
+      state.cut = state.fam.t1;
+      $("#cut").value = state.fam.t1;
+      restyle(); updateCut();
+    }
+  }
+
   function play() {
-    if (state.playing) return;
+    if (state.playing) { stopPlay(); return; }
     var f = state.fam, slider = $("#cut"), btn = $("#play");
-    var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { state.cut = f.t1; slider.value = f.t1; restyle(); drawPulse(); updateCut(); return; }
-    state.playing = true; btn.textContent = "■ Playing";
+    var opened = openTimeline();
+    if (REDUCE) { state.cut = f.t1; slider.value = f.t1; restyle(); drawPulse(); updateCut(); return; }
+    state.playing = true; btn.innerHTML = "&#9632; stop";
     var h = f.t0, step = Math.max(1, Math.round((f.t1 - f.t0) / 90));
-    var timer = setInterval(function () {
-      h += step;
-      if (h >= f.t1) { h = f.t1; clearInterval(timer); state.playing = false; btn.innerHTML = "&#9654; Play"; }
-      state.cut = h; slider.value = h; restyle(); drawPulse(); updateCut();
-    }, 45);
+    state.cut = h; slider.value = h; restyle(); updateCut();
+    var run = function () {
+      playTimer = setInterval(function () {
+        h += step;
+        if (h >= f.t1) { h = f.t1; stopPlay(); }
+        state.cut = h; slider.value = h; restyle(); drawPulse(); updateCut();
+      }, 45);
+    };
+    // One travel at a time. On the first press the island is still unrolling,
+    // and a curve redrawing inside a box that is still growing reads as a
+    // stutter rather than as two things happening.
+    if (opened) setTimeout(run, 330); else run();
   }
 
   function debounce(fn, ms) {

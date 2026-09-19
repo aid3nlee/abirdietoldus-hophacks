@@ -12,6 +12,7 @@
 #   ./run.sh evolution   variant families, mutation trees, dashboard export
 #   ./run.sh enrich      put back the cut text and the platform's own counts
 #   ./run.sh comments    replies + quote tweets, stance-scored and clustered
+#   ./run.sh deadends    once-only rewordings that never spread, per lineage
 #   ./run.sh dist        assemble the static site into dist/
 #   ./run.sh serve       live dev server on :8000 (npm run dev)
 #   ./run.sh verify     check every shard opens as valid parquet
@@ -106,6 +107,17 @@ comments)
     python3 pipeline/06_comments.py "$@"
     ;;
 
+deadends)
+    # Survivorship bias, measured. Stage 4 starts at MIN_COPIES=2, so the tree
+    # can only ever show wordings that spread -- never what they beat. This
+    # scans the 47.4M once-only English messages for rewordings of a phrasing
+    # already in a lineage, and hangs them off the node they mutated from as a
+    # count plus a few verbatim examples. Annotation only: it adds fields to an
+    # export that already exists and never touches the phylogeny, so it is safe
+    # to re-run mid-demo. Runs last, after enrich has settled the node text.
+    python3 pipeline/07_deadends.py "$@"
+    ;;
+
 enrich)
     # Display repair, not analysis. Two things the export loses and this puts
     # back from the firehose: the text beyond the 140-char retweet cut, and the
@@ -171,6 +183,7 @@ all)
     ./run.sh evolution
     ./run.sh enrich
     ./run.sh comments
+    ./run.sh deadends
     ;;
 
 status)
@@ -206,6 +219,9 @@ import json
 m = json.load(open('data/export/phylo/index.json'))['meta']
 print(f"phylogeny        {m['n_families']:,} lineages, {m['n_variants']:,} variants, "
       f"{m['n_emissions']:,} retweets traced")
+d = m.get('deadends')
+print(f"dead ends        {d['found']:,} failed rewordings across {d['lineages']:,} lineages"
+      if d else "dead ends        not traced yet")
 PHYLO
     else
         echo "phylogeny        not built yet"
@@ -220,7 +236,7 @@ PHYLO
     ;;
 
 *)
-    sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac
