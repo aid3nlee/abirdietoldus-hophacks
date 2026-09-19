@@ -1,0 +1,21 @@
+# Lightweight serving dependencies for the consumer-extension evidence service.
+#
+# Deliberately separate from requirements.txt: serving reads a prebuilt index
+# and must not drag in the offline pipeline's clustering stack (scipy,
+# python-igraph, leidenalg) or require the 52 GB corpus to be present.
+#
+#   python3 -m pip install -r requirements-serve.txt
+#
+# Wheel availability verified on Python 3.14.2 / linux x86_64, 2026-09-19.
+
+fastapi>=0.115
+uvicorn>=0.30
+pydantic>=2.8
+
+# Reading the prebuilt parquet index. duckdb is intentionally NOT here: the
+# serving path does lookups against an in-memory index, not SQL over the corpus.
+pyarrow>=15
+
+# Tests for the service (normalization parity, matching, id handling).
+pytest>=8
+httpx>=0.27
