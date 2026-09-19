@@ -1,5 +1,11 @@
 twitter-firehose/
 data/
+!data/
+data/*
+!data/export/
+data/export/*
+!data/export/phylo/
+!data/export/phylo/**
 *.parquet
 .venv/
 __pycache__/
