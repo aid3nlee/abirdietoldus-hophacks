@@ -342,8 +342,8 @@ A typed lab sheet with the tree drawn on it. There are no cards, shadows or
 rounded corners anywhere; 1px rules and whitespace do the separating. Courier
 Prime sets everything typed, and `authenticfont.ttf` — a Calligraphr font made
 from real handwriting — sets the page title and, on the diagram, the marginalia
-only: the level numbers, the height bracket, the word "root", the way a pencil
-annotates a printout. It is inlined as a base64 data URI (18.5 KB) because the
+only: the hour labels, the word "root", the counts under the heaviest circles,
+the way a pencil annotates a printout. It is inlined as a base64 data URI (18.5 KB) because the
 artifact CSP serves fonts from Google alone, and because `dist/` has to carry it
 too. That face has 85 glyphs and no em dash, `*` or `×`, so every string handed
 to it is written with the punctuation it actually draws. Tree edges carry a small
@@ -358,20 +358,49 @@ by the fill's own luminance so it clears 4.5:1 at every step in both themes.
 
 ### Two layouts, because they answer different questions
 
-The default is the **classic rooted tree**: one row per generation, a child
-directly below the wording it was derived from, parents centred over their
-children, level rules numbered in the right gutter and the height of the tree
-bracketed on the left. It is the layout that shows *structure* — the branching
-factor, which wordings are siblings, how deep a lineage actually runs — and
-horizontal position deliberately carries no measure. Nodes are lettered
-breadth-first, so A is the root and the letters read down the levels.
+The default is the **classic rooted tree**: a child sits below the wording it
+was derived from and parents are centred over their children, so going down the
+board is going down the generations. It is the layout that shows *structure* —
+the branching factor, which wordings are siblings, how deep a lineage actually
+runs — and horizontal position deliberately carries no measure. Nodes are
+lettered breadth-first, so A is the root and the letters read down the tree.
+There are no numbered level rules: a row index is not a measurement, and ruling
+one across the board gave the depth an authority the other axis never earned.
+Depth is still on the page — in the panel, in the table column, and in the
+shape of the tree itself.
 
-Two **time layouts** sit beside it in the same control. There a variant sits at
+A **time layout** sits beside it in the same control. There a variant sits at
 the hour it was first observed, so the horizontal gap along an edge is the real
 waiting time before the rewording appeared, and the 1 September collection
 cliff is a dashed seam. Structure gets harder to read; timing becomes exact.
-The reading note under the diagram changes with the layout, because a sentence
+The reading note beside the diagram changes with the layout, because a sentence
 about "the dashed line" is wrong in a view that has no time axis.
+
+### The board is a map, and the tree is sprung
+
+The diagram is not refitted into the window every time you touch it. It is a
+fixed window onto a canvas with no edges: drag the paper to pan, scroll or
+pinch to zoom about the pointer from 2% to 5000%, double-click to zoom in, and
+`fit` to come back to the whole lineage. A dot grid drawn in screen space and
+re-tiled by zoom decade gives the panning something to move against and keeps
+the dots the same size at every scale. Opening a lineage floors the automatic
+fit at 34%, because the widest lineage in the corpus is 226 wordings and fitted
+to a laptop that is a field of specks; the zoom readout says so, and `fit`
+pressed on purpose still fits.
+
+Every circle is a mass on a spring anchored at the position the layout gave it,
+tied to its parent and children by more springs and solid enough not to sit on
+a neighbour. Pull one aside to read what is underneath it and its relatives
+follow; let go and the whole arrangement eases back to the measured one, which
+is the point — the physics is a way of handling the tree, never a way of
+changing it. Overlap repulsion only fires when two circles actually touch, so a
+settled tree keeps exactly the spacing the tidy layout produced, and the
+simulation parks itself the moment nothing is moving rather than burning a core
+redrawing a still picture. Switching layouts keeps the circles where they are
+and lets the springs carry them to the new arrangement, which is also the
+clearest available answer to what the switch changed. Under
+`prefers-reduced-motion` there is no simulation at all: a dragged circle still
+follows the pointer and snaps home on release.
 
 Selecting a variant shades its subtree and rings its parent, the inspector
 turns the tree's own vocabulary (parent / child / sibling) into buttons that
