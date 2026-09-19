@@ -956,7 +956,10 @@ def step6_trees(con, force: bool) -> None:
                 "emo": int(r.n_emoji),
                 "drift": round(1 - (len(toks[i] & root_tok) /
                                     max(1, len(toks[i] | root_tok))), 3),
-                "src": (r.rt_handle or None),
+                # Pandas represents a missing handle as float NaN.  NaN is
+                # truthy, but it is not valid JSON and makes a whole on-demand
+                # tree bucket impossible for the browser to parse.
+                "src": r.rt_handle if isinstance(r.rt_handle, str) and r.rt_handle else None,
                 "spark": spark,
             })
 
