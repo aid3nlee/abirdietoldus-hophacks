@@ -11,3 +11,5 @@ data/export/*
 __pycache__/
 dist/
 .dev/
+.backup/
+dashboard/phylo/

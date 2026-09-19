@@ -1,29 +1,44 @@
-# Coordinated Amplification & Meme Evolution — HopHacks 2026, Memetics Track
+# Phylogenetics of Inauthenticity — HopHacks 2026, Memetics Track
 
-Finding bot networks in 395M tweets from behaviour alone, then tracing how the
-narratives they push mutate over a month.
+How ideas mutate as they spread. 395M tweets, one month, reconstructed into
+lineages: a phrasing appears, gets reworded, the rewordings compete, and some
+win.
 
 ## The idea in one paragraph
 
-We do **not** start by deciding what counts as hate speech and searching for it.
-We start by finding accounts that amplify the same content within seconds of each
-other, repeatedly, over a month — a pattern organic users do not produce. Only
-*then* do we ask what those networks are pushing. Finding the network first and
-reading its content second keeps our assumptions out of the detector, and it
-means the findings can surprise us. The memetics payload is stage 4: within a
-confirmed network, how does a narrative mutate, and which mutations spread?
+A narrative is not a fixed string, it is a lineage. Someone posts a claim,
+someone else retweets it with a word changed, that version spreads or it does
+not, and a month later the phrasing in circulation is not the one that started.
+That is variation plus differential reproduction, which is all "evolution" ever
+means — and a retweet is literal replication, so the structure is really there
+rather than being a metaphor we impose. We reconstruct those lineages from the
+text alone: no seed list of terms, no decision in advance about what counts as
+worth tracing. Then we ask the evolutionary questions. Which mutation won? What
+did it beat? How fast does a wording turn over? The tree is the product.
+
+**Inauthenticity is a column on that tree, not the thesis.** The same pipeline
+notices when a lineage spread through accounts that move in lockstep, or reads
+like engagement farming, and it says so — but as evidence attached to a lineage,
+hedged, and never as the headline. We are not claiming to have caught bots. We
+are showing how ideas evolve, and pointing out where the evolution looks
+manufactured.
+
+> **Note on scope.** Analysis runs on the 138.1M English tweets (36.6% of the
+> corpus). See [Language scope](#language-scope) — this is a leftover filter,
+> not a technical limit, and it is the biggest single lever on the project.
 
 ## What the data actually is
 
 Source: `s3://calcifer-hot/hopkins-hackathon-2026/twitter-firehose-last-month/`
-396 zstd parquet shards, 55.7 GB, **395,352,258 rows / 377,271,528 distinct
-tweets**, `created_at` 2026-08-17 00:00 → 2026-09-17 14:32 UTC. Verified
-byte-exact against the S3 listing; all 396 shards open as valid parquet.
+396 zstd parquet shards, 52 GB on disk, **395,352,258 rows / 377,270,972
+distinct tweets**, `created_at` 2026-08-17 00:00 → 2026-09-17 14:32 UTC. All
+396 shards open as valid parquet.
 
 > The dataset README says "~363.5M distinct". That figure is ~3.6% low and looks
-> like a `approx_count_distinct` (HyperLogLog) estimate. The exact count, from an
-> exhaustive per-day pass, is **377,271,528**. We hit the identical wrong number
-> ourselves before checking it exactly — worth knowing if you quote the README.
+> like an `approx_count_distinct` (HyperLogLog) estimate. The exact count, from
+> `count(DISTINCT id)` over all 396 shards, is **377,270,972** — and it matches
+> `data/normalized/events/` row for row. We hit the HyperLogLog number ourselves
+> before checking it exactly; worth knowing if you quote the dataset README.
 
 ### ⚠️ The collection collapses on 2026-09-01 — read this before planning anything
 
@@ -59,7 +74,15 @@ Things we learned the hard way — read before you design anything:
 
 - **It is an amplification feed, not a conversation feed.** 62–73% retweets,
   26% originals, 9% quotes, and only **1.4–2.4% replies**. Any plan built around
-  reply/comment analysis is fighting the data.
+  *reply* analysis is fighting the data — but see the correction below, because
+  the obvious inference from this line turned out to be wrong.
+- **Quote tweets are the comment layer, not replies.** A quote tweet is
+  commentary on another tweet with its own body, and `quoting_id` points
+  straight at the tweet it answers. There are **39.6M quotes against 10.1M
+  replies**, and against the wordings in the export they land 36× better:
+  replies reach 9,922 wordings, quotes reach 49,521. Reading "2% replies" as
+  "no audience layer" costs you the single biggest source of response data in
+  the corpus. See `pipeline/06_comments.py`.
 - **`source`, `poll` and `embed` are 100% NULL.** The client-app field — normally
   the single best automation tell — is unusable.
 - **There is no account metadata at all.** No handle, bio, follower count,
@@ -100,9 +123,6 @@ twitter-firehose/*.parquet          52 GB raw
         │     data/graph/accounts.parquet    per-account behaviour features
         │     data/graph/clusters.parquet    author_id → cluster_id
         │
-        ├─ 03_label.py              Claude API, cluster exemplars only
-        │     data/labels/clusters_labeled.json
-        │
         ├─ 04_evolution.py          ~20 min end to end, six cached steps
         │     data/normalized/content_global.parquet   deduped English content
         │     data/evolution/tokens.parquet            tokens + evasion features
@@ -112,8 +132,31 @@ twitter-firehose/*.parquet          52 GB raw
         │     data/export/phylo/index.json             family index
         │     data/export/phylo/trees-NN.json          mutation trees, 24 buckets
         │
+        │   ── the four passes below all EXTEND an export that already exists ──
+        │      none of them touch clustering, distances or trees, so a failed
+        │      re-run cannot take the demo down
+        │
+        ├─ 03_label.py              ~3 s, no API needed
+        │     per-lineage keywords (100% coverage) + topics (~32%)
+        │     rewrites data/export/phylo/index.json in place
+        │     data/labels/lineages.json                durable copy
+        │
+        ├─ 05_enrich.py             display repair: full text + engagement counts
+        │
+        ├─ 06_comments.py           ~6 min, the audience layer
+        │     data/comments/scored.parquet             stance, tone, polarity
+        │
+        ├─ 07_deadends.py           ~6 min, scoped to showcase lineages
+        │     once-only rewordings that never spread — the failed mutations
+        │     adds dx / dxs per node to trees-NN.json
+        │
         └─ dashboard/               reads data/export/, published as an Artifact
 ```
+
+`03_label.py` runs numbered out of order on purpose: it is named for where it
+sits conceptually (labelling, after the graph) but it reads the export, so it
+runs after stage 4. Anything that only rewrites the export can run in any order
+after it.
 
 ### Stage contracts
 
@@ -130,10 +173,24 @@ making them; code against the schema, not against someone's branch.
 | `graph/clusters.parquet` | `author_id, cluster_id` |
 | `evolution/tokens.parquet` | `content_key, kind, rt_handle, text, norm, tokens, n_tokens, n_copies, first_seen, obf_chars, n_emoji, n_hashtags, is_truncated` |
 | `evolution/variants.parquet` | `canonical, family_id, n_emissions, n_accounts, n_coord_accounts, n_clusters, clusters, first_seen, last_seen, text, norm, tokens, kind, rt_handle, obf_chars, n_emoji, n_hashtags` |
+| `comments/replies.parquet` | `id, author_id, body, created_at, like_count, lang, reply_to_status_id, conversation_id, quoting_id` |
+| `comments/quotes.parquet` | same columns; `quoting_id` is the edge to the quoted tweet |
+| `comments/linked.parquet` | `txt, cid, ctype, author_id, body, created_at, like_count` — `ctype` ∈ `quote \| reply \| thread` |
+| `comments/scored.parquet` | adds `stance, tone, pol` |
+| `comments/clusters.parquet` | `cid, cluster` — one global clustering, so a cluster id is shared across lineages |
 
 `kind` ∈ `retweet | reply | quote | original`.
 `content_key` = `md5(rt_handle || '|' || text)` — identifies the *upstream*
 tweet, so it joins a retweet to everyone else who retweeted the same thing.
+`stance` ∈ `endorse | dispute | mock | attack | question | promo | none`,
+`tone` ∈ `pos | neu | neg`. They are two axes and must not be merged: stance
+is what the comment does to the claim, tone is how the wording reads. Most
+comments carry no stance cue and are readable only on the tone axis.
+
+Comments do **not** join on `content_key`. A variant's key identifies the
+*retweet*; people reply to and quote the *original*, which hashes differently.
+Measured: joining on `content_key` returns 2,516 comments against 384,175 for
+the text-prefix bridge stage 5 already uses.
 
 ## Method: co-retweet coordination
 
@@ -200,13 +257,20 @@ the count is a lead rather than a verdict.
 ### Validation (396 shards, 31 days, English)
 
 ```
-54,851,440 distinct English messages
- 6,569,230 traceable (>=2 copies, >=5 content tokens), 65.2M emissions
-   436,335 usable blocking tokens -> 10.3M candidate pairs
-   524,865 pairs above Jaccard 0.45
-    24,438 families / 133,094 variants
-     4,004 families exported (>=3 variants, >=150 emissions), 40,412 variants
+377,270,972 distinct tweets in the corpus
+138,130,463 English  (36.6% -- see Language scope)
+ 54,851,440 distinct English messages, 121.7M emissions
+  6,569,230 traceable (>=2 copies, >=5 content tokens), 65.2M emissions
+    436,335 usable blocking tokens -> 10.3M candidate pairs
+    524,865 pairs above Jaccard 0.45
+     24,438 families / 207,471 variants
+     10,674 lineages exported (>=3 variants, >=50 emissions)
+            142,175 variants, 3,357,530 retweets traced
 ```
+
+The 47,370,164 English messages emitted exactly **once** are excluded from that
+funnel by `MIN_COPIES = 2`. They are not noise — under an evolution framing they
+are mutations that failed to reproduce, which is what stage 7 goes back for.
 
 Families split cleanly into two kinds, and the hashtag-per-variant number
 separates them:
@@ -244,6 +308,131 @@ covering 6,582 accounts**, in 18 seconds. Spot-checking the tightest ones:
 
 The method separates operation *types* without being told what to look for,
 which is the result the whole project rests on.
+
+## Method: comment ecology
+
+The tree is a lineage of claims. This is the second half: what the audience
+said back, and how those responses cluster.
+
+**Quotes, not replies.** The corpus is 1.4–2.4% replies, which reads like a
+verdict against audience analysis and is not one. A quote tweet is commentary
+with its own body, `quoting_id` is a clean edge to the tweet being answered,
+and there are four times as many of them. Measured against the wordings in the
+export:
+
+| bridge | comments | wordings reached |
+|---|---|---|
+| replies only | 17,925 | 9,922 |
+| quotes only | ~646,000 | 49,521 |
+| both, English, deduped | **384,175** | **39,656** |
+
+Shipped: 384,175 comments (371,528 quotes, 12,647 replies) from 240,812
+accounts, attached to **43,550 of 142,175 nodes** across **9,132 lineages**.
+
+**The bridge is text, not `content_key`.** A variant's `content_key` is
+`md5(rt_handle \|\| '\|' \|\| text)`, which identifies the *retweet*. People answer
+the *original*, whose key omits the handle and therefore differs. Joining
+comments on `content_key` was tried and returns 2,516 — an eighth of the
+text-prefix bridge. The firehose also stores one row per crawl revisit, so the
+emitting tweet ids must be deduped or every count inflates.
+
+**Clusters are global, and that is the point.** Comment clusters are built once
+over all 384k comments — not per node, not per family. A response template
+under one narrative is a crowd reacting; the same template under forty
+unrelated narratives is a repertoire being deployed, and only a corpus-wide
+clustering can tell those apart. The `nfam` field counts the lineages a single
+template appears under.
+
+1,270 clusters over 9,852 comments; 470 carry generic vocabulary and 20 are
+flagged `reuse`. The top of that list, by distinct accounts:
+
+| accounts | lineages | mdf | template |
+|---|---|---|---|
+| 236 | 1 | 2349 | `PL isn't even back yet and somebody already secured a seven-figure Stake win 🤯` |
+| 230 | 1 | 1726 | `Hey! @grok based on my tweets and retweets, I am: - Which dictator?` |
+| 195 | 1 | 2932 | `nightly interaction bait / sexuality: gender: ethnicity: religion:` |
+| 184 | 3 | 555 | `@bts_bighit HAPPY BIRTHDAY JUNGKOOK #HAPPYJKDAY #JUNGKOOKisFYA …` |
+| 139 | 1 | 3917 | `I AM ABOUT TO WALK INTO THE MOST ABUNDANT BALANCED WEALTHY …` |
+
+The honest reading: this corpus's comment layer is dominated by template
+chain-posts, fan-campaign hashtag blocks and gambling spam — not by argument.
+That is a finding about the platform, not a failure of the method.
+
+**The first version flagged "Don't piss me off" as coordinated across 22
+lineages, and how that got fixed is the part worth telling.** At a four-token
+floor the clustering merges generic internet reactions — `genuinely what the
+actual fuck is happening`, `used to pray for times like these holy` — and
+because everyone posts those everywhere, they score as the *most*
+cross-lineage templates in the corpus. **Reach is a property of banality as
+much as of coordination.**
+
+The fix took three passes, and the two failures in between are instructive:
+
+1. Raising the token floor to 7 killed the generic reactions and also killed
+   short but genuinely scripted entries — `Metawin ID: __ #skel` is four
+   tokens. A blunt length floor cannot do a distinctiveness filter's job.
+2. Scoring distinctiveness off the strict token intersection of a cluster
+   reported the big clusters as generic: a template picks up stray words as
+   it is passed around, so over twenty members the intersection erodes to
+   whatever connective tissue survived. It is now the tokens carried by *half*
+   the members.
+3. `GENERIC_DF` was first set to 900, which sat almost exactly on the cluster
+   median and marked 69% of clusters generic — including the 246-account
+   gambling spam and the 230-account `@grok` chain prompt, the clearest
+   scripted templates in the corpus. Calibrated against the actual
+   distribution, real templates land at mdf 450–3400 and common speech at
+   4700–6000, so the boundary belongs at 4000.
+
+The flag is named `reuse`, not `cib`. What the data supports is that many
+distinct accounts posted near-identical distinctive text; calling that
+coordination is an inference this corpus cannot settle. The UI says "reused
+template" and, like the behaviour classes, never more.
+
+**All 20 flagged clusters were read by hand**, per the accuracy rule below.
+Sixteen are unambiguous templates: gambling spam (236 accounts), three
+separate `@grok` chain prompts, BTS and ARMY fan-campaign hashtag blocks, a
+`#TEZOSTUESDAY` crypto promo, a manifestation copypasta, and several joke
+formats. The other four are **convergent organic reaction** — 96 accounts
+posting near-identical text about a run of celebrity deaths, and a
+condolence formula across 13 lineages. Nobody organised those; a lot of
+people reached for the same words about the same news on the same day. The
+`reuse` label is still literally true of them, which is the whole reason it
+is not called coordination. Say this out loud before a judge reads the list.
+
+**Stance and tone are two axes and are never merged.** Stance is what the
+comment does to the claim (`endorse | dispute | mock | attack | question |
+promo | none`) and comes from a lexicon. Tone is VADER's compound polarity
+bucketed at ±0.35 (`pos | neu | neg`). They answer different questions: VADER
+scores "source? this is debunked" at 0.00 because it carries no affect words,
+and "lmao the cope is real" at +0.60 because it reads the laughter and misses
+the contempt. Polarity cannot tell agreement from disagreement, which is the
+one thing a response layer needs to say.
+
+Measured: stance is `none` 78%, question 9%, endorse 6%, attack 3%, dispute
+2%, mock 2%, promo 0%. Tone is 30% positive, 48% neutral, 23% negative.
+
+**78% of comments carry no stance cue**, and mostly that is true rather than a
+lexicon failure — a quote tweet typically uses the tweet it quotes as a
+springboard rather than arguing with it. Those keep `none` and are read on the
+tone axis, which is exactly why tone is a separate field. On the busiest node
+in the corpus (a celebrity death announcement, 3,362 comments) stance is 69%
+`none` while tone is 42% negative: the second axis is carrying the reading.
+
+**Cues were pruned by reading what they caught, not by intuition.** A bare
+`wrong` in the dispute list classified *"God keep taking the wrong white
+people"* as a dispute. It is not a contradiction of anything, and it was the
+most-liked comment on that busiest node, so it would have been on screen in
+the demo. Bare `sick` is positive slang, `actually` and `context` appear in
+ordinary prose, and `hack`, `bot` and `gross` are ordinary nouns. All removed;
+the unambiguous phrase forms (`that s wrong`, `you re wrong`) stay.
+
+Why a lexicon and not a transformer: the alternative is a black box producing
+numbers nobody in the room can defend, on a task whose failure mode is a
+confident wrong label in front of a judge. Every rule here is visible in
+`pipeline/stance.py` and can be argued with. `attack` is **hostility toward a
+target, not hate speech** — calling someone a bigot is condemnation and lands
+in `attack` exactly as a slur would, and nothing downstream should present an
+`attack` count as a hate-speech count.
 
 ## Method: behaviour classes
 
@@ -295,7 +484,7 @@ evasion.
 ## Running it
 
 ```bash
-python3 -m pip install duckdb pyarrow pandas python-igraph leidenalg scipy
+python3 -m pip install duckdb pyarrow pandas python-igraph leidenalg scipy vaderSentiment
 
 # one-time, ~25 min
 mkdir -p twitter-firehose && seq -f "%06g" 0 395 | xargs -P 10 -I{} sh -c \
@@ -305,6 +494,8 @@ mkdir -p twitter-firehose && seq -f "%06g" 0 395 | xargs -P 10 -I{} sh -c \
 python3 pipeline/01_normalize.py --workers 5
 python3 pipeline/02_coordinate.py --lang en --window 60 --min-coevents 3
 python3 pipeline/04_evolution.py            # ~20 min, six cached steps
+python3 pipeline/05_enrich.py               # display repair: full text + counts
+python3 pipeline/06_comments.py             # ~6 min, the audience layer
 ```
 
 Every stage is resumable — each skips work already on disk. Stage 4 caches per
@@ -315,8 +506,11 @@ caches a global content table, and it will happily keep serving a table built
 from a partial corpus.
 
 The dashboard in `dashboard/index.html` reads `data/export/phylo/` and is
-published as an Artifact. It fetches `phylo/index.json` plus one tree bucket on
-demand, so whatever hosts it needs both the page and that directory beside it.
+published as an Artifact. It fetches `phylo/index.json`, `phylo/comments.json`
+and one tree bucket on demand, so whatever hosts it needs both the page and
+that directory beside it. `comments.json` is fetched but never awaited: every
+panel is legible without it, so a slow or missing catalogue degrades to counts
+rather than blocking the board.
 
 ```bash
 npm run dev       # live dev server on :8000  (= ./run.sh serve)
@@ -369,6 +563,37 @@ one across the board gave the depth an authority the other axis never earned.
 Depth is still on the page — in the panel, in the table column, and in the
 shape of the tree itself.
 
+Across the board the columns are **relaxed, not slotted**. Giving every leaf an
+identical column and centring each parent over the whole span of its subtree —
+the textbook construction — makes the top of the tree enormously wide: the
+root's own children land most of a screen apart, and the size of that gap
+carries no information. So the tidy pass now supplies only the left-to-right
+*order*, which is never revisited and is the whole guarantee that subtrees
+cannot cross. Within that order the positions settle under three pressures:
+parents pulled onto the middle of their children, children pulled in under
+their parent, and circles that genuinely overlap opened up by the radii they
+actually have.
+
+That last step is the one worth being careful about. Walking a level from left
+to right and shoving each circle clear of the one before it only ever pushes
+right, so a level under pressure walks off the side of the tree and has to be
+dragged back by its average — which strands whichever circles are free to move
+hundreds of pixels from their own siblings. Requiring `x[k] - x[k-1] >= gap[k]`
+is instead the same as requiring the running total of the gaps, subtracted off,
+to come out non-decreasing, so the nearest arrangement satisfying every gap at
+once is the isotonic regression of that sequence, and pooling adjacent
+violators finds it in a single pass. Blocks that have to move do so around
+their own centre of mass.
+
+Measured over 60 random lineages this halves the width (1862 → 970 units) and
+cuts the span of the root's own children by 68% (1361 → 433), while leaving
+parents *closer* to the middle of their children than the tidy pass managed
+(worst case 5.5 → 2.6 node-widths). On the widest lineage in the corpus — 300
+wordings, one generation of which is 156 siblings — it is 14,760 units wide
+before and 6,001 after, which is the difference between a flat smear and a
+shape. What horizontal distance survives means something: circles near each
+other are relatives.
+
 A **time layout** sits beside it in the same control. There a variant sits at
 the hour it was first observed, so time runs down the board and the vertical
 gap along an edge is the real waiting time before the rewording appeared. The
@@ -385,9 +610,9 @@ pinch to zoom about the pointer from 2% to 5000%, double-click to zoom in, and
 `fit` to come back to the whole lineage. A dot grid drawn in screen space and
 re-tiled by zoom decade gives the panning something to move against and keeps
 the dots the same size at every scale. Opening a lineage floors the automatic
-fit at 34%, because the widest lineage in the corpus is 226 wordings and fitted
-to a laptop that is a field of specks; the zoom readout says so, and `fit`
-pressed on purpose still fits.
+fit at 34%, because the widest lineage in the corpus runs to 300 wordings and
+fitted to a laptop that is a field of specks; the zoom readout says so, and
+`fit` pressed on purpose still fits.
 
 Every circle is a mass on a spring anchored at the position the layout gave it,
 tied to its parent and children by more springs and solid enough not to sit on
@@ -395,9 +620,19 @@ a neighbour. Pull one aside to read what is underneath it and its relatives
 follow; let go and the whole arrangement eases back to the measured one, which
 is the point — the physics is a way of handling the tree, never a way of
 changing it. Overlap repulsion only fires when two circles actually touch, so a
-settled tree keeps exactly the spacing the tidy layout produced, and the
-simulation parks itself the moment nothing is moving rather than burning a core
-redrawing a still picture. Switching layouts keeps the circles where they are
+settled tree keeps exactly the spacing the layout produced. Every axis carries
+the same damping ratio rather than the same damping, so the firmly held hour of
+the time layout and the loosely held column of the tree layout both ease in
+with one soft overshoot instead of one snapping and the other wallowing.
+
+Whether the board is still busy is a question about the picture, not about the
+model: a lineage nine thousand units wide, seen at a third of scale, can creep
+for half a minute inside a tenth of a pixel of screen, and an earlier version of
+this happily burned a core doing exactly that. Both rest tests are therefore in
+the pixels a reader actually has, with a floor under the scale so that zooming
+out cannot declare everything finished — and when the last fraction of a pixel
+is too small to see, it is dropped so the board ends up exactly the arrangement
+the layout describes. Switching layouts keeps the circles where they are
 and lets the springs carry them to the new arrangement, which is also the
 clearest available answer to what the switch changed. Under
 `prefers-reduced-motion` there is no simulation at all: a dragged circle still
@@ -416,6 +651,24 @@ noise), and `PRIMARY_LANG`.
 ## Honest limitations — say these before a judge finds them
 
 - **Really 15 dense days, not one month.** See the collection collapse above.
+- **The comment layer reaches 39,656 of 142,175 wordings, not all of them.**
+  A wording is only reachable if the tweet that carried it is itself in the
+  crawl and matchable by text prefix. A node with no `cmt` block means no
+  comment was captured against it, never that nobody replied. The panel says
+  so rather than showing a zero.
+- **Comment counts are a captured subset, never X's own `reply_count`.** The
+  two are shown side by side and never added or substituted.
+- **`reuse` is template reuse, not proven coordination.** It means: many
+  distinct accounts posted near-identical, distinctive text. Whether that was
+  organised, a trend, or a copypasta people enjoyed is not something this
+  corpus can settle, and the label does not claim it.
+- **Stance is a lexicon and sarcasm defeats it.** "great reporting as always"
+  scores `endorse`. 83% of comments carry no stance cue at all; that bucket is
+  labelled `none`, not guessed at.
+- **Tone is VADER and reads laughter as positive**, so a mocking comment often
+  scores positive tone. Tone is a reading of the wording, never of the intent.
+- **`attack` is hostility, not hate speech.** Condemnation of a bigot and a
+  slur both land there. Do not present that count as a hate-speech measure.
   "Evolution" means mutation across Aug 17–31; September is a thin sample we can
   compare rates against but cannot trend through. The `gov-tweets` corpus in the
   same bucket reaches back to 1999 *and* carries profile history, if we want

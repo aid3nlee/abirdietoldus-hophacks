@@ -79,6 +79,8 @@ MIN_COPIES = 2        # a string emitted once is not yet a meme
 BLOCK_KEYS = 4        # rarest tokens indexed per message
 MAX_DF = 2000         # a token in more messages than this is not distinctive
 MAX_BLOCK = 100       # messages paired inside one block (caps quadratic blowup)
+BLOCK_HEAD = 50       # of those, reserved for the most-copied, as before
+BLOCK_STRATA = 8      # the rest are dealt round-robin across copy-count bands
 RARE_DF = 20          # a shared token this rare is on its own enough to pair on
 SIM_THRESHOLD = 0.45  # token-set Jaccard for "same narrative, reworded"
 MIN_FAMILY = 3        # variants required to call something a lineage
@@ -249,29 +251,80 @@ def step3_pairs(con, force: bool) -> None:
     print(f"      {ndf:,} usable blocking tokens (df 2..{MAX_DF})")
 
     # Index each message under its BLOCK_KEYS rarest tokens, then cap each
-    # block. When a block overflows we keep the most-copied messages: if we
-    # have to compare only some of a crowded block, compare the ones that
-    # actually spread.
+    # block. The cap has to exist -- a block of 50k messages is 10^9 pairs --
+    # but *which* messages it keeps decides what the phylogeny can see.
+    #
+    # This used to keep the MAX_BLOCK most-copied messages per token, on the
+    # reasoning that if we can only compare some of a crowded block we should
+    # compare the ones that actually spread. That is right for a coordination
+    # detector and backwards for a descent tree. A new mutation enters the
+    # corpus with n_copies=2 and grows from there, so ranking a block purely by
+    # spread evicts exactly the young wordings a mutation tree is about. In a
+    # crowded block it evicts all of them: measured on a 1,000-message block,
+    # top-N kept 100 already-spread wordings and 0 of the 700 that had been
+    # copied twice. A message whose every blocking token sits in an overflowing
+    # block is never compared to anything, so it cannot enter any lineage.
+    #
+    # Pure round-robin across copy-count bands overcorrects -- it starts
+    # evicting the high-copy wordings that form the backbone a young variant
+    # needs to attach *to*, and a pair needs both of its ends present. So the
+    # block is split: BLOCK_HEAD slots still go to the most-copied, exactly as
+    # before, and the remainder is dealt round-robin across log2(n_copies)
+    # bands, richest band first. The backbone is preserved and the young band
+    # gets a guaranteed share of what is left. An uncrowded block is unaffected
+    # either way: everything fits.
     db.execute(f"""
         CREATE TABLE blocks AS
         SELECT tok_id, doc_id, n FROM (
-            SELECT d.tok_id, t.doc_id, d.n,
-                   row_number() OVER (PARTITION BY d.tok_id ORDER BY k.n_copies DESC, t.doc_id) AS brn
+            SELECT tok_id, doc_id, n,
+                   row_number() OVER (PARTITION BY tok_id ORDER BY ord_key, doc_id) AS brn
             FROM (
-                SELECT doc_id, tok, rk FROM (
-                    SELECT t.doc_id, t.tok,
-                           row_number() OVER (PARTITION BY t.doc_id ORDER BY d.n, t.tok) AS rk
-                    FROM tk t JOIN df d USING (tok)
-                ) WHERE rk <= {BLOCK_KEYS}
-            ) t
-            JOIN df d USING (tok)
-            JOIN dict k ON k.doc_id = t.doc_id
+                SELECT tok_id, doc_id, n,
+                       CASE WHEN hrn <= {BLOCK_HEAD} THEN hrn
+                            ELSE {BLOCK_HEAD} + srn * {BLOCK_STRATA}
+                                 + ({BLOCK_STRATA} - 1 - stratum) END AS ord_key
+                FROM (
+                    SELECT d.tok_id, t.doc_id, d.n, k.stratum,
+                           row_number() OVER (PARTITION BY d.tok_id
+                                              ORDER BY k.n_copies DESC, t.doc_id) AS hrn,
+                           row_number() OVER (PARTITION BY d.tok_id, k.stratum
+                                              ORDER BY k.n_copies DESC, t.doc_id) AS srn
+                    FROM (
+                        SELECT doc_id, tok, rk FROM (
+                            SELECT t.doc_id, t.tok,
+                                   row_number() OVER (PARTITION BY t.doc_id ORDER BY d.n, t.tok) AS rk
+                            FROM tk t JOIN df d USING (tok)
+                        ) WHERE rk <= {BLOCK_KEYS}
+                    ) t
+                    JOIN df d USING (tok)
+                    JOIN (
+                        SELECT doc_id, n_copies,
+                               least(greatest(floor(log2(greatest(n_copies, 1)))::INT - 1, 0),
+                                     {BLOCK_STRATA} - 1) AS stratum
+                        FROM dict
+                    ) k ON k.doc_id = t.doc_id
+                )
+            )
         ) WHERE brn <= {MAX_BLOCK}
     """)
     nb, ndoc = db.execute(
         "SELECT count(*), count(DISTINCT doc_id) FROM blocks").fetchone()
-    tot = db.execute("SELECT count(*) FROM dict").fetchone()[0]
+    tot, tot_emis = db.execute("SELECT count(*), sum(n_copies) FROM dict").fetchone()
     print(f"      {nb:,} block postings covering {ndoc:,}/{tot:,} messages")
+
+    # A message with no posting is invisible to everything downstream: it can
+    # never be paired, so it can never join a family, so it can never reach the
+    # export. That makes this the pipeline's largest silent filter, and it is
+    # worth printing rather than inferring from a shortfall two stages later.
+    miss, miss_emis = db.execute("""
+        SELECT count(*), coalesce(sum(d.n_copies), 0)
+        FROM dict d
+        LEFT JOIN (SELECT DISTINCT doc_id FROM blocks) b USING (doc_id)
+        WHERE b.doc_id IS NULL
+    """).fetchone()
+    if miss:
+        print(f"      {miss:,} messages ({100 * miss / tot:.1f}%) got no blocking key -- "
+              f"{miss_emis:,} emissions ({100 * miss_emis / tot_emis:.1f}%) unreachable")
 
     # A pair is worth scoring if it shares two blocking tokens, or one rare
     # enough that coincidence is implausible. This cuts the expensive
@@ -1061,6 +1114,7 @@ def step6_trees(con, force: bool) -> None:
         "params": {
             "sim_threshold": SIM_THRESHOLD, "min_copies": MIN_COPIES,
             "block_keys": BLOCK_KEYS, "max_df": MAX_DF, "max_block": MAX_BLOCK,
+            "block_head": BLOCK_HEAD, "block_strata": BLOCK_STRATA,
             "min_family": MIN_FAMILY, "min_family_emissions": MIN_FAMILY_EMISSIONS,
             "leaf_sim_threshold": LEAF_SIM_THRESHOLD,
             "leaf_block_keys": LEAF_BLOCK_KEYS, "leaf_rare_df": LEAF_RARE_DF,

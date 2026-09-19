@@ -47,10 +47,42 @@
        lands on the page's existing --red so the flag ramp and the
        coordination ring/kind badges read as one vocabulary. */
     --f1: #f7e0de; --f2: #eaaaa4; --f3: #dc6c60; --f4: #c33a28; --f5: #89291a;
+    /* Diverging stance scale: blue pole = endorses the claim, red pole =
+       disputes it, neutral greys = takes no position on it. */
+    --st-end: #1d4478; --st-dis: #c33a28; --st-moc: #e2897c; --st-att: #89291a;
+    --st-que: #8b9098; --st-pro: #bcc0c5; --st-oth: #dfe1e4;
     --panel-w: 400px;
     --x-ink: #0f1419; --x-dim: #536471; --x-line: #cfd9de; --x-blue: #1d9bf0;
     --x-card-bg: #ffffff;
     --nav-overlay: rgba(255, 255, 255, .93);
+    /* ---------- motion ----------
+       One hand draws the board and one hand moves it. Every travel on the
+       sheet is written in these six values rather than in a number typed at
+       whichever rule happened to need it, so a panel, a fold and a chevron
+       read as the same gesture at three different sizes.
+       --ease spends its speed early and lands soft, which is what lets a long
+       travel arrive without a stop. --ease-out is its symmetric cousin for the
+       short ones, where an eased landing over 6px only reads as lag. And
+       --ease-back carries the one soft overshoot the springs on the board
+       already speak in, so a chip settling into place and a circle settling
+       onto its anchor are recognisably the same physics.
+       Everything built on them is switched off wholesale at the foot of this
+       sheet for a reader who asked for less motion. */
+    --ease:      cubic-bezier(.32, .72, 0, 1);
+    --ease-out:  cubic-bezier(.4, 0, .2, 1);
+    --ease-back: cubic-bezier(.2, .7, .2, 1);
+    --t-fast: .14s;
+    --t-mid:  .24s;
+    --t-slow: .34s;
+    /* The chrome's three drawn marks, plus the pen square that boxes the map
+       buttons. All four are alpha masks rather than pictures: the drawing
+       supplies the shape and currentColor supplies the ink, so one file
+       serves the paper and the chalkboard and follows a hover the way every
+       other mark on the sheet does. */
+    --i-sun:  url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA/CAQAAAD6FAZBAAAGxElEQVR42tXZf4xdRRUH8M+9777tdqmlFGxshdJCgGjRlBBaIdRfjRgJYjTUNGAMpFUQjZomJmoQSCQG9A+IRjRGAQXUAEaRCtQA9g8hmChoEU0jaIPQamtLW7q779333h3/2Nnb3fJ+7laIM/+8e9/MOWfOfOec75nL/21LscJT9vhsfHrNDUhsFRQKK197E1KcqKZlXPA1ZDMXNNO2yBxBiuUIr60BCebNXO3R8UC1/PVyNOkoGZCoSGQ9RSbTDOjVKu0ltoNO0EITSVcXH/7vPz2XOSGzDw+kWOJ2j7vecIRYp1YvDdndY+2FYK115vbeqlTq14Ig+K2FHVGS4hR1LblgLSodJGZY6mFB8KCsO+oSDNsjVzcueMKItIPNicxfBS25JR0NzXCuFwW5hmB5L+BXcKOgpqUm+Bkd4FiR+Ii64LqO689woVFBXS54zoik+yYkUqnN0YS64OY2UE1LVy6y7Ig30xezTkOhoaEhuLDLVk0xITHPE1NMuGbatLT8/QZvc741Vls07QAfRslFWloaGgrBxn7UT049zuOCmqa64Mo4NYkClvm0B7yoFeG61yM2eeuU+anEcgcUGuqCQ9YNki9SzLNZkKtrGLW0nH6WuxyMiutqamrRkNxWl0pj0OFmwbi64O9WDZquJlbxzagoOFsF83xdXVAY0yz/m+iTb560BlWJLYKWYIvFM8mWE2hd5ym73aiK8zwraBoTBIc86HMu8H5XudNOoVxvy7XgQ/ba4yuSfve+3YmA+eBSdcG4puCfrnXqtLHH2WiboFDXFPwgnpETZpvyJi2/XIjko+GmUmymoiKLo4ZsMirI1QTfmhIvZtUq+IBCU02ww5oYYtJXxUVYZWeEbnDJzHnSdOZ3on0KNcGfnNgxMpKoYqUDmnItOy3oGMgHWv/tgnGFHX2guYqLSx98dbY+SHGauqaGpjV9iavilhhH91rUK/Z3bxluEIwK7uhzNYmKY/xDYVzwpcF8kMRklEw5iE8Lck0ry0Dcj9kbBTXBs31QO4mszWGplKSjKdg2AJwSiWO8JGgonB1pTjYtUVUmn1METS0BmQVOssSxaEnwdkNy/F7RdzQLUqM2I5d4VyRlkzqg0Jp8zjDiE95tkWHzLDBPy6jd7nKLlrdE8rl94DC+1SclOB0NS33MORYblmg6ZLcX/c69E1T1/iPSymS/Gt+NELx8IDBVsDqi4F6cEXPFkf3uCaEXa8rjcUlKNw5bEfNAgtpAHghxRoqFuMBiB1WnSCeoutRlKb4tM2KuYcPmxD7kMd/AeBw+MnDhdiyK6LcH7TI/ahg2bK65RlTdMfH3Z/zYmd5kkdQrxoza6c+2gR1R5MkDhZNE4oxowH487x3WO0UwJhhSOGifZzx6ZIn16sj+QcG44IGBkmoFP4zouXVaFdmlbpve07JKOqRQ2Gth30F1gtbujCC8KubO7FW90l8u2BqD6pf7PgcZLhPkWnKnzYaQZNggqGvab1nJkXrlgqq/RLMfmh0fmnDmC7FKeqQLF5iOnJsEuVxw3kz54FQ4XVGWVjdEvtt5yyq4UtBQE9w2W/WTSWlracLV02qjdqTsi0IsRp47GowoNaTqZP8S1DUE108hpKm0zGxwkntK9fudJTU0OwMOr3SVA4KahmCrtW3GLnaN3SUZ2+f8/u6hkq5noGm5DRpuccC57rNELpiDLe7xN/vVVC1wqrUucjxqMpntPmqbYeu13GdcpdMFTa+i5BL7BMG9Uiy1JdY/eZnPGmWBGozF93c4DhXfEwTPWD04NZ1w2nWCYFTd8yUdu8oLsRAdM66uIVczphaNeNT7SozsivcsYz4+WIGSYthP4rVKTfCpeBoSLLTJH9vk9hd83zvLWqKCWwU1uVa8zG0bypO2b47xS++RyzTMcZsNUkWEZQuJlc5xhjeaj5dt96Q/eCVuXSsqG3G/98pVFKp+5AqEXneriVTFQ1Nuie45wn1Jx/2sTIsPCeb6laAeJd3dTyjP8Pkp6n8haxNMEqkhmVP93MPOlLWNjykyP50i7Qu9I2OCp+Wx0r9P1tHqVOIxQfB41zGJO+NdSu65eNHTA4BbIqy+I+0imlM05BrGvLljuJmYf3OU+ETvTUglTrfZY9Z3wm0ZI88TNDQFq7q4dkLler/xgBWDJeduiaSCcwUNueCiHnubdgdd++FJ1/AZkCNR4IQeO1uoxONX9GNA0SfxPryuBT3Ht/4XX0xGym8Gx78+n2zmlgYkr48Bk+qDl2Z3BzLT9nJZT24/Gt/PBufL8+0SBLvMn91N0Mw378Ne8m/rjgb3fd3afwGQLK9fxO8/YAAAAABJRU5ErkJggg==);
+    --i-moon: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADcAAABACAQAAAAU9Se0AAAG/0lEQVR42r3Ze4xcdRUH8M88ti203b4ElPKoIgiGV4gSERUfASQGXyiiCRihf0hI/EMTjWiMISaQCESDjYGYYEiMgBJUopJgMFgajNIixUKxbGkp2+4u3bbb3dmZuY85/jGXybbs7Mw00XP/mWR+93zP+3fOufxfqTTA2YqSrPi91DpnOdt7nOlUy2SmjBux3Vbb7AJlrWOFq8iLX+e50oec62THdTl7yIgt7rVZSQxugbIyuNx9/ikVxVM3bpdxidS0pkRT0vm34TJUBjV2+4Ur/K1gk2toaJqw2VYjDkhlEi0tDWO2m5GoCZuUCkH7NiFc7DEhJBoFVN7Rof2kwmE1mdQBDam63Ijy0e6qLgBWlTnOD31TVSqUlCwCiVGjXrfTK3Y7IHPI+/3EWqySqqridq05Pu9hxDIu9ZyQaUo1hfCqDa5xliVHnf+8CSGVSIUJG32Bfk3ZNsCtMiGTqGsKL7vesiO8WjVkEW4TWh2RNlhbhJh+NVvi10IiM+ZFqfALKwoTV5QLgUqq+LHwmhmJsN3HC6hKv2BV/E6YlXvD80Ld+gKq5GjP3y5sNyYVHrVynlM9wW4X6jKZGWGb9xU1xVvAbhVet18u3DMnmgfIsu8WZkzlws8NzxvBFdwgvGpCLvxsTkEYQLO7hZZZMzIN13eRuIKLpHbYoSU8Mq/+C1IVPxISUzarC9dgaB4mJRVLbdc0IhdesnwwzdryflVoyDxjTPgBRVrPd/ZOYVZLqub8QatjGReYlcgd8Lrwh64xVlZyrqZEpinc1KM6zcui4h9CU64pvGRF1wJbwW+Fpqbw8OBgVXxNaMilMoe8t6t5yjhPIjMrs8cJg3qtpOQ4IwVUInxpAYmrStYLk0aF645Nt5uE1IxJ4aEFWVTwS+F508YcrzRY+LeTc5OW3DY1DWctcC2WsU5d4gnhvmOJyJaSE5W8ZtbxHvKf+ZqaOec/aYlpa/HIoJq1aY1xLeOmZS7sNAzdTPmAlhmpCSsG7OUKulFoyoSNPe6pEp4VGsKf+7/T5hqHL4IUjyzIoiQsczICWwaHq+I0l4gie/5esOoOt9oKoYSRY+kh+YgVMlQdspOuYdKmYUuKE81jg7sELTn22d/zjSHlQv/lxwZ3Pg6YwJhWh1k3ahV1iHcdG9xaNLRwsI/ArktRw0U9DT8v3DCGLEa9x+nAlJqKCS0XWqk1WN6Vi9RdanGfsk4aw2EHrPGBQaeAMnIMW4qhntpVZJ5D1QSuLlJiILiZTq6tXDDr3qQHcIoaPmuFfNAytklIJMK/+zBNGX8UdqgJNw9+391bVMxc3Tt7FqYqrhHq6nI7Hd9p4fukD2oUQ2JYX3SbCxfpYXu1ipv/jkH1GzYqvGaf8FgfZbeKuzr6pUVLP0Cv8pSw13PCQSf0BCwrOUNNZrtxYbOhfjvotlTrfNSQfdZYZtwzKgtmYKiYtMalFnnVKqfhSUP9V5gL5FoOmNGyx/Ke7U5J2Sq7hAl7pDKX9ZG1c0J7o5a0aGlv7MP5FVwhpBoSmQkX9wtYxVeKZEi0bO6rUa0WQ3JTJhWmfBqV3m+229qd8mKqC1f3oV87YX4jNM2qCS3f7rnN6Jjm60XTPia3zaI+Yq2kbJGnhBnbTMiER51aDGSlhQHLHhbCbtuEu/vyRBmrPSvUjEs0hfFijqfS3bQVnCmVST1tSrhhAMAnhFxShFrY6FpL5/CuqB5dCCq4X0hNmZRKXNVXeSqj6i4hNCUOmRXCiA0+55S3NJlzJoW3G5PLhESu7sq+NGxn6VV2CC3jttqtXmzLDtvi9x52v0/Mn0stSWeHV3N5X3uSdpu/0h0OFiA1dTV1rTmLuhvny6VbOrlUE+pu6GzI+imHp/u+f82ByDU1JerCWPftQ0Nmlx1CuEulLy++OcqUXGC9ezzmL6blpu2Wy4x3S96fFoAvekUi/NWZc9gtHDhzxbpFTa6moSl8r7uMdwqJ0Cj2eJNu7qwMSj00rCrjHR4UwqQdUuHxbg5pA36ryKU3l1XhaZ/q+KmqrDTnKXdgYJH1RoVDcofNCC87obuYbcDPOCg0jBsrKkZ40tVdVjttWuEyt9kqTHvBTNFyveD0Xpd2FefYKIQJdZnErFzY6V5fdp4TDVtuuWGrnOrDvuNPxouITBxSL7byD1ndzyRYQdk37C/W201Ne2y1twjxSfuMGjVq3HQBs9/LpjQ1i4zb6tr+N7ftlu50GzoQmYY3HC5G6yO37Q2z9pkqzB42ut6iDpeBlvurXOxXnY8SuURTU0PDXtvsUi+W3u1n1D0uOeL9AT7KlJWK9fy5rvMx7/a2OcbJ1Sy2GEzZZYvHPVGMbmWtI4eAftUsdYYXTnKGc6yz2lJrnO0kNS/a5Bnb7S76saro7wvC/5T+C3zkQj6FJLtAAAAAAElFTkSuQmCC);
+    --i-menu: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAApCAQAAAAvm+fHAAAEa0lEQVR42u3YvYskxxkG8F919XzsaRdsc+Zk5EOBQSAQ3Fk4sDEIR04ETowDB3bqUKkzB4qUSYn+ACWSwCDkTMiJBQokbLCCswPbkvEHWEKCO+tud2e6q8tBV/f2zOxoTzLsJapi+quq337r/Xiet4YH3AKCjBt+4Nuue0hGthYszS0sLESVIEjIGifuWZrL7skOzMxFUaNWi2isHTtW6TSSpJEF2V3/9q7XfaLS9Wo84teO5Uvt73t6sMDX/M4TklTu+2Me7XNey5OrMLHm2TmPs0JZ+ea7M2vf9/sKv/CEU0RRNfbhLuzp/Vg1eWcYGdQY5g2/qeRobe4ZKtyUVBPdw4WRk0cb5QsiLJxjs75FnW/1CtwSpSI07P1k3nO/7Vsb1ybHvOGGRuUv/Qev+q0bSLpxyjQWehPm0dtn6x8yaBjfXnMerdSNcrMgiIKPPeXPEcdec+SaQ7Pin6FXxce0KrEo0ydP7/Ne+NqpRitJWuuSdr1qceL3M7nH3vQzf5riwJFHPeyquXkRedupqHbinpW5WlvCalUEZ40gOdGUVQVZkkXBzEy08JCZuaVWUql17vjA3znDgSBeOgRWfeCHjYgNG0GY90bw58Xa84K682Wz64Jdg4WtxNyFoy/Wuk0XPJggDJt0zHXXfEWwkgVLVywFa2vJ0oG5ZUm/xsqxZKHSyCrBwoErgtqBmU5j5a7kUCvIGrUDB5I7/ukP/jq175Fnvee/l0jGx152bbDAI37jSdCOJHyG3FMb5XPjJ08I3BZg72tR9JYfWsErshPrEUxTgdQBWtOFfXtme8F7rdZK9uOeDZ/SmU2wfZNKw30AUdjJqPsh9eRGr8A9dOMH8w71fpawXZreVztt4mqWRP8govO0qNVNek8pqVx3e3veGs975kxH+iSc+6NfOu11esaHl1yS3vaSr09j/KrvecxVR2qNTuNTK6Siea0R1MV0rUZbcqYVkdU6RDOdE63aQo1mtO1M1EnWbrvlX1MciA+ABCZI2J+r/wPZP2/LX9LxvgwPnwG09ycr79yHc/YTu0ijUpfNyWW1ehqEQ3UaHVmoZMHMQrC20okOS5jWglal1mqsZFGtFkRzWdJaaS1cUeu0ZiqVGidah5I7PvGfodwZcOA7fuKm675qVur/unyslUTLAtVRkMpGJGlKIRvHLMo6rU5ttpcTW5/6mzc87+Ph0a9056BVV/ZKWZ6wWDvhygFg+yfNBp82pbdlpGfbfkYv8z0P9xD0cy/oNCOu5/GooHiecP5QO4bJLjBsVJV5nDede7av7uWvfNM1rwW87btSQcNcdm8XlxS7o9N3d2dtS82Cj3yjwvKcPxXOVpz3EG2Y7H+3EyufW3VvKtThLjVe96R2S/du8r9GGFe3WarnrdwPO/kddnBgUKQTVV7sHy+9cslknGVrz6nOTPRTP/K4Q1G2dqodzbqyki0sy+a8Vjl1ioVkhSuCjlLCtyrJShLVZg4s1bK1ptD3zIlbXvXORgn4oNr/AOZwL0t5j8SpAAAAAElFTkSuQmCC);
+    --pen-box: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Cpath d='M2.1 2.9c5.6-1 17.2-.6 22.3-1 1 5.4.3 17.3.8 22.4-5.6.9-17.2.2-22.4.7-.9-5.6-.2-17.1-.7-22.1.4-.6 1.2-.9 2.6-1.1' fill='none' stroke='black' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --type: "AuthenticFont", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
     /* One hand writes the whole board; kept as a name so the diagram code that
        asks for it keeps reading clearly. */
@@ -75,6 +107,8 @@
     --red:      #e2685a;
     --w1: #23344a; --w2: #2c4a72; --w3: #3d6a9e; --w4: #5992ca; --w5: #86bbf2;
     --f1: #4c2824; --f2: #7e3730; --f3: #b64235; --f4: #d85446; --f5: #e5786c;
+    --st-end: #5992ca; --st-dis: #e2685a; --st-moc: #9c4a40; --st-att: #f0958a;
+    --st-que: #7b8189; --st-pro: #4a4f56; --st-oth: #2f3338;
     --x-ink: #e7e9ea; --x-dim: #8b98a5; --x-line: #33373a; --x-blue: #1d9bf0;
     --x-card-bg: #15202b;
     --nav-overlay: rgba(21, 23, 26, .86);
@@ -82,11 +116,22 @@
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }
+  /* The sheet is a drawing, not a document. Dragging a circle moves it and
+     dragging the paper pans the board, so a stray text marquee or a ghosted
+     image following the cursor is only ever an accident mid-demo. Selection
+     and the callout are switched off everywhere and handed back to the form
+     fields, which still need to be typed in and pasted into. See the
+     dragstart and contextmenu guards in wireOnce() for the other half. */
   body {
     margin: 0; background: var(--paper); color: var(--ink);
     font-family: var(--type); font-size: 17px; line-height: 1.55;
     letter-spacing: .012em; -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   }
+  input, textarea, select {
+    -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+  }
+  img, svg, a, i { -webkit-user-drag: none; }
   /* The face carries letters, digits and the common marks but no slash, colon,
      em dash or middot; those fall through to the next hand in the stack rather
      than to a typewriter, so the mixing does not show. */
@@ -102,7 +147,9 @@
 
   .sheet {
     display: flex; flex-direction: column; height: 100%; min-height: 0;
-    transition: margin-right .2s ease;
+    transition: margin-right var(--t-slow) var(--ease);
+    /* The sheet is drawn once, on arrival, rather than switched on. */
+    animation: fade .4s ease;
   }
   .sheet[data-panel="open"] { margin-right: var(--panel-w); }
 
@@ -115,24 +162,103 @@
   .head .counts { color: var(--ink-2); font-size: 14.5px; margin-left: auto; }
   .head .counts b { color: var(--ink); font-weight: 700; }
 
-  /* The index of lineages folds away so the board can have the whole sheet. */
+  /* The index of lineages folds away so the board can have the whole sheet.
+     The mark is the whole control: no box around it, so the two header
+     buttons sit on the paper as drawings rather than as chrome. The 25px
+     square is still there as the hit area. */
   .fold {
     flex: none; align-self: center; width: 25px; height: 25px; padding: 0;
     display: grid; place-items: center; cursor: pointer;
-    border: 1px solid var(--rule); background: none; color: var(--ink-2);
+    border: 0; background: none; color: var(--ink-2);
+    transition: color var(--t-mid) ease;
   }
-  .fold:hover { color: var(--ink); border-color: var(--ink); }
-  .fold svg { display: block; }
+  .fold:hover { color: var(--ink); }
+  /* The drawing is the button, so the drawing is what answers a press: it
+     leans in under the pointer and gives way under the click. Scaling the
+     mark rather than a box around it keeps that true. */
+  .fold .ic { transition: transform var(--t-mid) var(--ease-back); }
+  .fold:hover .ic { transform: scale(1.14); }
+  .fold:active .ic { transform: scale(.88); }
+  /* One 14px cell per mark, with the drawing sized to fit inside it, so the
+     wide three-bar menu and the tall crescent sit on the same optical centre
+     as the round sun without three sets of measurements. */
+  .ic {
+    display: block; width: 14px; height: 14px; background: currentColor;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-size: contain; mask-size: contain;
+  }
+  .ic-menu { -webkit-mask-image: var(--i-menu); mask-image: var(--i-menu); }
+  .ic-sun  { -webkit-mask-image: var(--i-sun);  mask-image: var(--i-sun); }
+  .ic-moon { -webkit-mask-image: var(--i-moon); mask-image: var(--i-moon); }
   #theme .ic-moon { display: none; }
   :root[data-theme="dark"] #theme .ic-sun { display: none; }
   :root[data-theme="dark"] #theme .ic-moon { display: block; }
+
+  /* Off the desktop the dock is not a box at all, so the bar stays the flex
+     child of the sheet it has always been. */
+  .headdock { display: contents; }
+
+  /* The bar folds itself away so the board owns the whole sheet, and unfolds
+     when the pointer reaches the top edge. Folded, it leaves behind its own
+     2px rule and a short handle to aim at. Gated on a real pointer and on the
+     desktop layout: a touch screen has no hover to unfold it with, and below
+     881px the sheet is a scrolling document where a bar parked at the top of
+     the page would scroll out of reach. In both of those cases the bar stays
+     exactly where it was. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 881px) {
+    /* The dock's height IS the animation. It is a real box in the column, so
+       growing it pushes the board down by exactly the distance the bar gains
+       rather than covering the top of it -- and --head-h is measured from the
+       bar itself (see headDock() in the script) so the unroll always stops
+       flush, whatever the counts do to the bar's height at this width. */
+    .headdock {
+      --peek: 10px;
+      --head-h: 45px;
+      display: block; flex: none; position: relative; z-index: 6;
+      height: var(--peek); overflow: hidden;
+      /* Unrolls on the instant, rolls back a beat late, so crossing the top of
+         the board on the way somewhere else does not snatch it shut under the
+         cursor. The curve spends its speed early and lands soft, which is what
+         keeps 35px of travel from reading as a jump. */
+      transition: height var(--t-slow) var(--ease) .22s;
+    }
+    .headdock:hover, .headdock:focus-within {
+      height: var(--head-h); transition-delay: 0s;
+    }
+    /* Anchored to the bottom edge of the dock, so the bar slides down out of
+       its own strip as the dock opens instead of being squashed: the rule
+       under it never moves relative to the board it divides. */
+    .headdock .head {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--paper);
+    }
+    /* A mark to aim at, not a button. It goes the instant the bar starts down
+       and only comes back once the bar has finished going up, so it is never
+       drawn over the words it is standing in for. */
+    .headdock::after {
+      content: ""; position: absolute; z-index: 2; top: 3px; left: 50%;
+      width: 30px; height: 2px; margin-left: -15px; border-radius: 2px;
+      background: var(--ink-2); opacity: .3; pointer-events: none;
+      transition: opacity .16s ease .46s;
+    }
+    .headdock:hover::after, .headdock:focus-within::after {
+      opacity: 0; transition-delay: 0s;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .headdock { transition-duration: 0s; }
+    .headdock::after { transition-duration: 0s; }
+  }
 
   .cols { display: grid; grid-template-columns: auto minmax(0, 1fr); flex: 1; min-height: 0; }
 
   /* ---------- left column: the index of lineages ---------- */
   .rail {
     display: flex; flex-direction: column; min-height: 0; width: 290px;
-    border-right: 1px solid var(--rule); overflow: hidden; transition: width .2s ease;
+    border-right: 1px solid var(--rule); overflow: hidden;
+    transition: width var(--t-slow) var(--ease);
   }
   /* Fixed-width children so the list does not reflow while the rail folds. */
   .rail > * { min-width: 290px; }
@@ -193,17 +319,17 @@
   .filt-v {
     flex: 1; min-width: 0; color: var(--ink); font-size: 14.5px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    transition: color .2s ease, opacity .2s ease;
+    transition: color var(--t-mid) ease, opacity var(--t-mid) ease;
   }
   .filt[data-open="true"] .filt-v { color: var(--ink-2); }
   .filt-chev {
     flex: none; width: 9px; height: 9px; align-self: center; color: var(--ink-2);
-    transition: transform .28s cubic-bezier(.4, 0, .2, 1), color .2s ease;
+    transition: transform var(--t-mid) var(--ease-out), color var(--t-mid) ease;
   }
   .filt[data-open="true"] .filt-chev { transform: rotate(180deg); color: var(--ink); }
   .filt-clip {
     display: grid; grid-template-rows: 0fr;
-    transition: grid-template-rows .32s cubic-bezier(.4, 0, .2, 1);
+    transition: grid-template-rows var(--t-slow) var(--ease-out);
   }
   .filt[data-open="true"] .filt-clip { grid-template-rows: 1fr; }
   .filt-clip > .chips { min-height: 0; overflow: hidden; }
@@ -212,8 +338,8 @@
     padding: 1px 0; border: 0; background: none; cursor: pointer; color: var(--ink-2);
     border-bottom: 2px solid transparent;
     opacity: 0; transform: translateY(-6px); pointer-events: none;
-    transition: opacity .22s ease, transform .26s cubic-bezier(.2, .7, .2, 1),
-                color .15s ease, border-color .15s ease;
+    transition: opacity var(--t-mid) ease, transform var(--t-mid) var(--ease-back),
+                color var(--t-fast) ease, border-color var(--t-fast) ease;
   }
   .filt:not([data-open="true"]) .chips button { transition-delay: 0s; }
   .filt[data-open="true"] .chips button {
@@ -238,9 +364,23 @@
     display: grid; gap: 5px; width: 100%; text-align: left; cursor: pointer;
     padding: 9px 11px 9px 10px; background: var(--paper); color: inherit;
     border: 1px solid var(--rule); border-left: 3px solid transparent; border-radius: 6px;
-    transition: background .12s ease, border-color .12s ease;
+    transition: background var(--t-fast) ease, border-color var(--t-fast) ease,
+                transform var(--t-fast) var(--ease-out);
+    /* Re-searching the corpus rewrites this whole list, so the rows come back
+       in the order they are read rather than all at once. The index is capped
+       in renderList: past a dozen rows the cascade is off the bottom of the
+       rail anyway, and an uncapped one would leave row 300 waiting nearly
+       five seconds for its turn. */
+    animation: rise var(--t-slow) var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 16ms);
   }
-  .fam:hover { background: var(--paper-2); }
+  /* Clicking a row also rewrites the list, to move one border from one row to
+     another. renderList hangs this on the container whenever the rows that
+     came back are the rows that were already there, so the cascade stays a
+     reply to the search box rather than a flinch at every selection. */
+  .list.nofx .fam { animation: none; }
+  .fam:hover { background: var(--paper-2); transform: translateX(2px); }
+  .fam:active { transform: translateX(1px) scale(.995); }
   .fam[aria-current="true"] { background: var(--paper-2); border-left-color: var(--pen); }
   .fam-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .fam-badges { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
@@ -250,7 +390,20 @@
     display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
     overflow: hidden; text-overflow: ellipsis;
   }
-  .fam-meta { font-size: 13px; color: var(--ink-2); }
+.fam-meta { font-size: 13px; color: var(--ink-2); }
+  /* The lineage's own distinctive vocabulary. Set in the board's accent rather
+     than as another grey line, because this is the row a reader actually scans
+     -- the tweet text above it is two clamped lines of context, these are the
+     four words that say which idea it is. */
+  .fam-kw { display: flex; flex-wrap: wrap; gap: 3px 4px; }
+  .lin-kw { display: flex; flex-wrap: wrap; gap: 4px 5px; margin: 0 0 7px; }
+  .lin-kw .kw { font-size: 11px; padding: 1px 6px; }
+  .lin-name { font-weight: 400; color: var(--ink-2); }
+  .kw {
+    font-size: 10px; letter-spacing: .02em; padding: 0 4px;
+    color: var(--pen); background: var(--pen-soft); border-radius: 2px;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
   /* Behaviour badge. Colour separates the two accusatory classes from the
      merely descriptive ones, so the list reads at a glance. Pill-shaped so a
      metadata tag reads as a tag, not as another clause of body text. */
@@ -276,30 +429,120 @@
      rather than pushing the board's own bottom edge under the dock. */
   #stage-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
   #stage-body.loading { display: block; }
-  .lin { padding: 8px 20px 7px; border-bottom: 1px solid var(--rule); }
+  /* A different lineage is a different sheet of paper, so the board fades
+     rather than cutting. Opacity only: the tree's pointer maths reads a live
+     getBoundingClientRect, and a transform on anything above it would move
+     the map out from under the cursor for the length of the fade.
+
+     No fill-mode and no delay, here and on every entrance below that covers
+     something a reader needs. An animation that holds its first keyframe is
+     an animation that hides the board outright if it never gets to run --
+     which is exactly what a throttled tab, a background render or a headless
+     capture will do to it. Written this way the resting style is the visible
+     one and the keyframes are only borrowed on the way in, so the worst a
+     failed animation can cost is the animation. */
+  #stage-body.swap { animation: fade var(--t-mid) ease; }
+  /* The islands are free to travel, since nothing measures them; the board
+     itself is not, so it only fades. */
+  #stage-body.swap .isle-l { animation: rise var(--t-slow) var(--ease-out); }
+  #stage-body.swap .isle-r { animation: rise var(--t-slow) var(--ease-out); }
+
+  /* ---------- the two islands ----------
+     The board is the whole page now, so the two bands that used to sit above
+     it are laid on it instead: what this lineage *is* on the left, what the
+     drawing is *doing* on the right. They are paper resting on the map -- they
+     take their own clicks and let every other pixel through to the tree
+     underneath, which is why they are siblings of the SVG rather than anything
+     the pan and zoom maths has to know about. */
+  .isle {
+    position: absolute; z-index: 3;
+    background: var(--nav-overlay); border: 1px solid var(--rule);
+    border-radius: 15px 5px 13px 6px / 6px 14px 5px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .11);
+    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px);
+  }
+  /* Both widths are a share of the board rather than a number, because the
+     point of the arrangement is the open water between them: on a 13" laptop
+     two fixed islands meet in the middle and there is no map left to read. */
+  .isle-l {
+    top: 11px; left: 11px; max-width: calc(100% - 22px);
+    /* Wide enough for the post and the figures side by side, but never so wide
+       that the right island has nowhere to sit: the second term reserves its
+       width plus the water on either side of it, whatever the board is doing. */
+    width: clamp(280px, min(58%, 100% - 300px), 700px);
+    max-height: calc(100% - 22px); overflow-y: auto; overscroll-behavior: contain;
+    padding: 9px 14px 12px;
+    /* Queried by .lin-body below, which needs the island's own width rather
+       than the viewport's -- folding the rail away widens the board, and with
+       it the island, without any media query noticing. */
+    container-type: inline-size;
+  }
+  .isle-r {
+    top: 11px; right: 11px; width: clamp(214px, 26%, 264px); max-width: calc(100% - 22px);
+    padding: 10px 14px 11px;
+  }
+  /* A caption on a card, not a heading in the document: the island names its
+     own sections at a whisper, so the post inside it stays the loudest thing
+     on the paper. */
+  .isle-hd {
+    margin: 12px 0 0; font-size: 10.5px; letter-spacing: .05em; color: var(--ink-2);
+  }
   .lin summary { cursor: pointer; }
-  .lin summary h2 { display: inline; }
+  .lin summary h2 { display: inline; transition: color var(--t-mid) ease; }
   .lin summary:hover h2 { color: var(--ink); }
-  .lin .hdr { display: flex; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; }
-  .lin h2 { font-size: 16px; }
-  .lin .hdr .figs { margin-top: 0; }
-  .figs { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
+  /* The post first and the reading of it beside: the wording is the evidence
+     and the figures are what we say about it, so they are two columns rather
+     than a stack that makes you scroll from one to the other. Below the
+     threshold there is not enough width for both to be legible, so they fall
+     back to one column in the same order. */
+  .lin-body { display: grid; gap: 2px 18px; align-items: start; margin-top: 7px; }
+  @container (min-width: 500px) {
+    .lin-body { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  }
+  .lin-post > .isle-hd { margin-top: 0; }
+  /* One column wide either way, so the header's parts stack rather than
+     sharing a row and wrapping raggedly halfway through a figure. */
+  .lin .hdr { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .lin h2 { font-size: 14px; }
+  .lin .hdr .figs { margin-top: 5px; }
+  .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   .warn {
-    margin-top: 9px; max-width: 84ch; font-size: 13.5px; color: var(--ink-2);
+    margin-top: 9px; font-size: 11.5px; color: var(--ink-2);
     border-left: 2px solid var(--red); padding: 2px 0 2px 9px;
   }
-
-  /* Controls are typed words, underlined in pen when they are the live one. */
-  .bar {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px;
-    padding: 8px 20px; border-bottom: 1px solid var(--rule); font-size: 14.5px;
+  /* The root wording is a real tweet, so the island draws it as one -- the
+     same card the inspector uses for every other variant, one size down,
+     because here it is the caption on the root of the tree rather than the
+     subject of the page. */
+  .isle-l .xpost { margin-top: 6px; padding: 10px 12px; font-size: 14px; line-height: 19px; }
+  .isle-l .xpost .av { width: 34px; height: 34px; font-size: 15px; }
+  /* X spreads the action row edge to edge, which needs a full-width card to
+     read as a row rather than as six numbers run together. In a column this
+     narrow they are left-aligned on a fixed gap instead, and wrap if they
+     must. */
+  .isle-l .xacts {
+    margin-top: 10px; font-size: 12px;
+    justify-content: flex-start; flex-wrap: wrap; gap: 3px 13px;
   }
-  .grp { display: flex; align-items: baseline; gap: 8px; }
-  .grp > b { font-weight: 400; color: var(--ink-2); text-transform: uppercase; font-size: 12.5px; }
-  .bar button {
+
+  /* Controls are typed words, underlined in pen when they are the live one.
+     One column now rather than one row: the island is narrow, and a label
+     above its own row of words reads better than a label beside them. */
+  .bar { display: grid; gap: 9px; font-size: 12.5px; }
+  .grp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 13px; }
+  .grp > b { flex: 0 0 100%; font-weight: 400; font-size: 11px; letter-spacing: .04em; color: var(--ink-2); }
+  /* Scoped to the island rather than to .bar, because the timeline's own two
+     words sit outside the shade/layout rows and would otherwise come up in the
+     browser's grey button chrome next to them. */
+  .isle-r button {
     padding: 1px 0; border: 0; background: none; cursor: pointer;
     color: var(--ink-2); border-bottom: 2px solid transparent;
+    transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
+  }
+    padding: 1px 0; border: 0; background: none; cursor: pointer;
+    color: var(--ink-2); border-bottom: 2px solid transparent;
+    transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
   }
   .bar button:hover { color: var(--ink); }
   .bar button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
@@ -311,9 +554,42 @@
   .scrub #play { text-transform: uppercase; font-size: 12.5px; }
   .scrub input[type="range"] { flex: 1; accent-color: var(--pen); min-width: 80px; }
   .scrub output { font-size: 13.5px; color: var(--ink-2); min-width: 14ch; font-variant-numeric: tabular-nums; }
+  .isle-r button:hover { color: var(--ink); }
+  .isle-r button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
+  .isle-r .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
+  .isle-r .act:active { color: var(--pen); }
+  .isle-r .act:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  /* The word that starts it carries a little more weight than the one that
+     folds it away, because it is the only control on the sheet that makes the
+     board move by itself. */
+  .isle-r #play { font-size: 13px; color: var(--ink); border-bottom-style: solid; border-bottom-width: 1px; }
 
-  .plot { padding: 4px 20px 0; }
-  .pulse { display: block; width: 100%; height: 52px; }
+  /* ---------- the timeline is a thing you start ----------
+     The emission curve and its scrub handle used to sit on the sheet whether
+     anybody wanted them or not, which asked a reader to ignore a second chart
+     while reading the tree. Closed, it is one word under the controls; pressed,
+     the curve unrolls upward out of the button that asked for it. The clip is
+     a 0fr -> 1fr grid row rather than a height, so it travels to whatever the
+     chart actually measures instead of to a number typed in here. */
+  .tl { display: grid; gap: 7px; margin-top: 2px; border-top: 1px solid var(--hair); padding-top: 9px; }
+  .tl-clip { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--t-slow) var(--ease); }
+  .tl[data-open="true"] .tl-clip { grid-template-rows: 1fr; }
+  .tl-wrap { overflow: hidden; min-height: 0; }
+  /* The contents come in a beat behind the clip, so the curve lands on a box
+     that has finished opening rather than being drawn mid-travel. */
+  .tl-in {
+    display: grid; gap: 3px; opacity: 0; transform: translateY(5px);
+    transition: opacity var(--t-mid) ease, transform var(--t-mid) var(--ease-out);
+  }
+  .tl[data-open="true"] .tl-in { opacity: 1; transform: none; transition-delay: .1s; }
+  .tl-row { display: flex; align-items: baseline; gap: 12px; }
+  .tl-row .tl-x { margin-left: auto; font-size: 11.5px; }
+  .tl-in input[type="range"] { width: 100%; margin: 0; accent-color: var(--pen); }
+  .cutout {
+    font-size: 11px; color: var(--ink-2); text-align: right; white-space: nowrap;
+    font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis;
+  }
+  .pulse { display: block; width: 100%; height: 58px; }
   /* The board is a map, not a picture: a fixed window onto a canvas with no
      edges. The tree is what the page is for, so the window takes every pixel
      the sheet can spare; everything else is a caption on it. */
@@ -335,11 +611,33 @@
   .rsp path { fill: none; stroke: var(--pen); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
   /* Map controls, in the corner of the window they act on. */
   .nav { position: absolute; right: 9px; bottom: 9px; z-index: 2; display: grid; gap: 4px; }
+  /* Boxed by a drawn line rather than a border, because a hairline rectangle
+     was the one straight edge left on a sheet where everything else is
+     handwriting. The square is a mask, so currentColor inks it and the hover
+     carries the line and the glyph together; flipping it on two of the three
+     keeps the stack from reading as one control stamped three times. */
   .nav button {
-    width: 27px; height: 27px; padding: 0; display: grid; place-items: center;
-    border: 1px solid var(--rule); background: var(--nav-overlay);
-    color: var(--ink-2); cursor: pointer; font-size: 17px; line-height: 1;
+  .nav button {
+    position: relative; width: 28px; height: 28px; padding: 0;
+    display: grid; place-items: center; border: 0;
+    background: var(--nav-overlay);
+    border-radius: 13px 4px 11px 5px / 5px 12px 4px 13px;
+    color: var(--ink-2); cursor: pointer; font-size: 15px; line-height: 1;
+    transition: color var(--t-mid) ease, transform var(--t-fast) var(--ease-out);
   }
+  /* The drawn square and its glyph give together, so a zoom step feels like
+     pressing a key rather than clicking a region. */
+  .nav button:active { transform: scale(.9); }
+  .nav button::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: currentColor;
+    -webkit-mask: var(--pen-box) center / 100% 100% no-repeat;
+            mask: var(--pen-box) center / 100% 100% no-repeat;
+  }
+  .nav #zout::before { transform: scaleX(-1); }
+  .nav #zfit::before { transform: scale(-1); }
+  .nav button:hover { color: var(--ink); }
+  .nav .fit { font-size: 11px; }
   .nav button:hover { color: var(--ink); border-color: var(--ink); }
   .nav .fit { font-size: 13.5px; }
   .zoomlbl {
@@ -366,14 +664,25 @@
     padding: 14px 20px 28px; background: var(--paper);
     border-left: 2px solid var(--ink); box-shadow: -18px 0 34px rgba(0, 0, 0, .07);
     transform: translateX(101%); visibility: hidden;
-    transition: transform .2s ease, visibility 0s linear .2s;
+    transition: transform var(--t-slow) var(--ease), visibility 0s linear var(--t-slow);
   }
-  .panel.on { transform: none; visibility: visible; transition: transform .2s ease; }
+  /* The sheet's margin runs on the same length and the same curve, so the
+     board is not still sliding over once the panel has landed on it. */
+  .panel.on { transform: none; visibility: visible; transition: transform var(--t-slow) var(--ease); }
+  /* Choosing another circle keeps the panel exactly where it is and changes
+     what is written on it. Fast and opacity-only: at this length it reads as
+     the page catching up with the click, not as a second animation. */
+  .insp.swap { animation: swap-in var(--t-mid) var(--ease-out); }
   .panel-x {
     float: right; margin: -2px -6px 0 10px; padding: 2px 6px; cursor: pointer;
-    border: 0; background: none; color: var(--ink-2); font-size: 18px; line-height: 1;
+    border: 0; background: none; color: var(--ink-2); font-size: 16px; line-height: 1;
+    transition: color var(--t-mid) ease, transform var(--t-mid) var(--ease-back);
   }
-  .panel-x:hover { color: var(--ink); }
+  .panel-x:hover { color: var(--ink); transform: rotate(90deg); }
+  .panel-x:active { transform: rotate(90deg) scale(.86); }
+  }
+  .panel-x:hover { color: var(--ink); transform: rotate(90deg); }
+  .panel-x:active { transform: rotate(90deg) scale(.86); }
   .panel .figs { max-width: none; }
   .insp h3 { font-size: 15.5px; display: inline; }
   .insp h3 + span { font-size: 13.5px; color: var(--ink-2); margin-left: 9px; }
@@ -409,7 +718,7 @@
   }
   .xmore {
     margin-top: 1px; padding: 0; border: 0; background: none; cursor: pointer;
-    font: inherit; color: var(--x-blue);
+    font: inherit; color: var(--x-blue); transition: color var(--t-fast) ease;
   }
   .xmore:hover { text-decoration: underline; }
   .xacts {
@@ -427,153 +736,180 @@
   .rels button {
     padding: 0; border: 0; background: none; cursor: pointer; color: var(--pen);
     border-bottom: 1px dotted var(--pen);
+    transition: color var(--t-fast) ease, border-bottom-color var(--t-fast) ease;
   }
   .rels button:hover { border-bottom-style: solid; }
   .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
   .flags { margin-top: 9px; font-size: 13.5px; color: var(--red); }
   .flags.mild { color: var(--ink-2); }
-  .reply-excerpts { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
-  .reply-excerpts summary { cursor: pointer; color: var(--pen); }
+  .reply-excerpts { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .reply-excerpts summary { cursor: pointer; color: var(--pen); transition: opacity var(--t-fast) ease; }
+  .reply-excerpts summary:hover { opacity: .78; }
+  .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
+  .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+  .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
   .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
   .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
   .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
 
-  /* ---------- the inspector dock ----------
-     The numbers used to fall out of a summary line and shove the board up the
-     page. They are a docked panel now, in the shape a developer console has:
-     a rule of tabs along the top, one pane open at a time, and a caret on the
-     right that folds the body away without taking the tabs with it. It sticks
-     to the foot of the stage, so the board stays in view while the numbers are
-     read instead of being scrolled off to reach them. Same paper, same pen:
-     a panel, not a card -- its top rule answers the header's. */
-  .dock {
-    position: sticky; bottom: 0; z-index: 12; margin-top: 4px;
-    background: var(--paper); border-top: 2px solid var(--ink);
+  /* ---------- comment ecology ----------
+     Stance is not five unrelated categories, it is a polarity: a comment is
+     for the claim or against it, with the rest neither. So it is drawn as a
+     diverging scale -- the board's blue at the endorsing pole, the board's
+     red at the disputing one, a lighter red for ridicule (opposition, but
+     softer than a factual contradiction), and neutral greys for the two that
+     take no position. That keeps the page to the two hues it already speaks
+     in, and it survives colour-blindness better than five competing hues
+     would. Every segment is labelled in the key underneath, so the bar is
+     never the only way to read the split. */
+  .stance { margin-top: 9px; }
+  .sbar {
+    display: flex; height: 9px; border-radius: 4.5px; overflow: hidden;
+    background: var(--hair); gap: 2px;
   }
-  .dock-bar {
-    display: flex; align-items: stretch; gap: 14px;
-    padding: 0 8px 0 20px; background: var(--paper-2);
-    border-bottom: 1px solid var(--rule);
+  .sbar span { display: block; min-width: 2px; transform-origin: left center; }
+  /* The split is a measurement being drawn, so it is drawn: the segments run
+     out from the left edge in the order they are listed underneath. */
+  .insp.swap .sbar span { animation: unroll var(--t-slow) var(--ease-out); }
+  .s-endorse  { background: var(--st-end); }
+  .s-dispute  { background: var(--st-dis); }
+  .s-mock     { background: var(--st-moc); }
+  .s-attack   { background: var(--st-att); }
+  .s-question { background: var(--st-que); }
+  .s-promo    { background: var(--st-pro); }
+  .s-none     { background: var(--st-oth); }
+  .t-pos      { background: var(--st-end); }
+  .t-neu      { background: var(--st-que); }
+  .t-neg      { background: var(--st-dis); }
+  .blab {
+    margin: 0 0 4px; font-size: 10.5px; letter-spacing: .02em;
+    text-transform: lowercase; color: var(--ink-2);
   }
-  .dock[data-open="false"] .dock-bar { border-bottom: 0; }
-  .dock-tabs { display: flex; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .dock-tabs::-webkit-scrollbar { display: none; }
-  .dock-tabs button {
-    flex: none; display: flex; align-items: center; gap: 7px; margin-bottom: -1px;
-    padding: 7px 14px; border: 0; background: none; cursor: pointer;
-    font-size: 14px; color: var(--ink-2); border-bottom: 2px solid transparent;
+  .stance + .stance { margin-top: 10px; }
+  .skey {
+    list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap;
+    gap: 3px 10px; font-size: 11px; color: var(--ink-2);
   }
-  .dock-tabs button:hover { color: var(--ink); }
-  .dock-tabs button[aria-selected="true"] {
-    color: var(--ink); background: var(--paper); border-bottom-color: var(--pen);
-  }
-  /* The count belongs to its tab rather than to a sentence, so it is set off
-     the way the lineage badges are instead of left as another word. */
-  .dock-n {
-    font-size: 12px; font-weight: 700; letter-spacing: .03em; padding: 0 5px;
-    color: var(--ink-2); border: 1px solid var(--rule); font-variant-numeric: tabular-nums;
-  }
-  .dock-tabs button[aria-selected="true"] .dock-n { color: var(--pen); border-color: var(--pen); }
-  .dock-tools { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  .dock-sel { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
-  .dock-sel b { color: var(--ink); font-weight: 700; }
-  #docktoggle svg { transition: transform .2s ease; }
-  .dock[data-open="false"] #docktoggle svg { transform: rotate(180deg); }
-  /* Fixed height, so opening and closing the dock is the only thing that ever
-     moves the board -- a tab switch must not resize it underneath the reader. */
-  .dock-body { height: min(274px, 32vh); overflow: hidden; }
-  .dock[data-open="false"] .dock-body { display: none; }
-  .dock-pane { height: 100%; overflow: auto; padding: 0 20px 14px; }
-  .dock-pane[hidden] { display: none; }
-  .dock-pane h4 {
-    margin: 0; padding: 12px 0 2px; font-size: 13px; font-weight: 400;
-    letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2);
-  }
-  .dock-empty { padding: 20px 0; color: var(--ink-2); font-size: 14px; }
+  .skey li { display: flex; align-items: center; gap: 4px; }
+  .skey i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .skey b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
 
-  /* Node metadata: the whole record of one wording as a field list, which is
-     the reading the slide-in panel does not give -- that one is a tweet and a
-     sentence about it, this one is every number the pipeline recorded. */
-  .meta-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 0 26px; margin: 0; font-size: 13.5px;
+  .cmt-cl { list-style: none; margin: 9px 0 0; padding: 0; font-size: 11.5px; }
+  .cmt-cl li {
+    margin-top: 7px; padding-left: 9px; border-left: 2px solid var(--pen-soft);
+    color: var(--ink); overflow-wrap: anywhere;
   }
-  .meta-grid > div {
-    display: flex; align-items: baseline; gap: 8px; padding: 4px 0;
-    border-bottom: 1px solid var(--hair);
-  }
-  .meta-grid dt { flex: none; min-width: 10.8em; color: var(--ink-2); }
-  .meta-grid dd {
-    margin: 0; flex: 1; min-width: 0; color: var(--ink);
-    font-variant-numeric: tabular-nums; overflow-wrap: break-word;
-  }
-  .meta-grid dd.dim { color: var(--ink-2); }
-  .meta-grid dd .tok { font-size: 12.5px; }
-  .meta-txt {
-    margin-top: 10px; font-size: 14px; color: var(--ink); max-width: 88ch;
-    white-space: pre-wrap; overflow-wrap: anywhere;
-    border-left: 2px solid var(--pen-soft); padding-left: 10px;
-  }
+  .cmt-cl .cn { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .cmt-cl .cmeta { display: block; margin-top: 2px; font-size: 10.5px; color: var(--ink-2); }
+  .cmt-cl .cib { color: var(--red); font-weight: 700; }
+  .cmt-cl .spans { color: var(--pen); font-weight: 700; }
 
-  /* Drift analytics: the lineage's rewording, as a distribution and as a
-     curve over generations. One series each, so the heading names it and no
-     legend is needed; the bars borrow the board's own drift wash so the two
-     readings of drift are the same colour language. */
-  .an-figs { display: flex; flex-wrap: wrap; gap: 2px 30px; padding: 10px 0 2px; }
-  .an-figs div { display: flex; align-items: baseline; gap: 7px; font-size: 13.5px; color: var(--ink-2); }
-  .an-figs b { color: var(--ink); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
-  .an-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0 26px; min-width: 0; }
-  .an-chart svg { display: block; width: 100%; height: 112px; }
-  .an-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .an-top button {
-    display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left;
-    padding: 4px 0; border: 0; border-bottom: 1px solid var(--hair);
-    background: none; cursor: pointer; color: var(--ink-2); font-size: 13.5px;
+  /* ---------- the same lineage as numbers ---------- */
+  .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
+  .tbl summary {
+    cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2);
+    transition: color var(--t-mid) ease;
   }
-  .an-top button:hover { background: var(--paper-2); color: var(--ink); }
-  .an-top button[aria-current="true"] { background: var(--pen-soft); color: var(--ink); }
-  .an-top .k { flex: none; min-width: 3.4em; color: var(--ink); font-weight: 700; }
-  .an-top .v { flex: none; min-width: 4.5em; font-variant-numeric: tabular-nums; }
-  .an-top .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  .tbl summary:hover { color: var(--ink); }
+  .tscroll { overflow-x: auto; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+  th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
+  td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
   th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
   td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   td.k { color: var(--ink); font-weight: 700; }
   td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
   td.txt span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-  tbody tr { cursor: pointer; }
+  tbody tr { cursor: pointer; transition: background var(--t-fast) ease; }
   tbody tr:hover { background: var(--paper-2); }
   tbody tr[aria-current="true"] { background: var(--pen-soft); }
 
   .note { padding: 10px 0 24px; color: var(--ink-2); font-size: 13.5px; max-width: 88ch; }
   .note b { color: var(--ink-2); font-weight: 700; }
   .loading { padding: 36px 20px; color: var(--ink-2); }
+  /* A fetch still in flight is the one place on the sheet where nothing else
+     is moving, so the words themselves carry the wait. Scoped to the stage:
+     the rail uses this same class for "nothing matches that phrase", which is
+     an answer and has finished happening. */
+  #stage-body.loading { animation: breathe 1.6s ease-in-out infinite; }
 
   .tip {
-    position: fixed; z-index: 40; max-width: 402px; pointer-events: none; opacity: 0;
-    transition: opacity .09s; background: var(--x-card-bg); padding: 12px 14px;
+    position: fixed; z-index: 40; max-width: 402px; pointer-events: none;
+    opacity: 0; transform: translateY(5px) scale(.985); transform-origin: bottom left;
+    transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-back);
+    background: var(--x-card-bg); padding: 12px 14px;
     border: 1px solid var(--x-line); border-radius: 16px;
     box-shadow: 0 6px 22px rgba(0, 0, 0, .13);
   }
-  .tip.on { opacity: 1; }
+  .tip.on { opacity: 1; transform: none; }
   .tip .xpost { margin: 0; padding: 0; border: 0; border-radius: 0; }
   /* The line under the card is this page talking about the post, not X, so it
      keeps the board's hand. */
   .tip .m { margin-top: 9px; font-size: 13.5px; color: var(--ink-2); }
 
+  /* ---------- the entrances ----------
+     Six of them for the whole sheet, and all of them short. The point of an
+     entrance here is that a row, a panel or a new lineage *arrives* rather
+     than appearing -- not that it makes a journey on the way. Anything
+     travelling further than about 6px on a board this dense stops being
+     punctuation and starts being the thing you are watching. */
+  @keyframes rise    { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes swap-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  @keyframes fade    { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes unroll  { from { transform: scaleX(0); } to { transform: none; } }
+  @keyframes breathe { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+  /* The theme button's own mark turns over as the board does, so the switch
+     has a subject rather than just a result. */
+  @keyframes turnover { from { transform: rotate(-140deg) scale(.55); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* ---------- crossing between the paper and the chalkboard ----------
+     Every colour on the sheet is a custom property, so flipping the theme
+     attribute repaints all of them in a single frame -- correct, and abrupt
+     enough to read as a fault. This is the one place the page wants a blanket
+     transition, so it takes one: setTheme() hangs .theming on the root for
+     the length of the cross-fade and takes it off again, which keeps a rule
+     this broad from sitting over every hover on the sheet for the rest of the
+     session. Only the three surface properties are carried; the tree, the
+     pulse chart and the legend are inline SVG that setTheme redraws outright,
+     and a transition on a replaced element has nothing to run from. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    :root.theming, :root.theming * {
+      transition: background-color var(--t-slow) ease, color var(--t-slow) ease,
+                  border-color var(--t-slow) ease !important;
+    }
+    :root.theming #theme .ic { animation: turnover .42s var(--ease-back); }
+  }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
+  /* On smaller laptops the inspector sits over the board rather than taking
+     another 400px out of an already narrow map. The board remains usable and
+     the detail can still be dismissed with Escape or its close button. */
+  @media (min-width: 881px) and (max-width: 1160px) {
+    .sheet[data-panel="open"] { margin-right: 0; }
+    .panel { width: min(var(--panel-w), 48vw); }
+  }
+
+  /* Tablet: the index becomes the first section of the document. This avoids
+     a squeezed three-column layout (index + map + inspector) and keeps each
+     control at a comfortable touch size. */
   @media (max-width: 880px) {
-    body, .sheet { height: auto; }
+    body { min-height: 100dvh; }
+    .sheet { height: auto; min-height: 100dvh; }
     .cols { grid-template-columns: minmax(0, 1fr); }
     .rail { width: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
     .rail > * { min-width: 0; }
     .sheet[data-rail="closed"] .rail { display: none; }
-    .list { max-height: 240px; }
+    .list { max-height: min(32dvh, 240px); }
     .stage { overflow-y: visible; }
-    .draw { flex: none; height: 68vh; min-height: 320px; }
+    .draw { flex: none; height: min(68dvh, 580px); min-height: 320px; }
+    /* Narrower board, narrower paper on it. */
+    .isle-l { width: min(52%, 400px); }
+    .isle-r { width: min(42%, 252px); }
+    .panel { width: 100%; max-width: 100%; }
     .dock-body { height: min(274px, 46vh); }
     /* Three tabs and a caret are all the bar has room for; the selection is
        named at the top of the metadata pane anyway. */
@@ -582,27 +918,88 @@
     .dock-pane { padding: 0 12px 14px; }
     .panel { width: 100%; }
     .sheet[data-panel="open"] { margin-right: 0; }
+    .sheet[data-panel="open"] { margin-right: 0; }
+  }
+
+  /* Phone: protect the map and text from horizontal overflow, give the tap
+     targets real breathing room, and let the timeline controls stack rather
+     than compressing their labels into unreadability. */
+  @media (max-width: 640px) {
+    .head { align-items: center; gap: 5px 10px; padding: 9px 14px 8px; }
+    .head h1 { flex: 1; font-size: clamp(20px, 6vw, 23px); }
+    .head .counts { flex-basis: calc(100% - 35px); order: 4; margin: -2px 0 0 35px; font-size: 11.5px; }
+    #theme { order: 3; }
+    .fold { width: 34px; height: 34px; }
+
+    .rail-top { padding: 10px 14px; }
+    .rail input[type="search"], .railrow select { min-height: 34px; }
+    .filt-sum, .aug { min-height: 34px; }
+    .chips { gap: 2px 12px; }
+    .chips button { min-height: 30px; }
+    .count { padding-inline: 14px; }
+    .fam { min-height: 50px; padding-inline: 11px 14px; }
+    .list { max-height: min(34dvh, 260px); }
+
+    .lin h2 { font-size: 13.5px; }
+    /* Side by side, two islands on a phone leave no board between them, so
+       they stack instead: the lineage across the top, the controls across the
+       foot, and the map is the band of paper left in between. */
+    .isle-l {
+      top: 8px; left: 8px; right: 8px; width: auto; max-width: none;
+      max-height: 34%; padding: 8px 12px 10px;
+    }
+    .isle-r {
+      top: auto; bottom: 8px; left: 8px; right: 46px; width: auto; max-width: none;
+      padding: 9px 12px 10px;
+    }
+    .grp { gap: 3px 12px; }
+    .zoomlbl { display: none; }
+    .pulse { height: 50px; }
+    .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 14px 8px; }
+    .key { padding: 2px 14px 12px; gap: 5px 12px; }
+    .tbl { margin-inline: 14px; }
+    .note { padding-inline: 14px; }
+    .loading { padding-inline: 14px; }
+
+    .nav { right: 7px; bottom: 7px; gap: 6px; }
+    .nav button { width: 38px; height: 38px; }
+    .zoomlbl { left: 8px; bottom: 7px; }
+    .tip { display: none; }
+    .panel { padding: 12px 14px max(24px, env(safe-area-inset-bottom)); }
+    .panel-x { min-width: 34px; min-height: 34px; }
+    .xpost { gap: 9px; padding: 10px; font-size: 14px; line-height: 19px; }
+    .xpost .av { width: 34px; height: 34px; font-size: 15px; }
+    .xacts { gap: 8px; font-size: 12px; }
+    .xact { gap: 3px; }
+  }
+
+  @media (max-width: 380px) {
+    .head { padding-inline: 11px; }
+    .head .counts { margin-left: 34px; }
+    .rail-top { padding-inline: 11px; }
+    .draw { margin-inline: 11px; }
+    .key { padding-inline: 11px; }
+    .tbl { margin-inline: 11px; }
+    .xpost .av { width: 30px; height: 30px; }
   }
 </style>
 
 <div class="sheet" id="sheet" data-rail="open">
-  <header class="head">
-    <button class="fold" id="fold" type="button" aria-expanded="true" aria-controls="rail"
-            title="Hide the lineage list"><svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path
-        d="M1.5 3h10M1.5 6.5h10M1.5 10h10" fill="none" stroke="currentColor"
-        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span
-        class="vh" id="foldtext">Hide the lineage list</span></button>
-    <h1>Narrative Phylogeny</h1>
-    <p class="counts" id="corpus"></p>
-    <button class="fold" id="theme" type="button" aria-pressed="false"
-            title="Switch to the dark board"><svg class="ic-sun" width="13" height="13" viewBox="0 0 13 13"
-        aria-hidden="true"><circle cx="6.5" cy="6.5" r="2.6" fill="none" stroke="currentColor"
-        stroke-width="1.4"/><path d="M6.5 1v1.4M6.5 10.6V12M1 6.5h1.4M10.6 6.5H12M2.6 2.6l1 1M9.4 9.4l1 1M2.6 10.4l1-1M9.4 3.6l1-1"
-        fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><svg class="ic-moon"
-        width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path
-        d="M8.6 1.6a5 5 0 1 0 2.8 8.8A6 6 0 0 1 8.6 1.6Z" fill="none" stroke="currentColor"
-        stroke-width="1.3" stroke-linejoin="round"/></svg><span class="vh" id="themetext">Switch to the dark board</span></button>
-  </header>
+  <!-- The dock is the strip the folded bar hides behind, and the target that
+       brings it back down. See .headdock in the stylesheet. -->
+  <div class="headdock" id="headdock">
+    <header class="head">
+      <button class="fold" id="fold" type="button" aria-expanded="true" aria-controls="rail"
+              title="Hide the lineage list"><i class="ic ic-menu" aria-hidden="true"></i><span
+          class="vh" id="foldtext">Hide the lineage list</span></button>
+      <h1>Narrative Phylogeny</h1>
+      <p class="counts" id="corpus"></p>
+      <button class="fold" id="theme" type="button" aria-pressed="false"
+              title="Switch to the dark board"><i class="ic ic-sun" aria-hidden="true"></i><i
+          class="ic ic-moon" aria-hidden="true"></i><span
+          class="vh" id="themetext">Switch to the dark board</span></button>
+    </header>
+  </div>
 
   <div class="cols">
     <aside class="rail" id="rail">
@@ -672,11 +1069,24 @@
   var RAMP = ["--w1","--w2","--w3","--w4","--w5"];
   var FLAG_RAMP = ["--f1","--f2","--f3","--f4","--f5"];
   var RAMPS = { drift: RAMP, spread: RAMP, coord: FLAG_RAMP };
+
+  // Subject categories. The first row is the original propaganda-hunting
+  // lexicon; the second was added once the question became "how does an idea
+  // mutate", for which that list left 89% of lineages unlabelled. Any topic
+  // missing from this map still renders -- see renderList -- so adding a
+  // category to pipeline/03_label.py cannot break the rail.
   var TOPIC_LABEL = {
     politics:"Politics", conflict:"Conflict", migration:"Migration", identity:"Identity",
-    health:"Health", crypto:"Crypto", fandom:"Fandom", sports:"Sport"
+    health:"Health", crypto:"Crypto", fandom:"Fandom", sports:"Sport",
+    breaking:"Breaking", music:"Music", celebrity:"Celebrity", giveaway:"Giveaway",
+    business:"Business", disaster:"Disaster", religion:"Religion", tech:"Tech"
   };
-  var NEWS = { politics:1, conflict:1, migration:1, identity:1, health:1 };
+  // The "news & politics" chip is a group, not a category: it is the union of
+  // the topics that make a claim about the world. "breaking" joins it because
+  // a breaking-news lineage is the purest form of that -- a claim, reworded,
+  // racing outward -- and leaving it out would hide the fastest-mutating
+  // material behind the one filter a reader reaches for first.
+  var NEWS = { politics:1, conflict:1, migration:1, identity:1, health:1, breaking:1 };
 
   // Behaviour classes. Topic says what a lineage argues; this says how it
   // travelled, which is the axis that actually separates a propaganda
@@ -706,6 +1116,12 @@
   };
 
   var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
+  // Comment clusters are built once over every comment in the corpus, not per
+  // lineage, so the same object is shared by every tree that a template turns
+  // up under. CMETA carries the corpus-level totals; CLUSTERS is keyed by id
+  // and stays empty until comments.json lands, which the board tolerates --
+  // a node simply shows its counts without the cluster breakdown.
+  var CLUSTERS = {}, CMETA = null;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
                 dockOpen:true, dockTab:"wordings", linOpen:false };
@@ -871,6 +1287,7 @@
     return out.sort(function (a, b) { return key(b) - key(a); });
   }
 
+  var listSig = "";
   function renderList() {
     var rows = filtered();
     $("#count").textContent = fmt(rows.length) + " lineages" + (state.q ? ' matching "' + state.q + '"' : "");
@@ -879,23 +1296,45 @@
       var cur = FAMS.find(function (f) { return f.id === state.famId; });
       if (cur) shown.unshift(cur);
     }
-    var html = shown.map(function (f) {
-      var tags = f.topics.map(function (t) { return TOPIC_LABEL[t].toLowerCase(); }).join(", ");
+    var html = shown.map(function (f, i) {
+      var tags = f.topics.map(function (t) {
+        return (TOPIC_LABEL[t] || t).toLowerCase();
+      }).join(", ");
       var badge = KIND_SHORT[f.kind]
         ? '<span class="kind ' + f.kind + '">' + KIND_SHORT[f.kind] + "</span>" : "";
       if (f.offlang) badge += '<span class="kind offlang">non-English</span>';
-      return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '">' +
+      // Keywords are the lineage's own distinctive vocabulary, not a category
+      // from a list -- the words that survived its rewordings and that other
+      // lineages do not share. Every lineage has them, which is what makes ten
+      // thousand rows scannable when only a third carry a topic.
+      var kw = (f.kw && f.kw.length)
+        ? '<span class="fam-kw">' + f.kw.map(function (w) {
+            return '<span class="kw">' + esc(w) + "</span>";
+          }).join("") + "</span>"
+        : "";
+      return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '"' +
+        // Capped: past a dozen rows the cascade has run off the bottom of the
+        // rail, and an uncapped index would leave row 300 waiting five
+        // seconds for a turn nobody is watching.
+        ' style="--i:' + Math.min(i, 11) + '">' +
         '<span class="fam-top">' +
           '<span class="fam-badges">' + badge + "</span>" +
           '<span class="fam-time">' + esc(relTime(f.t0)) + "</span>" +
         "</span>" +
-        '<span class="fam-txt">' + esc(detwit(f.top)) + "</span>" +
+        '<span class="fam-txt">' + esc(detwit(f.top)) + "</span>" + kw +
         '<span class="fam-meta">' + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
+          (f.dx ? " &middot; " + fmt(f.dx) + " died" : "") +
         (tags ? " &middot; " + tags : "") + "</span></button>";
     }).join("");
+    // Same rows in the same order means nothing arrived -- see .list.nofx.
+    var sig = shown.map(function (f) { return f.id; }).join(",");
+    $("#list").classList.toggle("nofx", sig === listSig);
+    listSig = sig;
     $("#list").innerHTML = html || '<p class="loading">Nothing matches that phrase.</p>';
     var cur = $('.fam[aria-current="true"]');
-    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+    if (cur && cur.scrollIntoView) {
+      cur.scrollIntoView({ block: "nearest", behavior: REDUCE ? "auto" : "smooth" });
+    }
     if (rows.length > 400) {
       $("#list").insertAdjacentHTML("beforeend",
         '<p class="loading">Top 400 of ' + fmt(rows.length) + " \u2014 narrow it with the search or a topic.</p>");
@@ -921,6 +1360,61 @@
      something you can take apart with your hands without ever losing the
      arrangement the measurements produced -- let go and it comes back. */
 
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ---------------- motion helpers ----------------
+
+     Three of the sheet's animations run on elements that outlive the content
+     inside them -- the stage, the inspector -- so the browser has no new node
+     to start a keyframe on and re-adding the class alone would be folded into
+     the same style recalculation that removed it. Reading a layout property
+     in between forces the recalculation to happen, which is what makes the
+     second add a genuine change of state. */
+  function replay(el, cls) {
+    if (!el) return;
+    el.classList.remove(cls);
+    if (REDUCE) return;
+    void el.offsetWidth;
+    el.classList.add(cls);
+  }
+
+  /* A <details> snaps. This gives it the distance it is actually travelling.
+
+     The element is measured in both states inside one frame -- no paint
+     happens in between, so nothing flickers -- and then held open for the
+     length of the animation so a closing panel still has its contents to
+     show on the way down. The `toggle` listeners elsewhere read `open` after
+     it settles, which is why the final state is set in onfinish rather than
+     up front. Cancelled cleanly if it is clicked again mid-travel. */
+  function animateDetails(d) {
+    if (!d || REDUCE || !d.animate) return;
+    var sum = d.querySelector("summary");
+    if (!sum) return;
+    var run = null;
+    d.addEventListener("click", function (e) {
+      if (!sum.contains(e.target)) return;
+      e.preventDefault();
+      if (run) { run.cancel(); run = null; }
+      var opening = !d.open;
+      var from = d.offsetHeight;
+      d.open = opening;
+      var to = d.offsetHeight;
+      d.open = true;
+      d.style.overflow = "hidden";
+      run = d.animate([{ height: from + "px" }, { height: to + "px" }],
+                      { duration: 280, easing: "cubic-bezier(.32,.72,0,1)" });
+      run.onfinish = run.oncancel = function () {
+        run = null;
+        d.style.overflow = "";
+        d.open = opening;
+      };
+    });
+  }
+  function median(a) {
+    var v = a.slice().sort(function (x, y) { return x - y; }), m = v.length >> 1;
+    return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+  }
+
   // Retweet counts are power-law distributed: one viral wording and a long
   // flat tail of everything else. Sizing purely off share-of-the-biggest
   // (n / maxN) leaves that whole tail reading as the same size, because a
@@ -944,8 +1438,8 @@
   // Leaves take consecutive slots in sibling order and every parent is centred
   // over its children: the textbook tidy tree, and because sibling subtrees
   // occupy disjoint slot ranges it cannot collide with itself. It supplies the
-  // stable left-to-right order for both layouts; relaxColumns may compact that
-  // order but must never change it.
+  // stable left-to-right order for both layouts; relaxColumns compacts the
+  // spacing within that order but must never change the order itself.
   function tidySlots(kids, root, n) {
     var slot = 0, pos = new Array(n).fill(0);
     (function walk(i) {
@@ -956,25 +1450,37 @@
     return pos;
   }
 
-  // Tidy slots alone make a terrible wide tree. Every leaf gets an identical
-  // column whether its circle is large or small, and then each parent is
-  // centred over the whole span of its subtree -- so the root's three children
-  // end up most of a screen apart, and the size of that gap is carrying no
-  // information at all. It is the widest thing on the board and it means
-  // nothing.
+  // Tidy slots alone make a terrible wide tree. Every leaf in the lineage gets
+  // a column of its own -- forty leaves, forty columns -- when the thing that
+  // actually has to fit side by side is a single generation, and no generation
+  // may hold more than half that many. Each parent is then centred over the
+  // whole span of its subtree, so the root's children end up most of a screen
+  // apart and the size of that gap carries no information at all.
   //
-  // So the columns get relaxed instead. The order from the tidy pass is fixed
-  // and never revisited, which is the whole guarantee that subtrees cannot
-  // cross; within that order the positions settle under three pressures --
-  // parents pulled onto the middle of their children, children pulled in under
-  // their parent, and circles that are genuinely too close opened up by the
-  // radii they actually have. Across 60 lineages that halves the width and cuts
-  // the span of the root's own children by 61%, while leaving parents closer to
-  // the middle of their children than the tidy pass managed. A generation ends
-  // up as wide as its contents need and no wider, so the horizontal distance
-  // that is left means something: circles near each other are relatives.
-  function relaxColumns(nodes, kids, root, r, slots) {
-    var i, k;
+  // The first attempt at fixing that relaxed the columns under a set of
+  // springs. It narrowed them, but it could only ever push: `separate` opens a
+  // row until nothing overlaps, and nothing anywhere in the layout was able to
+  // close a gap once it existed. Measured over the corpus that left 29% of the
+  // average row standing empty and 70% of the worst ones -- which is how a
+  // three-circle branch could end up most of a window away from its own family
+  // with nothing drawn in between.
+  //
+  // So the columns are compacted instead, on the observation that `separate`
+  // already answers the right question. Handed somewhere a row would rather
+  // be, it returns the nearest arrangement that satisfies every gap -- so
+  // pointing it at the parents, rather than at the row's own current
+  // positions, packs a generation in tight underneath them instead of merely
+  // stopping it overlapping. Two sweeps alternate: children close up under
+  // their parents from the top down, parents recentre over their children from
+  // the bottom up. It settles in fewer than ten rounds, and since every move
+  // goes through `separate`, which cannot reorder anything, the left-to-right
+  // order out of the tidy pass survives exactly -- verified across the corpus
+  // -- so subtrees still cannot cross. Rows come out 21% empty instead of 29%,
+  // the widest lineages 24% narrower, the worst offenders 40%, and a parent
+  // lands within a tenth of a circle-width of the centre of its children
+  // rather than more than a full width off.
+  function relaxColumns(nodes, kids, r, slots) {
+    var i, k, d;
     var maxR = Math.max.apply(null, r);
     var x = slots.map(function (c) { return c * (2 * maxR + 20); });
 
@@ -982,35 +1488,31 @@
     nodes.forEach(function (nd, j) { (lev[nd.d] || (lev[nd.d] = [])).push(j); });
     lev.forEach(function (row) { row.sort(function (a, b) { return slots[a] - slots[b]; }); });
 
-    // Parents before children, so one sweep of the array is one pass down the
-    // tree and the reverse is one pass back up it.
-    var bfs = [root];
-    for (i = 0; i < bfs.length; i++) kids[bfs[i]].forEach(function (c) { bfs.push(c); });
-
-    var N = 220;
-    for (var it = 0; it < N; it++) {
-      var pull = 0.10 + 0.05 * (1 - it / N);
-
-      for (i = bfs.length - 1; i >= 0; i--) {
-        var p = bfs[i], ks = kids[p];
-        if (!ks.length) continue;
-        var m = 0;
-        for (k = 0; k < ks.length; k++) m += x[ks[k]];
-        x[p] += (m / ks.length - x[p]) * 0.55;
+    var tg = [];
+    for (var it = 0; it < 12; it++) {
+      for (d = 1; d < lev.length; d++) {
+        if (!lev[d]) continue;
+        for (i = 0; i < lev[d].length; i++) tg[i] = x[nodes[lev[d][i]].p];
+        separate(lev[d], x, r, tg);
       }
-
-      for (i = 1; i < bfs.length; i++) {
-        var c = bfs[i];
-        x[c] += (x[nodes[c].p] - x[c]) * pull;
+      for (d = lev.length - 2; d >= 0; d--) {
+        if (!lev[d]) continue;
+        for (i = 0; i < lev[d].length; i++) {
+          var p = lev[d][i], ks = kids[p], m = 0;
+          if (!ks.length) { tg[i] = x[p]; continue; }
+          for (k = 0; k < ks.length; k++) m += x[ks[k]];
+          tg[i] = m / ks.length;
+        }
+        separate(lev[d], x, r, tg);
       }
-
-      for (var d = 0; d < lev.length; d++) if (lev[d]) separate(lev[d], x, r);
     }
     return x;
   }
 
-  // Open a level up until no two circles touch, moving them as little as
-  // possible and as evenly as possible.
+  // Put a row as close as the gaps allow to where it wants to be -- which is
+  // `tg` when the caller has somewhere in mind, and where the row already
+  // stands when it has not, in which case this is simply opening the row up
+  // until no two circles touch.
   //
   // The obvious version -- walk left to right shoving each circle clear of the
   // one before it -- only ever pushes right, so a level under pressure walks
@@ -1024,14 +1526,16 @@
   // nearest arrangement that satisfies every gap at once is the isotonic
   // regression of that sequence, and pooling adjacent violators finds it in one
   // pass. Blocks that have to move do so around their own centre of mass, which
-  // is exactly the even-handedness the left-to-right version lacked.
+  // is exactly the even-handedness the left-to-right version lacked. Pooling
+  // can only ever merge neighbours, never swap them, which is what lets the
+  // compaction above lean on this for its no-crossing guarantee.
   var _pv = [], _pc = [];
-  function separate(row, x, r) {
+  function separate(row, x, r, tg) {
     var m = row.length, PAD = 15, i, g = 0, v, c, top = -1;
-    if (m < 2) return;
+    if (m < 2) { if (m && tg) x[row[0]] = tg[0]; return; }
     for (i = 0; i < m; i++) {
       if (i) g += r[row[i - 1]] + r[row[i]] + PAD;
-      v = x[row[i]] - g; c = 1;
+      v = (tg ? tg[i] : x[row[i]]) - g; c = 1;
       while (top >= 0 && _pv[top] > v) {
         v = (_pv[top] * _pc[top] + v * c) / (_pc[top] + c);
         c += _pc[top]; top--;
@@ -1055,6 +1559,55 @@
   var ZETA = 0.55;
   function damping(k) { return 1 - 2 * ZETA * Math.sqrt(k); }
 
+  /* An elastic clock for the time layout.
+
+     A lineage does not spread its wordings evenly through time. Measured over
+     the corpus, the median family drops a sixth of its wordings inside one
+     hour and then trails stragglers for days, and a straight linear axis spends
+     the height accordingly: 49% of the board had no circle within 20px of it,
+     and the single longest empty run was 30% of the height -- 60% at the ninth
+     decile. That is the whitespace, and none of it is carrying a measurement.
+
+     So the axis runs at true scale everywhere it has circles on it and gives
+     way where it does not. A quiet stretch shorter than TRIGGER pixels is
+     drawn at exactly its true length; past that it keeps its first GAP pixels
+     and divides the rest down. The two constants are set so that the smallest
+     stretch that can be compressed at all still loses enough height to be
+     worth announcing -- which makes the guarantee a reader needs a simple one:
+     every gap drawn plainly is exactly to scale, and every gap that is not has
+     a break across it saying how long it really was. Ordering is untouched.
+     Half the empty height goes away: 49% of the board falls to 21%. */
+  var TRIGGER = 100, GAP = 60, SQUEEZE = 8;
+
+  function timeScale(times, H0) {
+    var u = times.slice().sort(function (a, b) { return a - b; })
+      .filter(function (v, i, a) { return !i || v !== a[i - 1]; });
+    var t0 = u[0], t1 = u[u.length - 1], span = Math.max(1, t1 - t0);
+    var rate = H0 / span;                       // where linear time would put it
+    var seg = [], breaks = [], y = 0, i;
+    for (i = 1; i < u.length; i++) {
+      var real = (u[i] - u[i - 1]) * rate;
+      var drawn = real <= TRIGGER ? real : GAP + (real - GAP) / SQUEEZE;
+      seg.push({ a: u[i - 1], b: u[i], y0: y, len: drawn });
+      if (drawn < real) breaks.push({ y: y + drawn / 2, hours: u[i] - u[i - 1] });
+      y += drawn;
+    }
+    var H = Math.max(1, y);
+    // Past either end of the observed range -- the corpus-wide crawl marker, a
+    // tick that rounds beyond the last wording -- nothing was compressed and
+    // nothing can be, so true scale simply continues.
+    function at(h) {
+      if (h <= t0) return (h - t0) * rate;
+      if (h >= t1) return H + (h - t1) * rate;
+      var k = 0, hi = seg.length - 1;
+      while (k < hi) { var m = (k + hi) >> 1; if (seg[m].b <= h) k = m + 1; else hi = m; }
+      var g = seg[k];
+      return g.y0 + (h - g.a) / Math.max(1, g.b - g.a) * g.len;
+    }
+    return { t0: t0, t1: t1, H: H, breaks: breaks,
+             frac: function (h) { return at(h) / H; } };
+  }
+
   function buildLayout(nodes, mode) {
     var t = state.topo, r = radii(nodes);
     var slots = tidySlots(t.kids, t.root, nodes.length);
@@ -1065,16 +1618,23 @@
     };
 
     if (mode === "tree") {
-      var x = relaxColumns(nodes, t.kids, t.root, r, slots);
+      var x = relaxColumns(nodes, t.kids, r, slots);
       var lo = Infinity, hi = -Infinity;
       x.forEach(function (v, i) { lo = Math.min(lo, v - r[i]); hi = Math.max(hi, v + r[i]); });
-      // Now that the columns are only as wide as they need to be, a fixed row
-      // height is the thing that makes a deep lineage tall and thin and a
-      // shallow one flat -- and either way the fit shrinks the circles to
-      // nothing. So the generations take their spacing from how wide the tree
-      // actually came out, inside limits that keep a row reading as a row and
-      // leave an edge long enough to see.
-      var gen = Math.max(68, Math.min(150, (hi - lo) / Math.max(1, maxD) / 1.7));
+      // Generations take their spacing from how wide the tree actually came
+      // out, so a deep lineage does not draw as a thin thread and a shallow
+      // one does not draw as a flat bar. The limits around that used to be
+      // pixel constants -- 68 to 150 -- which had nothing to say about how big
+      // the circles are, and across the corpus the upper one bound for the
+      // median lineage: 150px of empty line between rows of 26px circles, more
+      // than five circle-widths, and the largest single reason the board read
+      // as sparse. Measured in circle-widths instead, a row sits the same
+      // distance from the next one whatever size the lineage forced the
+      // circles to, and the floor is whatever keeps the biggest circle's own
+      // caption clear of the row beneath it.
+      var mid = 2 * median(r), room = 2 * maxR + 20;
+      var gen = clamp((hi - lo) / Math.max(1, maxD) / 1.7,
+                      Math.max(2.2 * mid, room), Math.max(2.8 * mid, room));
       base.mode = "tree";
       base.x = x;
       base.y = nodes.map(function (n) { return n.d * gen; });
@@ -1083,22 +1643,20 @@
       return base;
     }
 
-    var t0 = Math.min.apply(null, nodes.map(function (n) { return n.t0; }));
-    var t1 = Math.max.apply(null, nodes.map(function (n) { return n.t0; }));
-    // Time is intentionally linear here: the vertical distance between two
-    // circles is their actual waiting time, not a generation index or a
-    // logarithmic approximation. The board is a pan-and-zoom map, so a long
-    // quiet interval gets the space it genuinely occupied.
-    var span = Math.max(1, t1 - t0);
-    var frac = function (h) { return Math.max(0, h - t0) / span; };
+    // Time is linear here wherever two circles can be compared by eye: the
+    // vertical distance between them is their actual waiting time, not a
+    // generation index and not a logarithm. Only the stretches with nothing in
+    // them at all give way, and they are drawn saying so -- see timeScale.
+    var sc = timeScale(nodes.map(function (n) { return n.t0; }),
+                       Math.max(680, nodes.length * 15));
     base.mode = "time";
-    base.t0 = t0; base.t1 = t1; base.frac = frac;
-    base.H = Math.max(680, nodes.length * 15);
+    base.t0 = sc.t0; base.t1 = sc.t1; base.frac = sc.frac;
+    base.H = sc.H; base.breaks = sc.breaks;
     // Keep related wordings near one another across the page. Unlike a fixed
     // leaf-slot grid this uses only the width the circles actually require,
     // so a large but shallow family does not explode into empty space.
-    base.x = relaxColumns(nodes, t.kids, t.root, r, slots);
-    base.y = nodes.map(function (n) { return frac(n.t0) * base.H; });
+    base.x = relaxColumns(nodes, t.kids, r, slots);
+    base.y = nodes.map(function (n) { return sc.frac(n.t0) * base.H; });
     // Vertical position is the measurement here, so a circle is held to its
     // observed hour far harder than to its horizontal family column.
     base.ax = 0.006; base.ay = 0.05;
@@ -1195,20 +1753,28 @@
       }
     }
 
-    var moving = false;
+    // Whether the board is still busy is a question about the picture, not
+    // about the model: a lineage eight thousand units wide, seen at a third of
+    // scale, can creep for half a minute inside a tenth of a pixel of screen.
+    // So both tests are in the pixels a reader actually has -- with a floor
+    // under the scale, so that zooming out does not declare everything
+    // finished. Parking only ever happens when the circles have stopped
+    // moving anywhere a person could see it.
+    var K = Math.max(0.3, view.k), rest = true, far = 0;
     for (i = 0; i < n; i++) {
       var p = P[i];
-      if (i === sim.held) { p.vx = p.vy = 0; moving = true; continue; }
+      if (i === sim.held) { p.vx = p.vy = 0; rest = false; continue; }
       p.vx = (p.vx + (L.x[i] - p.x) * L.ax) * L.dx;
       p.vy = (p.vy + (L.y[i] - p.y) * L.ay) * L.dy;
       p.x += p.vx; p.y += p.vy;
-      if (!moving && (Math.abs(p.vx) + Math.abs(p.vy) > 0.015 ||
-                      Math.abs(L.x[i] - p.x) + Math.abs(L.y[i] - p.y) > 0.4)) moving = true;
+      if (rest && (Math.abs(p.vx) + Math.abs(p.vy)) * K > 0.025) rest = false;
+      if (rest) far = Math.max(far, (Math.abs(L.x[i] - p.x) + Math.abs(L.y[i] - p.y)) * K);
     }
-    // Nothing left to resolve: park every circle exactly on its rest position
-    // so the board is pixel-identical to the one the layout describes.
-    if (!moving) settle();
-    return moving;
+    // Close enough that dropping the last fraction of a pixel cannot be seen:
+    // take it, so the board is exactly the one the layout describes. Further
+    // out than that, stop where it stands rather than jump.
+    if (rest && far < 0.5) settle();
+    return !rest;
   }
 
   // Letting go of the board keeps the throw, the way letting go of a map does.
@@ -1284,6 +1850,8 @@
     view.ty = py - (py - view.ty) * (k / view.k);
     view.k = k; view.auto = false; view.note = "";
     showZoom(); paint();
+    // A residue too small to see at the old scale may not be at the new one.
+    kick();
   }
 
   function centerOn(i) {
@@ -1311,6 +1879,25 @@
      each frame. Colour, the coordination ring and the time cut-off change far
      more rarely and have their own pass. */
 
+  // The axis-break convention, drawn the way the rest of the board is drawn.
+  function squiggle(x0, x1, y) {
+    var d = "M" + x0.toFixed(1) + "," + y.toFixed(1), x = x0, up = 1;
+    while (x < x1 - 0.5) {
+      var nx = Math.min(x1, x + 11);
+      d += "Q" + (x + (nx - x) / 2).toFixed(1) + "," + (y + up * 3.4).toFixed(1) +
+           " " + nx.toFixed(1) + "," + y.toFixed(1);
+      x = nx; up = -up;
+    }
+    return d;
+  }
+
+  // How long a gap was, in the coarsest unit that still says something.
+  function spanLabel(h) {
+    if (h < 48) return Math.round(h) + " h";
+    var d = h / 24;
+    return (d < 10 ? d.toFixed(1).replace(/\.0$/, "") : String(Math.round(d))) + " d";
+  }
+
   function gridMarkup(L) {
     if (L.mode !== "time") return "";
     var b = worldBox(), x0 = b.x0 + 82, x1 = b.x1 + 14, out = [];
@@ -1324,12 +1911,39 @@
     var ticks = [0];
     for (var o = step; o < elapsed; o += step) ticks.push(o);
     if (ticks[ticks.length - 1] !== elapsed) ticks.push(elapsed);
-    ticks.forEach(function (o) {
-      var gy = (L.frac(L.t0 + o) * L.H).toFixed(1);
+
+    // Evenly spaced hours land at uneven distances on an elastic axis, so a run
+    // of ticks through a compressed stretch would stack its own labels. Both
+    // ends are worth more than anything between them, so a collision drops the
+    // guide already placed rather than the one arriving.
+    var keep = [];
+    ticks.forEach(function (o, k) {
+      var gy = L.frac(L.t0 + o) * L.H;
+      if (keep.length && Math.abs(gy - keep[keep.length - 1].gy) < 16) {
+        if (k !== ticks.length - 1) return;
+        keep.pop();
+      }
+      keep.push({ o: o, gy: gy });
+    });
+
+    keep.forEach(function (t) {
+      var gy = t.gy.toFixed(1);
       out.push('<line x1="' + x0.toFixed(1) + '" y1="' + gy + '" x2="' + x1.toFixed(1) + '" y2="' + gy +
         '" stroke="' + css("--hair") + '" stroke-width="1"/>');
-      out.push('<text x="' + (x0 - 10).toFixed(1) + '" y="' + (+gy + 4).toFixed(1) + '" font-size="12.5" fill="' +
-        css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(L.t0 + o)) + "</text>");
+      out.push('<text x="' + (x0 - 10).toFixed(1) + '" y="' + (+gy + 4).toFixed(1) + '" font-size="11" fill="' +
+        css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(L.t0 + t.o)) + "</text>");
+    });
+
+    // Where the clock was shortened, say so on the board itself. Nothing is
+    // drawn in these bands by construction -- they were compressed precisely
+    // because no wording falls inside them -- so the note has the width to
+    // itself, and it carries the real elapsed time the break stands in for.
+    (L.breaks || []).forEach(function (b) {
+      out.push('<path d="' + squiggle(x0, x1, b.y) + '" fill="none" stroke="' + css("--hair") +
+        '" stroke-width="1.2"/>');
+      out.push('<text x="' + (x0 + 12).toFixed(1) + '" y="' + (b.y - 8).toFixed(1) +
+        '" font-size="10.5" fill="' + css("--ink-2") + '" opacity=".85">' +
+        esc(spanLabel(b.hours)) + " with no new wording \u2014 axis compressed</text>");
     });
     // The crawl thins 15x on 1 September, so a lineage that appears to stop
     // there may only have gone unobserved. Draw the seam rather than hide it.
@@ -1370,10 +1984,11 @@
         (heavy[i]
           ? '<text class="cap" y="' + (r + 13).toFixed(1) + '" text-anchor="middle" font-size="11.5" fill="' +
             css("--ink-2") + '">' + heavy[i] + "</text>" : "") +
-        (n.rsp && n.rsp.n
+        (n.cmt && n.cmt.n
           ? '<g class="rsp" transform="translate(' + (r * .72).toFixed(1) + ',' + (-r * .72).toFixed(1) +
-            ')" aria-label="' + fmt(n.rsp.n) + ' sampled responses"><title>' + fmt(n.rsp.n) +
-            ' responses observed in this crawl</title><circle r="5.7"/><path d="M-2.4 -1.8h4.8v3.5h-2l-1.7 1.4V1.7h-1.1z"/></g>'
+            ')" aria-label="' + fmt(n.cmt.n) + ' comments captured"><title>' + fmt(n.cmt.n) +
+            ' comments captured (' + fmt(n.cmt.q) + ' quote tweets, ' + fmt(n.cmt.n - n.cmt.q) +
+            ' replies)</title><circle r="5.7"/><path d="M-2.4 -1.8h4.8v3.5h-2l-1.7 1.4V1.7h-1.1z"/></g>'
           : "") +
         "</g>");
     });
@@ -1407,18 +2022,6 @@
       g: q(".nodes > g"), circ: q(".nodes > g > circle"), lab: q(".nodes > g > text.lb"),
       sring: svg.querySelector(".sring"), pring: svg.querySelector(".pring")
     };
-  }
-
-  // No line drawn by hand lands perfectly straight. The deviation is seeded
-  // from the node index, so a circle's edge keeps the same bow while it is
-  // dragged instead of flickering between shapes.
-  function bow(x1, y1, x2, y2, seed) {
-    var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy) || 1;
-    var h = Math.sin(seed * 12.9898) * 43758.5453;
-    var off = ((h - Math.floor(h)) - 0.5) * Math.min(6, len * 0.08);
-    return "M" + x1.toFixed(1) + "," + y1.toFixed(1) +
-      "Q" + ((x1 + x2) / 2 - dy / len * off).toFixed(1) + "," + ((y1 + y2) / 2 + dx / len * off).toFixed(1) +
-      " " + x2.toFixed(1) + "," + y2.toFixed(1);
   }
 
   // The subtree of the selected wording: everything descended from it, which is
@@ -1485,14 +2088,18 @@
         "translate(" + P[i].x.toFixed(1) + "," + P[i].y.toFixed(1) + ")");
     }
 
-    // Edges run rim to rim rather than centre to centre, so a line never
-    // crosses a circle's own label.
+    // One straight segment from a parent to a child, drawn rim to rim rather
+    // than centre to centre so a line never crosses a circle's own label. It
+    // is the shortest thing that can be drawn between two circles and the only
+    // one with nothing to interpret: no wobble, no corner, no curve. The
+    // length of a long edge is a real distance on the board, not a detour.
     for (i = 0; i < S.edges.length; i++) {
       var c = S.owner[i], pj = state.nodes[c].p, A = P[pj], B = P[c];
-      var dx = B.x - A.x, dy = B.y - A.y, len = Math.sqrt(dx * dx + dy * dy) || 1;
-      S.edges[i].setAttribute("d", bow(
-        A.x + dx / len * L.r[pj], A.y + dy / len * L.r[pj],
-        B.x - dx / len * L.r[c], B.y - dy / len * L.r[c], c + 1));
+      var rp = L.r[pj], rc = L.r[c], dx = B.x - A.x, dy = B.y - A.y;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      S.edges[i].setAttribute("d",
+        "M" + (A.x + dx / len * rp).toFixed(1) + "," + (A.y + dy / len * rp).toFixed(1) +
+        "L" + (B.x - dx / len * rc).toFixed(1) + "," + (B.y - dy / len * rc).toFixed(1));
     }
 
     var sel = state.sel, par = state.nodes[sel].p;
@@ -1546,28 +2153,38 @@
     });
     var hs = Object.keys(byHour).map(Number).sort(function (a, b) { return a - b; });
     if (!hs.length) { svg.innerHTML = ""; return; }
-    var W = svg.clientWidth || 800, H = 56, pad = 26;
+    // Inside a 264px island the chart is all curve: no left gutter, the peak
+    // named above the line and the two dates under it, so the series itself
+    // gets the whole width instead of sharing it with a legend.
+    var W = svg.clientWidth || 240, H = 58, padL = 2, padR = 2;
     var h0 = hs[0], h1 = hs[hs.length - 1], mx = Math.max.apply(null, hs.map(function (h) { return byHour[h]; }));
-    var X = function (h) { return pad + (h1 > h0 ? (h - h0) / (h1 - h0) : 0) * (W - pad - 118); };
-    var Y = function (v) { return H - 14 - (v / mx) * (H - 22); };
-    var pts = [], area = ["M" + X(h0) + "," + (H - 14)];
+    var cap = 17, base = H - 13, span = W - padL - padR;
+    var X = function (h) { return padL + (h1 > h0 ? (h - h0) / (h1 - h0) : 0) * span; };
+    var Y = function (v) { return base - (v / mx) * (base - cap); };
+    var pts = [], area = ["M" + X(h0) + "," + base];
     for (var h = h0; h <= h1; h++) {
       var v = byHour[h] || 0;
       pts.push(X(h) + "," + Y(v)); area.push("L" + X(h) + "," + Y(v));
     }
-    area.push("L" + X(h1) + "," + (H - 14) + "Z");
+    area.push("L" + X(h1) + "," + base + "Z");
     var cutX = state.cut === Infinity ? null : X(Math.min(state.cut, h1));
     var cliffX = (META.cliff_h > h0 && META.cliff_h < h1) ? X(META.cliff_h) : null;
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
     svg.innerHTML =
       '<path d="' + area.join("") + '" fill="' + css("--pen") + '" opacity=".16"/>' +
-      '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") + '" stroke-width="2" stroke-linejoin="round"/>' +
-      '<line x1="' + pad + '" y1="' + (H - 14) + '" x2="' + (W - 118) + '" y2="' + (H - 14) + '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
-      (cliffX !== null ? '<line x1="' + cliffX + '" y1="4" x2="' + cliffX + '" y2="' + (H - 14) + '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
-      (cutX !== null ? '<line x1="' + cutX + '" y1="4" x2="' + cutX + '" y2="' + (H - 14) + '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
-      '<text x="' + pad + '" y="' + (H - 3) + '" font-size="11.5" fill="' + css("--ink-2") + '">' + esc(dayLabel(h0)) + "</text>" +
-      '<text x="' + (W - 118) + '" y="' + (H - 3) + '" font-size="11.5" fill="' + css("--ink-2") + '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>" +
-      '<text x="' + (W - 112) + '" y="14" font-size="11.5" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
+      '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + css("--pen") +
+        '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<line x1="' + padL + '" y1="' + base + '" x2="' + (W - padR) + '" y2="' + base +
+        '" stroke="' + css("--rule") + '" stroke-width="1"/>' +
+      (cliffX !== null ? '<line x1="' + cliffX + '" y1="' + cap + '" x2="' + cliffX + '" y2="' + base +
+        '" stroke="' + css("--red") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' : "") +
+      (cutX !== null ? '<line x1="' + cutX + '" y1="' + cap + '" x2="' + cutX + '" y2="' + base +
+        '" stroke="' + css("--pen") + '" stroke-width="1.5"/>' : "") +
+      '<text x="' + padL + '" y="10" font-size="9.5" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>" +
+      '<text x="' + padL + '" y="' + (H - 2.5) + '" font-size="9.5" fill="' + css("--ink-2") + '">' +
+        esc(dayLabel(h0)) + "</text>" +
+      '<text x="' + (W - padR) + '" y="' + (H - 2.5) + '" font-size="9.5" fill="' + css("--ink-2") +
+        '" text-anchor="end">' + esc(dayLabel(h1)) + "</text>";
   }
 
   /* ---------------- the post, as X would draw it ----------------
@@ -1645,8 +2262,20 @@
   }
   function togglePost(post) {
     var open = post.dataset.expanded === "true";
+    var from = post.offsetHeight;
     post.dataset.expanded = open ? "false" : "true";
     post.querySelector(".xmore").textContent = open ? "Show more" : "Show less";
+    if (REDUCE || !post.animate) return;
+    var to = post.offsetHeight;
+    if (from === to) return;
+    // The clamp is applied the instant the attribute flips, so the card is
+    // already the wrong size for its contents; hiding the overflow for the
+    // length of the travel keeps the rest of the post from spilling past the
+    // rounded edge while the box catches up.
+    post.style.overflow = "hidden";
+    var run = post.animate([{ height: from + "px" }, { height: to + "px" }],
+                           { duration: 260, easing: "cubic-bezier(.32,.72,0,1)" });
+    run.onfinish = run.oncancel = function () { post.style.overflow = ""; };
   }
 
   /* ---------------- inspector ---------------- */
@@ -1676,7 +2305,7 @@
       (isRoot ? "<button disabled>root</button>" : relChip("parent", n.p)) +
       (kids.length
         ? kids.slice(0, 8).map(function (k) { return relChip("child", k); }).join("") + more(kids.length - 8)
-        : "<button disabled>no children, a dead end</button>") +
+        : "<button disabled>no surviving children</button>") +
       sibs.slice(0, 6).map(function (k) { return relChip("sibling", k); }).join("") + more(sibs.length - 6) +
       "</p>";
 
@@ -1696,30 +2325,13 @@
     }
     if (coord > 0.15) fl.push("coordinated accounts present");
 
-    var rsp = n.rsp;
-    var replyExcerpts = rsp && rsp.sample && rsp.sample.length
-      ? '<details class="reply-excerpts"><summary>read ' + rsp.sample.length +
-        ' captured response' + (rsp.sample.length === 1 ? "" : "s") + '</summary>' +
-        rsp.sample.map(function (reply) {
-          return '<blockquote><p>' + esc(detwit(reply.txt)) + '</p><span>' +
-            (reply.direct ? 'direct reply' : 'reply in this thread') +
-            (reply.like ? ' &middot; ' + fmt(reply.like) + ' likes when captured' : '') +
-            '</span></blockquote>';
-        }).join("") + '</details>'
-      : '';
-    var responses = rsp
-      ? '<p class="figs"><b>' + fmt(rsp.n) + '</b> response' + (rsp.n === 1 ? "" : "s") +
-        ' observed in this crawl &middot; <b>' + fmt(rsp.acc) + '</b> responding accounts' +
-        (rsp.thread ? ' &middot; <b>' + fmt(rsp.direct) + '</b> direct to this tweet, plus thread replies' :
-                      ' &middot; all direct to this tweet') +
-        (n.met && n.met.reply
-          ? ' &middot; X reports <b>' + fmt(n.met.reply) + '</b> total replies; observed responses are a sampled subset'
-          : ' &middot; response coverage is limited to tweets captured in this crawl') +
-        '</p>' + replyExcerpts
-      : (n.met && n.met.reply
-          ? '<p class="figs">X reports <b>' + fmt(n.met.reply) +
-            '</b> replies, but none of their rows were captured for this matched tweet.</p>'
-          : '');
+    // Replies were the obvious place to look for the audience and the wrong
+    // one: they are ~2% of this corpus. Quote tweets are commentary too, they
+    // are four times as numerous, and `quoting_id` points straight at the
+    // tweet being answered -- which is why `cmt` reaches 39,656 wordings where
+    // the reply-only pass reached 9,922. Both are carried, never merged.
+    var comments = commentBlock(n.cmt, state.famId, n.met && n.met.reply);
+    var deadends = deadEndBlock(n);
 
     el.innerHTML =
       "<h3>Wording " + T.label[state.sel] + "</h3><span>generation " + n.d +
@@ -1729,12 +2341,152 @@
         fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
         "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
         (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
-      responses +
+      comments + deadends +
       (fl.length
         ? '<p class="flags' + (n.mix > 0 ? "" : " mild") + '">' + fl.join(" &middot; ") + "</p>"
         : "");
     initPost(el);
+    Array.prototype.forEach.call(el.querySelectorAll(".reply-excerpts"), animateDetails);
+    replay(el, "swap");
   }
+  // Every wording on this tree spread at least twice -- that is what stage 4's
+  // MIN_COPIES=2 buys, and it is also survivorship bias built into the sample:
+  // the tree shows which phrasings won and can never show what they beat.
+  // 07_deadends.py goes back to the once-only messages and finds the
+  // rewordings of this phrasing that nobody ever repeated. They are not nodes
+  // -- they have no spread and no descendants, so there is nothing to draw --
+  // but they are the denominator the visible mutations were selected against,
+  // which is the whole reason a lineage is a claim about selection and not
+  // just a similarity diagram.
+  function deadEndBlock(n) {
+    if (!n.dx) return "";
+    var ex = n.dxs || [];
+    return '<p class="figs"><b>' + fmt(n.dx) + "</b> rewording" + (n.dx === 1 ? "" : "s") +
+      " of this phrasing " + (n.dx === 1 ? "was" : "were") + " posted once and never " +
+      "copied &mdash; mutations that did not take</p>" +
+      (ex.length
+        ? '<details class="reply-excerpts"><summary>' +
+          (ex.length === 1 ? "read one" : "read " + ex.length + " of them") + "</summary>" +
+          ex.map(function (t) {
+            return "<blockquote><p>" + esc(detwit(t)) + "</p></blockquote>";
+          }).join("") + "</details>"
+        : "");
+  }
+
+  /* ---------------- comment ecology ---------------- */
+
+  // Order runs endorse -> dispute so the bar reads as one polarity axis, with
+  // the two no-position classes parked at the end.
+  var STANCE = ["endorse", "dispute", "mock", "attack", "question", "promo", "none"];
+  var STANCE_TXT = {
+    endorse:  "endorses",
+    dispute:  "disputes",
+    mock:     "mocks",
+    attack:   "hostile",
+    question: "asks",
+    promo:    "promo",
+    none:     "no stance cue"
+  };
+  // Tone is VADER's polarity, bucketed. It is a second axis and not a finer
+  // stance: most comments carry no stance cue at all, and tone is the only
+  // thing that can be said about those. Same two hues as the stance bar
+  // because both run favourable -> unfavourable, and each bar is labelled.
+  var TONE = ["pos", "neu", "neg"];
+  var TONE_TXT = { pos: "positive", neu: "neutral", neg: "negative" };
+
+  function stanceTotal(st) {
+    return STANCE.reduce(function (a, k) { return a + (st[k] || 0); }, 0);
+  }
+
+  // A stacked bar plus a key that names and counts every segment. The key is
+  // not decoration: it is what keeps the split readable when the colours are
+  // not, so it is always rendered and never collapsed behind a hover.
+  function mixBar(mix, order, labels, prefix, caption) {
+    var total = order.reduce(function (a, k) { return a + (mix[k] || 0); }, 0);
+    if (!total) return "";
+    var segs = "", key = "";
+    order.forEach(function (k) {
+      var v = mix[k] || 0; if (!v) return;
+      var pct = Math.round(100 * v / total);
+      segs += '<span class="' + prefix + k + '" style="flex:' + v + '"><title>' +
+              labels[k] + " " + fmt(v) + " (" + pct + "%)</title></span>";
+      key += '<li><i class="' + prefix + k + '"></i>' + labels[k] +
+             " <b>" + pct + "%</b></li>";
+    });
+    var read = order.filter(function (k) { return mix[k]; }).map(function (k) {
+      return labels[k] + " " + Math.round(100 * mix[k] / total) + "%";
+    }).join(", ");
+    return '<div class="stance"><p class="blab">' + caption + '</p>' +
+      '<div class="sbar" role="img" aria-label="' + caption + ": " + read + '">' +
+      segs + '</div><ul class="skey">' + key + "</ul></div>";
+  }
+
+  // Two bars, never merged: what the comment does to the claim, and how the
+  // wording reads. A comment with no stance cue still has a tone, which is
+  // the whole reason the second bar exists.
+  function stanceBar(st, tn) {
+    return mixBar(st, STANCE, STANCE_TXT, "s-", "stance toward the wording") +
+           (tn ? mixBar(tn, TONE, TONE_TXT, "t-", "tone of the wording") : "");
+  }
+
+  // `cl` is [[clusterId, countOnThisNode], ...]. The count shown is the local
+  // one; `acc` and `nfam` come off the shared cluster, because how far a
+  // template reaches is a property of the template and not of this node.
+  function clusterList(cl, famId) {
+    if (!cl || !cl.length) return "";
+    var items = cl.map(function (pair) {
+      var c = CLUSTERS[pair[0]];
+      if (!c) return "";
+      var others = c.nfam - (famId != null && c.fams.indexOf(famId) >= 0 ? 1 : 0);
+      // Reach only means something for a distinctive wording. A cluster of
+      // common speech turning up under thirty lineages is a fact about
+      // English, so it is labelled as such instead of being sold as spread.
+      var reach = c.gen
+        ? "common phrasing"
+        : others > 0
+          ? '<span class="spans">also under ' + fmt(others) + " other lineage" +
+            (others === 1 ? "" : "s") + "</span>"
+          : "only this lineage";
+      return "<li><span class=\"cn\">" + fmt(pair[1]) + "\u00d7</span> " +
+        esc(detwit(String(c.sample[0] || "")).slice(0, 130)) +
+        '<span class="cmeta">' + fmt(c.acc) + " account" + (c.acc === 1 ? "" : "s") +
+        " \u00b7 " + reach + (c.reuse ? ' \u00b7 <b class="cib">reused template</b>' : "") +
+        "</span></li>";
+    }).join("");
+    return items ? '<ul class="cmt-cl">' + items + "</ul>" : "";
+  }
+
+  // The two comment kinds are never added into one number without saying so:
+  // a quote tweet is public commentary with its own audience, a reply is a
+  // response inside the thread, and the ratio between them is itself a
+  // reading of how the wording travelled.
+  function commentBlock(c, famId, xReplies) {
+    if (!c) {
+      return xReplies
+        ? '<p class="figs">X reports <b>' + fmt(xReplies) +
+          "</b> replies, but none were captured against this wording.</p>"
+        : "";
+    }
+    var replies = c.n - c.q;
+    return '<p class="figs"><b>' + fmt(c.n) + "</b> comment" + (c.n === 1 ? "" : "s") +
+      " captured \u00b7 <b>" + fmt(c.q) + "</b> quote tweet" + (c.q === 1 ? "" : "s") +
+      " \u00b7 <b>" + fmt(replies) + "</b> repl" + (replies === 1 ? "y" : "ies") +
+      " \u00b7 <b>" + fmt(c.acc) + "</b> responding account" + (c.acc === 1 ? "" : "s") +
+      (xReplies ? " \u00b7 X reports <b>" + fmt(xReplies) +
+                  "</b> replies in total; this is the captured subset" : "") +
+      "</p>" + stanceBar(c.st, c.tn) + clusterList(c.cl, famId) +
+      (c.sample && c.sample.length
+        ? '<details class="reply-excerpts"><summary>read ' + c.sample.length +
+          " captured comment" + (c.sample.length === 1 ? "" : "s") + "</summary>" +
+          c.sample.map(function (r) {
+            return "<blockquote><p>" + esc(detwit(r.txt)) + "</p><span>" +
+              (r.q ? "quote tweet" : "reply") + " \u00b7 " + STANCE_TXT[r.st] +
+              (r.like ? " \u00b7 " + fmt(r.like) + " likes when captured" : "") +
+              "</span></blockquote>";
+          }).join("") + "</details>"
+        : "");
+  }
+
   function relChip(kind, i) {
     return "<button data-i=\"" + i + '">' + kind + " " + state.topo.label[i] + "</button>";
   }
@@ -1808,14 +2560,21 @@
       var n = nodes[i];
       return '<tr data-i="' + i + '" aria-current="' + (i === state.sel) + '">' +
         '<td class="k">' + T.label[i] + "</td><td>" + n.d + "</td><td>" +
-        (n.p === null || n.p === undefined ? "—" : T.label[n.p]) + "</td><td>" +
-        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.rsp && n.rsp.n || 0) + "</td><td>" +
+        (n.p === null || n.p === undefined ? "\u2014" : T.label[n.p]) + "</td><td>" +
+        fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" + fmt(n.rsp && n.rsp.n || n.cmt && n.cmt.n || 0) + "</td><td>" +
+        (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
+        Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
+        '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
         (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
         Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
         '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
     }).join("");
-    return '<table id="vartable">' +
-      "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th><th>responses*</th>" +
+    return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
+      "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
+      '<div class="tscroll"><table id="vartable">' +
+      "<thead><tr><th>node</th><th>generation</th><th>from</th><th>retweets</th><th>accounts</th><th>comments</th>" +
+      "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
+      rows + "</tbody></table>";
       "<th>coord.</th><th>drift</th><th>first seen</th><th>text</th></tr></thead><tbody>" +
       rows + "</tbody></table>";
   }
@@ -2105,6 +2864,35 @@
       "</div>";
   }
 
+  // The lineage's audience, summarised. `shared` is the part that matters and
+  // the part a per-lineage clustering could not produce: response templates
+  // that also appear under other lineages. One template under one narrative
+  // is a crowd reacting; the same template under several unrelated ones is a
+  // repertoire being deployed.
+  function famComments(f) {
+    var c = f.cmt;
+    if (!c) return "";
+    var replies = c.n - c.q;
+    var shared = (c.shared || []).filter(function (id) { return CLUSTERS[id]; });
+    var line = '<p class="figs"><b>' + fmt(c.n) + "</b> comments \u00b7 <b>" +
+      fmt(c.q) + "</b> quote tweets \u00b7 <b>" + fmt(replies) + "</b> replies \u00b7 <b>" +
+      fmt(c.acc) + "</b> responding accounts \u00b7 <b>" + fmt(c.ncl) +
+      "</b> response template" + (c.ncl === 1 ? "" : "s") +
+      (c.reuse ? ' \u00b7 <b class="cib">' + fmt(c.reuse) + "</b> reused template" +
+                 (c.reuse === 1 ? "" : "s") : "") +
+      "</p>" + stanceBar(c.st, c.tn);
+    if (shared.length) {
+      line += '<ul class="cmt-cl">' + shared.slice(0, 3).map(function (id) {
+        var cl = CLUSTERS[id];
+        return "<li>" + esc(detwit(String(cl.sample[0] || "")).slice(0, 120)) +
+          '<span class="cmeta"><span class="spans">appears under ' + fmt(cl.nfam) +
+          " lineages</span> \u00b7 " + fmt(cl.acc) + " accounts \u00b7 " +
+          fmt(cl.n) + " comments</span></li>";
+      }).join("") + "</ul>";
+    }
+    return line;
+  }
+
   function renderStage() {
     var f = state.fam;
 
@@ -2112,32 +2900,13 @@
       ? '<p class="warn">Lives entirely after 1 September, where the crawl collects 1.4M tweets a day against August\'s 22.0M. Its spread is undercounted by roughly 15× next to an August lineage.</p>'
       : "";
 
+    // A lineage switch tears down the board, and an interval still walking a
+    // cut through the family it was started on would keep restyling nodes that
+    // no longer exist.
+    stopPlay();
+
     $("#stage-body").className = "";
     $("#stage-body").innerHTML =
-      '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
-        "<summary><h2>Lineage " + f.id + "</h2></summary>" +
-        '<div class="hdr">' +
-          '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
-            fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
-            Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
-            "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
-          kindLine(f) +
-        "</div>" +
-      "</details>" +
-        warn +
-      "</div>" +
-      '<div class="bar">' +
-        '<span class="grp" id="colorby"><b>shade</b>' +
-          btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
-          btn("coord", "coordination", state.colorBy) + "</span>" +
-        '<span class="grp" id="xmode"><b>layout</b>' +
-          btn("tree", "tree", state.xMode) + btn("time", "time ↓", state.xMode) + "</span>" +
-        '<span class="scrub"><button class="act" id="play">play</button>' +
-          '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
-          '" aria-label="Show wordings first seen up to"><output id="cutout"></output></span>' +
-        '<button class="act" id="reset">fit the board</button>' +
-      "</div>" +
-      '<div class="plot"><svg id="pulse" class="pulse" role="img" aria-label="Retweets per hour for this lineage"></svg></div>' +
       '<div class="draw">' +
         '<svg id="tree" class="tree" role="img" tabindex="0" aria-label="' + boardLabel() + '"></svg>' +
         '<p class="zoomlbl" id="zoomlbl"></p>' +
@@ -2147,14 +2916,77 @@
           '<button type="button" class="fit" id="zfit" title="Fit the whole lineage" ' +
             'aria-label="Fit the whole lineage">fit</button>' +
         "</div>" +
+
+        /* ---- the island on the left: what this lineage is ----
+           Folded down to its title when the board wants the room, and holding
+           the earliest phrasing as the post it actually was rather than as a
+           paragraph of quoted text. */
+        '<aside class="isle isle-l" id="isle-l" aria-label="About this lineage">' +
+          '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
+            "<summary><h2>Lineage " + f.id +
+              (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2></summary>" +
+            '<div class="lin-body">' +
+            // the evidence, on the far left
+            '<div class="lin-post">' +
+              '<p class="isle-hd">earliest phrasing in the corpus</p>' +
+              xpost(state.nodes[state.topo.root]) +
+            "</div>" +
+            // and what the corpus says about it, alongside
+            '<div class="lin-meta"><div class="hdr">' +
+              // What this lineage is about, in its own words: the vocabulary that
+              // survived every rewording. Sits above the figures because "which
+              // idea is this" is the question a reader has before any of them.
+              ((f.kw && f.kw.length)
+                ? '<p class="lin-kw">' + f.kw.map(function (w) {
+                    return '<span class="kw">' + esc(w) + "</span>";
+                  }).join("") + "</p>"
+                : "") +
+              '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
+                fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
+                Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
+                "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+              kindLine(f) + famComments(f) +
+            "</div>" + warn + "</div>" +
+            "</div>" +
+          "</details></div>" +
+        "</aside>" +
+
+        /* ---- the island on the right: what the drawing is doing ----
+           Shade and layout are always live, because they change what is on the
+           board; the timeline is not, because it is a second chart and it waits
+           to be asked. */
+        '<aside class="isle isle-r" id="isle-r" aria-label="Board controls">' +
+          '<div class="bar">' +
+            '<span class="grp" id="colorby"><b>shade</b>' +
+              btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
+              btn("coord", "coordination", state.colorBy) + "</span>" +
+            '<span class="grp" id="xmode"><b>layout</b>' +
+              btn("tree", "tree", state.xMode) + btn("time", "time ↓", state.xMode) + "</span>" +
+          "</div>" +
+          '<div class="tl" id="tl" data-open="false">' +
+            '<div class="tl-clip" id="tl-clip"><div class="tl-wrap"><div class="tl-in">' +
+              '<svg id="pulse" class="pulse" role="img" aria-label="Retweets per hour for this lineage"></svg>' +
+              '<input id="cut" type="range" min="' + f.t0 + '" max="' + f.t1 + '" value="' + f.t1 +
+                '" aria-label="Show wordings first seen up to">' +
+              '<output class="cutout" id="cutout"></output>' +
+            "</div></div></div>" +
+            '<p class="tl-row">' +
+              '<button class="act" type="button" id="play" aria-expanded="false" ' +
+                'aria-controls="tl-clip">&#9654; play</button>' +
+              '<button class="act tl-x" type="button" id="tlhide" hidden>hide</button>' +
+            "</p>" +
+          "</div>" +
+        "</aside>" +
       "</div>" +
       '<div class="key" id="key"></div>' +
       renderDock();
 
     renderKey();
+    replay($("#stage-body"), "swap");
     state.cut = f.t1;
     view = { k: 1, tx: 0, ty: 0, auto: true, note: "" };
     wireStage();
+    initPost($("#isle-l"));
     relayout({ bloom: true });
     renderInspector();
   }
@@ -2372,7 +3204,6 @@
       var b = boardSize(); zoomAt(b.w / 2, b.h / 2, 1 / 1.45);
     });
     $("#zfit").addEventListener("click", function () { fitView(true); paint(); });
-    $("#reset").addEventListener("click", function () { fitView(true); paint(); });
 
     // The board is a window, so it has to learn its own size rather than be
     // told: the rail folding, the panel sliding and the table opening all
@@ -2411,8 +3242,21 @@
       });
     }
     syncDock();
+
+    var table = $("#vartable");
+    if (table) table.addEventListener("click", function (e) {
+      var tr = e.target.closest("tr[data-i]"); if (tr) selectNode(+tr.dataset.i, true);
+    });
+    var details = $("#tabledetails");
+    if (details) {
+      details.addEventListener("toggle", function () { state.tableOpen = details.open; });
+      animateDetails(details);
+    }
     var lin = $("#lindetails");
-    if (lin) lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
+    if (lin) {
+      lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
+      animateDetails(lin);
+    }
 
     $("#colorby").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-v]"); if (!b || b.dataset.v === state.colorBy) return;
@@ -2432,6 +3276,12 @@
       state.cut = +e.target.value; restyle(); drawPulse(); updateCut();
     });
     $("#play").addEventListener("click", play);
+    $("#tlhide").addEventListener("click", hideTimeline);
+    // The root post on the left island expands the same way the inspector's does.
+    $("#isle-l").addEventListener("click", function (e) {
+      var m = e.target.closest(".xmore");
+      if (m) togglePost(m.closest(".xpost"));
+    });
   }
 
   // Shading and layout are each one live choice out of a row of words.
@@ -2455,14 +3305,54 @@
   // cascade -- the tree, the pulse chart and the legend (see css() above).
   // Only those three need an explicit rebuild; everything else in the
   // inspector, list and table is plain CSS and needs nothing further.
+  var themeTimer = 0;
   function setTheme(dark) {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    // .theming is what the blanket colour transition in the stylesheet hangs
+    // off. It is taken back off again as soon as the cross-fade is over, so a
+    // rule broad enough to catch every surface on the sheet is never sitting
+    // over an ordinary hover.
+    var root = document.documentElement;
+    if (!REDUCE) {
+      root.classList.add("theming");
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(function () { root.classList.remove("theming"); }, 420);
+    }
+    root.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (e) {}
     syncThemeButton();
     if (state.fam) { relayout({ fit: false }); renderKey(); drawDockCharts(); }
   }
   // Wired once, against elements that no render replaces.
+  // The dock opens to the bar's real height rather than to a number typed into
+  // the stylesheet: the corpus line lands after the first fetch and rewraps
+  // whenever the sheet narrows or the inspector slides in, and a dock that
+  // opened to a guess would either clip the counts or leave a band of bare
+  // paper under them. Measuring the bar cannot feed back into the measurement,
+  // because the bar is positioned out of flow and its height is set by its own
+  // content, not by the dock it sits in.
+  function headDock() {
+    var dock = $("#headdock"), head = dock && dock.querySelector(".head");
+    if (!head) return;
+    var set = function () {
+      dock.style.setProperty("--head-h", head.offsetHeight + "px");
+    };
+    set();
+    if (window.ResizeObserver) new ResizeObserver(set).observe(head);
+    else addEventListener("resize", debounce(set, 160));
+  }
+
   function wireOnce() {
+    headDock();
+    // The other half of the no-drag rules in the stylesheet. -webkit-user-drag
+    // is a WebKit property and text stays draggable even where it is honoured,
+    // so the event itself is refused; the context menu goes with it, except
+    // over a form field, where it is the only way to paste into the search
+    // box. Capture phase, so neither can be re-armed further down.
+    addEventListener("dragstart", function (e) { e.preventDefault(); }, true);
+    addEventListener("contextmenu", function (e) {
+      if (!e.target.closest || !e.target.closest("input, textarea, select")) e.preventDefault();
+    }, true);
+
     syncThemeButton();
     $("#theme").addEventListener("click", function () {
       setTheme(document.documentElement.getAttribute("data-theme") !== "dark");
@@ -2503,18 +3393,65 @@
     }, 160));
   }
 
+  /* ---------------- the timeline ----------------
+     Nothing on the board moves until somebody asks it to, so the emission
+     curve and its scrub handle stay folded away behind the word that plays
+     them. The chart is measured rather than given a width, which is why it is
+     drawn on the way open rather than at render time: there is nothing to
+     measure while it is still at nought. */
+  var playTimer = 0;
+
+  function stopPlay() {
+    if (playTimer) { clearInterval(playTimer); playTimer = 0; }
+    state.playing = false;
+    var btn = $("#play");
+    if (btn) btn.innerHTML = "&#9654; play";
+  }
+
+  function openTimeline() {
+    var tl = $("#tl");
+    if (!tl || tl.dataset.open === "true") return false;
+    tl.dataset.open = "true";
+    $("#play").setAttribute("aria-expanded", "true");
+    $("#tlhide").hidden = false;
+    drawPulse(); updateCut();
+    return true;
+  }
+
+  function hideTimeline() {
+    var tl = $("#tl"); if (!tl) return;
+    stopPlay();
+    tl.dataset.open = "false";
+    $("#play").setAttribute("aria-expanded", "false");
+    $("#tlhide").hidden = true;
+    // Folding the timeline away must not leave the board showing a slice of
+    // the lineage with nothing on screen left to say that it is one.
+    if (state.cut !== state.fam.t1) {
+      state.cut = state.fam.t1;
+      $("#cut").value = state.fam.t1;
+      restyle(); updateCut();
+    }
+  }
+
   function play() {
-    if (state.playing) return;
+    if (state.playing) { stopPlay(); return; }
     var f = state.fam, slider = $("#cut"), btn = $("#play");
-    var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { state.cut = f.t1; slider.value = f.t1; restyle(); drawPulse(); updateCut(); return; }
-    state.playing = true; btn.textContent = "■ Playing";
+    var opened = openTimeline();
+    if (REDUCE) { state.cut = f.t1; slider.value = f.t1; restyle(); drawPulse(); updateCut(); return; }
+    state.playing = true; btn.innerHTML = "&#9632; stop";
     var h = f.t0, step = Math.max(1, Math.round((f.t1 - f.t0) / 90));
-    var timer = setInterval(function () {
-      h += step;
-      if (h >= f.t1) { h = f.t1; clearInterval(timer); state.playing = false; btn.innerHTML = "&#9654; Play"; }
-      state.cut = h; slider.value = h; restyle(); drawPulse(); updateCut();
-    }, 45);
+    state.cut = h; slider.value = h; restyle(); updateCut();
+    var run = function () {
+      playTimer = setInterval(function () {
+        h += step;
+        if (h >= f.t1) { h = f.t1; stopPlay(); }
+        state.cut = h; slider.value = h; restyle(); drawPulse(); updateCut();
+      }, 45);
+    };
+    // One travel at a time. On the first press the island is still unrolling,
+    // and a curve redrawing inside a box that is still growing reads as a
+    // stutter rather than as two things happening.
+    if (opened) setTimeout(run, 330); else run();
   }
 
   function debounce(fn, ms) {
@@ -2678,6 +3615,19 @@
     $("#kinds").innerHTML = chips.join("");
     syncFiltPicks();
   }
+
+  // The cluster catalogue is fetched alongside the index but never awaited:
+  // it only enriches panels that are already legible without it, so a missing
+  // or slow comments.json must not hold the board back.
+  fetch("phylo/comments.json")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      CMETA = d.meta;
+      d.clusters.forEach(function (c) { CLUSTERS[c.id] = c; });
+      if (state.fam) renderStage();
+    })
+    .catch(function () {});
 
   fetch("phylo/index.json").then(function (r) { return r.json(); }).then(function (data) {
     META = data.meta; FAMS = data.families; CORPUS_T0 = Date.parse(META.t0);
