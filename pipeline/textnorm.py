@@ -146,6 +146,52 @@ def evasion_profile(text: str) -> dict:
                 mixed += 1
     return {"styled": styled, "homo": homo, "mixed": mixed}
 
+# --- script detection -------------------------------------------------------
+
+# Twitter's lang field is the only language signal in the firehose and it is
+# unreliable for hashtag-heavy posts: a Thai fancam caption whose hashtags and
+# artist names are Latin gets tagged "en". Tokenization then strips to
+# [a-z0-9'], so the non-Latin body contributes no tokens at all and the
+# lineage is built entirely from its hashtag block. Measuring the script mix
+# lets a caller filter on what the text actually is rather than on what the
+# platform guessed.
+_SCRIPT_RANGES = [
+    (0x0E00, 0x0E7F),    # Thai
+    (0x1100, 0x11FF),    # Hangul Jamo
+    (0x3040, 0x30FF),    # Hiragana + Katakana
+    (0x3400, 0x4DBF),    # CJK ext A
+    (0x4E00, 0x9FFF),    # CJK unified
+    (0xAC00, 0xD7AF),    # Hangul syllables
+    (0x0600, 0x06FF),    # Arabic
+    (0x0590, 0x05FF),    # Hebrew
+    (0x0900, 0x097F),    # Devanagari
+]
+
+
+def _is_other_script(ch: str) -> bool:
+    cp = ord(ch)
+    return any(lo <= cp <= hi for lo, hi in _SCRIPT_RANGES)
+
+
+def nonlatin_share(text: str) -> float:
+    """Share of a message's letters that belong to a non-Latin script.
+
+    Counts letters only, so URLs, hashtag punctuation, digits and emoji do not
+    dilute the result.
+    """
+    t = text or ""
+    letters = [ch for ch in t if ch.isalpha()]
+    if not letters:
+        return 0.0
+    return sum(1 for ch in letters if _is_other_script(ch)) / len(letters)
+
+
+# Above this share of non-Latin letters, treating the text as English prose is
+# not defensible. Set low deliberately: these posts are mostly Latin hashtags
+# wrapped around a non-Latin sentence, so the share is diluted by design.
+NONLATIN_THRESHOLD = 0.15
+
+
 # --- stopwords --------------------------------------------------------------
 
 # Deliberately short. An aggressive stopword list would erase the function-word

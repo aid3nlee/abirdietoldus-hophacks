@@ -245,6 +245,53 @@ covering 6,582 accounts**, in 18 seconds. Spot-checking the tightest ones:
 The method separates operation *types* without being told what to look for,
 which is the result the whole project rests on.
 
+## Method: behaviour classes
+
+Topic says what a lineage argues. It says nothing about whether the spread was
+authentic, and conflating the two is the easiest way to mislead a reader. The
+most "notable" lineages in this corpus by every structural measure are Thai and
+Korean entertainment promotions: deeply reworded, heavily amplified, organised
+— and neither covert nor political.
+
+So behaviour is classified on its own axis, from signals the pipeline already
+computes, and every family carries the evidence for its call.
+
+| Class | n | Rule | What it means |
+|---|---|---|---|
+| `farm` | 19 | ≥4 solicitation terms surviving into several wordings | Giveaways, airdrops, follow-to-win. The payload *is* the instruction. A confident call. |
+| `evade` | 0 | ≥0.15 mixed-script words per wording | A lookalike character inside an otherwise Latin word. **None found** — see below. |
+| `promo` | 847 | ≥1.5 hashtags per wording, or a lower load from one dominant source | Conserved hashtag block, variable free text. Coordinated by construction, but disclosed and commercial. |
+| `burst` | 16 | ≥75% of spread in 6h, ≥10% coordinated accounts, ≥250 accounts, no source above 50% | Near-identical wordings from *several* upstream accounts at once. A shortlist, not a verdict. |
+| `organic` | 3,122 | none of the above | Absence of evidence only. |
+
+Two of these deserve elaboration.
+
+**`burst` is a shortlist, not an accusation.** Hand-inspected, most of what it
+catches is football transfer aggregators racing the same scoop — structurally
+identical to a press campaign and entirely legitimate. It is worth keeping
+because it also surfaces the two Nigerian state-politics press campaigns in the
+corpus (30+ rewordings, 250–350 accounts, dispersed sources), which nothing
+else in the pipeline was finding. The UI says "worth a look" and never more.
+
+Source dispersion is what makes the class mean anything. An earlier version
+flagged NCT and ATEEZ fan posts as coordinated: one official account retweeted
+several thousand times is fast, and travels through a dense mutually-following
+community, so it passes a burst-plus-coordination test easily. Requiring the
+near-identical text to originate from *several* accounts separates "one post
+went viral" from "many accounts published the same thing at once".
+
+**`evade` is empty, and that is the finding.** Across 4,004 lineages, exactly
+two contain any mixed-script word at all and both are false positives. There is
+no homoglyph-based filter evasion in this corpus. An earlier counter reported
+105 evasion families, but it was counting every character the normalizer folds
+— and the top seven by frequency were the horizontal ellipsis (11,816
+occurrences, appended by Twitter itself when it truncates a retweet), the curly
+apostrophe, the em dash and smart quotes. It was ranking "was this tweet cut
+off". Styled characters (math-bold and similar) *are* common and *do* defeat a
+naive keyword match, but inspection shows they are decorative — headline
+emphasis and idol promo — so they are reported per-wording and never charged as
+evasion.
+
 ## Running it
 
 ```bash
@@ -359,9 +406,23 @@ noise), and `PRIMARY_LANG`.
   either unique or extremely common get no blocking key and cannot join a
   family. Roughly a third of traceable messages fall in that gap.
 - **Topic tags are a keyword lexicon, not a classifier.** They exist to make
-  thousands of families navigable and they misfire — a beauty-awards campaign
-  matching on `white`/`black` lands under identity. Shown as a heuristic in the
-  UI, never used as a finding.
+  thousands of families navigable. Shown as a heuristic in the UI, never used
+  as a finding. Two gates keep the worst misfires out: a term must survive into
+  several of a family's wordings (a lineage is a set of rewordings of one
+  claim, so a term that is part of the claim gets reworded with it), and the
+  surviving terms must include an unambiguous anchor. Before those gates, one
+  tweet reading "I woke up to god" filed all 226 wordings of a cosmetics
+  campaign under identity politics, and `white` plus `black` in a description
+  of an outfit scored exactly as high as `antisemitic` plus `sharia`. Coverage
+  is 502 of 4,004 families; the untagged remainder is mostly entertainment the
+  lexicon does not cover.
+- **`lang` is Twitter's guess and it is wrong in one direction.** Hashtag-heavy
+  Thai, Korean and Japanese posts get tagged English because their Latin-script
+  hashtags outweigh the body; 11% of variants in the "English" set carried
+  non-Latin script. Tokenisation keeps only `[a-z0-9']`, so those lineages were
+  built from their hashtag blocks rather than from a reworded sentence. Stage 1
+  now drops the clear cases and the export labels the borderline ones
+  (`offlang`, 52 families), filterable in the UI.
 - **No toxicity score yet.** The headline tree currently colours by drift,
   spread or coordination. Hate/toxicity scoring is the missing fourth channel
   and slots into the same control.

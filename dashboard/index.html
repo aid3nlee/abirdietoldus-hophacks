@@ -29,6 +29,7 @@
        node by eye, few enough that adjacent steps never blur. */
     --w1: #dce5f1; --w2: #aac0dd; --w3: #6f92c1; --w4: #3f68a0; --w5: #1d4478;
     --panel-w: 400px;
+    --x-ink: #0f1419; --x-dim: #536471; --x-line: #cfd9de; --x-blue: #1d9bf0;
     --type: "AuthenticFont", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
     /* One hand writes the whole board; kept as a name so the diagram code that
        asks for it keeps reading clearly. */
@@ -109,6 +110,9 @@
   }
   .chips button:hover { color: var(--ink); }
   .chips button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
+  .chips button i { font-style: normal; color: var(--ink-2); font-size: 10px; }
+  .chips button[disabled] { opacity: .45; cursor: default; }
+  .chips button[disabled]:hover { color: inherit; }
   .aug { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
   .aug input { accent-color: var(--pen); margin: 0; }
   .count { padding: 6px 16px; font-size: 11.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
@@ -125,6 +129,19 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .fam-meta { font-size: 11px; color: var(--ink-2); }
+  /* Behaviour badge. Colour separates the two accusatory classes from the
+     merely descriptive ones, so the list reads at a glance. */
+  .kind {
+    display: inline-block; padding: 0 4px; margin-right: 5px; font-size: 10px;
+    letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor;
+  }
+  .kind.farm, .kind.evade { color: var(--red); }
+  .kind.burst { color: var(--pen); }
+  .kind.promo { color: var(--ink-2); }
+  .kind.offlang { color: var(--ink-2); border-style: dashed; }
+  .why { margin-top: 6px; font-size: 11.5px; color: var(--ink-2); }
+  .why b { color: var(--ink); font-weight: 600; }
+  .chips.kinds button[aria-pressed="true"] { border-bottom-color: var(--red); }
 
   /* ---------- right column: the sheet itself ---------- */
   .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; }
@@ -204,11 +221,47 @@
   .howto summary { cursor: pointer; padding: 9px 0; font-size: 11.5px; color: var(--ink-2); }
   .howto summary:hover { color: var(--ink); }
   .howto .note { padding: 0 0 10px; }
-  .spec {
-    margin: 9px 0 0; padding: 10px 12px; font-size: 12.5px; line-height: 1.55;
-    white-space: pre-wrap; overflow-wrap: anywhere; max-width: 90ch;
-    background: var(--paper-2); border-left: 2px solid var(--pen);
+  /* ---------- the wording, drawn the way X draws a post ----------
+     Each variant is a real tweet, so it is shown as one: X's layout, X's type,
+     X's rounded card and action row. It is rendered here, not screenshotted.
+     Only what the crawl actually recorded is filled in -- the author, the day,
+     the retweet count. X's other counters were never collected, so those icons
+     carry no number rather than an invented one; on a page about manufactured
+     engagement, a plausible fake figure is the one thing it must not print.
+     The Grok button and the overflow menu are not reproduced. */
+  .xpost {
+    display: flex; gap: 12px; margin-top: 10px; padding: 12px 14px;
+    background: #fff; border: 1px solid var(--x-line); border-radius: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 15px; line-height: 20px; letter-spacing: normal; color: var(--x-ink);
   }
+  .xpost .av {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 17px; user-select: none;
+  }
+  .xcol { flex: 1; min-width: 0; }
+  .xhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 5px; }
+  .xname { font-weight: 700; }
+  .xdate { color: var(--x-dim); }
+  .xtext { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  /* X clamps a long post and offers the rest; the full text is in the page
+     either way, so nothing is cut off from selection, search or a screen reader. */
+  .xpost[data-expanded="false"] .xtext {
+    display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .xmore {
+    margin-top: 1px; padding: 0; border: 0; background: none; cursor: pointer;
+    font: inherit; color: var(--x-blue);
+  }
+  .xmore:hover { text-decoration: underline; }
+  .xacts {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 12px; color: var(--x-dim); font-size: 13px;
+  }
+  .xact { display: flex; align-items: center; gap: 5px; }
+  .xact svg { width: 17.5px; height: 17.5px; display: block; }
   .mut { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; font-size: 11.5px; }
   .mut .lbl, .rels .lbl { color: var(--ink-2); }
   .tok { font-size: 11.5px; padding: 0 4px; }
@@ -222,6 +275,7 @@
   .rels button:hover { border-bottom-style: solid; }
   .rels button[disabled] { color: var(--ink-2); border-bottom: 0; cursor: default; }
   .flags { margin-top: 9px; font-size: 11.5px; color: var(--red); }
+  .flags.mild { color: var(--ink-2); }
 
   /* ---------- the same lineage as numbers ---------- */
   .tbl { margin: 0 20px 4px; border-top: 1px solid var(--hair); }
@@ -234,6 +288,7 @@
   td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   td.k { color: var(--ink); font-weight: 700; }
   td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
+  td.txt span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   tbody tr { cursor: pointer; }
   tbody tr:hover { background: var(--paper-2); }
   tbody tr[aria-current="true"] { background: var(--pen-soft); }
@@ -243,13 +298,16 @@
   .loading { padding: 36px 20px; color: var(--ink-2); }
 
   .tip {
-    position: fixed; z-index: 20; max-width: 360px; pointer-events: none; opacity: 0;
-    transition: opacity .09s; background: var(--paper); border: 1px solid var(--ink);
-    padding: 8px 10px;
+    position: fixed; z-index: 40; max-width: 402px; pointer-events: none; opacity: 0;
+    transition: opacity .09s; background: #fff; padding: 12px 14px;
+    border: 1px solid var(--x-line); border-radius: 16px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, .13);
   }
   .tip.on { opacity: 1; }
-  .tip .t { font-size: 11.5px; line-height: 1.45; }
-  .tip .m { margin-top: 5px; font-size: 11px; color: var(--ink-2); }
+  .tip .xpost { margin: 0; padding: 0; border: 0; border-radius: 0; }
+  /* The line under the card is this page talking about the post, not X, so it
+     keeps the board's hand. */
+  .tip .m { margin-top: 9px; font-size: 11px; color: var(--ink-2); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
@@ -292,9 +350,11 @@
             <option value="depth">depth</option>
             <option value="drift">drift</option>
             <option value="coord">coordinated share</option>
+            <option value="peak6">burstiness</option>
           </select>
         </div>
-        <div class="chips" id="topics" role="group" aria-label="Filter by topic"></div>
+        <div class="chips" id="topics" role="group" aria-label="Filter by subject"></div>
+        <div class="chips kinds" id="kinds" role="group" aria-label="Filter by spread behaviour"></div>
         <label class="aug"><input type="checkbox" id="augonly"> August 17&ndash;31 only (clean sample)</label>
       </div>
       <p class="count" id="count"></p>
@@ -325,8 +385,35 @@
   };
   var NEWS = { politics:1, conflict:1, migration:1, identity:1, health:1 };
 
+  // Behaviour classes. Topic says what a lineage argues; this says how it
+  // travelled, which is the axis that actually separates a propaganda
+  // campaign from a concert promotion. Wording matters here: only "farm"
+  // is a confident accusation, "burst" is a shortlist, and "promo" is a
+  // description of a disclosed marketing pattern rather than a charge.
+  var KIND_LABEL = {
+    farm:"engagement farming", evade:"filter evasion", promo:"promo template",
+    burst:"synchronised burst", organic:"no structural flag"
+  };
+  var KIND_SHORT = {
+    farm:"farm", evade:"evasion", promo:"promo", burst:"burst", organic:""
+  };
+  var KIND_NOTE = {
+    farm:"The payload is an instruction \u2014 follow, retweet, enter. Inauthentic " +
+         "engagement, and openly so.",
+    evade:"Words carrying cross-script lookalike characters, so the text reads " +
+          "normally to a person and misses a keyword filter.",
+    promo:"A conserved hashtag block with variable free text: scheduled marketing " +
+          "and fan-campaign material. Coordinated by construction, but disclosed " +
+          "and commercial \u2014 not covert.",
+    burst:"Near-identical wordings from several different upstream accounts inside " +
+          "a few hours. This is a shortlist to review, not a verdict: a newsroom " +
+          "racing a scoop has the same shape as a press campaign.",
+    organic:"No structural evidence of farming, evasion, templating or synchronised " +
+            "release. Absence of evidence only."
+  };
+
   var META = null, FAMS = [], BUCKETS = {}, CORPUS_T0 = 0;
-  var state = { q:"", sort:"notable", topic:"all", win:"all", famId:null, fam:null, nodes:null,
+  var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"tree", cut:Infinity, sel:0, playing:false,
                 tableOpen:false };
   // auto = the view is still the fitted default, so a resize or a relayout may
@@ -347,6 +434,17 @@
     if (!st || !dr) return 620;
     var others = dr.parentNode.scrollHeight - dr.clientHeight;
     return Math.max(MIN_TREE_H, st.clientHeight - others - 10);
+  }
+
+  // Twitter stores tweet text with &, < and > already escaped, so a band
+  // called &TEAM arrives as "&amp;TEAM". Undo that before escaping it again
+  // for this page, or the card shows markup where the tweet showed a word.
+  // &amp; goes last: doing it first would turn "&amp;lt;" into a real "<".
+  function detwit(s) {
+    return String(s)
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"').replace(/&#0*39;/g, "'").replace(/&apos;/g, "'")
+      .replace(/&nbsp;/g, "\u00a0").replace(/&amp;/g, "&");
   }
 
   function esc(s) {
@@ -415,6 +513,26 @@
     return f.depth * Math.log10(Math.max(10, f.emis)) * (1 + f.drift);
   }
 
+  // Name the behaviour class and show the numbers that produced it, so the
+  // call can be checked rather than taken. Nothing here is a verdict the
+  // reader has to accept: the evidence is the point.
+  function kindLine(f) {
+    var bits = [];
+    if (f.kind !== "organic") {
+      bits.push("<b>" + KIND_LABEL[f.kind] + "</b> \u2014 " + esc(KIND_NOTE[f.kind]));
+      if (f.why && f.why.length) bits.push("Evidence: " + f.why.map(esc).join("; ") + ".");
+    } else {
+      bits.push("<b>No structural flag.</b> " + esc(KIND_NOTE.organic));
+    }
+    if (f.offlang) {
+      bits.push("Twitter tagged this lineage English and " +
+                Math.round(f.nonlatin * 100) + "% of its text is not. " +
+                "Tokenisation keeps only Latin characters, so this tree was built from " +
+                "its hashtags rather than from a reworded sentence.");
+    }
+    return '<p class="why">' + bits.join(" ") + "</p>";
+  }
+
   /* ---------------- family list ---------------- */
 
   function filtered() {
@@ -423,13 +541,17 @@
       if (state.win !== "all" && f.win !== state.win) return false;
       if (state.topic === "news") { if (!f.topics.some(function (t) { return NEWS[t]; })) return false; }
       else if (state.topic !== "all") { if (f.topics.indexOf(state.topic) < 0) return false; }
+      if (state.kind === "flagged") { if (f.kind === "organic") return false; }
+      else if (state.kind === "offlang") { if (!f.offlang) return false; }
+      else if (state.kind !== "all") { if (f.kind !== state.kind) return false; }
       if (!q) return true;
       return f.q.indexOf(q) >= 0 || f.top.toLowerCase().indexOf(q) >= 0 || f.root.toLowerCase().indexOf(q) >= 0;
     });
     var key = {
       notable: notability, emis: function (f) { return f.emis; }, nv: function (f) { return f.nv; },
       depth: function (f) { return f.depth * 1000 + Math.log10(f.emis); },
-      drift: function (f) { return f.drift; }, coord: function (f) { return f.coord_share; }
+      drift: function (f) { return f.drift; }, coord: function (f) { return f.coord_share; },
+      peak6: function (f) { return f.peak6; }
     }[state.sort];
     return out.sort(function (a, b) { return key(b) - key(a); });
   }
@@ -444,9 +566,12 @@
     }
     var html = shown.map(function (f) {
       var tags = f.topics.map(function (t) { return TOPIC_LABEL[t].toLowerCase(); }).join(", ");
+      var badge = KIND_SHORT[f.kind]
+        ? '<span class="kind ' + f.kind + '">' + KIND_SHORT[f.kind] + "</span>" : "";
+      if (f.offlang) badge += '<span class="kind offlang">non-English</span>';
       return '<button class="fam" data-id="' + f.id + '" aria-current="' + (f.id === state.famId) + '">' +
-        '<span class="fam-txt">' + esc(f.top) + "</span>" +
-        '<span class="fam-meta">' + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
+        '<span class="fam-txt">' + esc(detwit(f.top)) + "</span>" +
+        '<span class="fam-meta">' + badge + f.nv + " wordings &middot; " + fmt(f.emis) + " retweets" +
         (tags ? " &middot; " + tags : "") + "</span></button>";
     }).join("");
     $("#list").innerHTML = html || '<p class="loading">Nothing matches that phrase.</p>';
@@ -835,6 +960,78 @@
       '<text x="' + (W - 112) + '" y="14" font-size="10" fill="' + css("--ink-2") + '">peak ' + fmt(mx) + "/h</text>";
   }
 
+  /* ---------------- the post, as X would draw it ----------------
+
+     Generic equivalents of X's action icons, not their artwork: same
+     vocabulary at the same weight, drawn here. */
+  var XI = {
+    reply: "M4.3 5.9A2.6 2.6 0 0 1 6.9 3.3h10.2a2.6 2.6 0 0 1 2.6 2.6v7.5a2.6 2.6 0 0 1-2.6 2.6h-4.6l-4.8 3.7v-3.7H6.9a2.6 2.6 0 0 1-2.6-2.6z",
+    rt:    "M4.8 9.3V7.6a2.4 2.4 0 0 1 2.4-2.4h8.3M13.3 2.6 16.1 5.2l-2.8 2.6M19.2 14.7v1.7a2.4 2.4 0 0 1-2.4 2.4H8.5M10.7 21.4 7.9 18.8l2.8-2.6",
+    like:  "M12 20.3S4.6 15.7 4.6 10.9A4.1 4.1 0 0 1 12 8.4a4.1 4.1 0 0 1 7.4 2.5c0 4.8-7.4 9.4-7.4 9.4z",
+    views: "M4.4 20.2v-8.8M9.5 20.2V4.6M14.5 20.2v-6.1M19.6 20.2V8.2",
+    save:  "M6.2 3.6h11.6v17.1L12 16.3l-5.8 4.4z",
+    share: "M12 15.4V3.4M8.4 7 12 3.4 15.6 7M5 12.6v6.1a1.6 1.6 0 0 0 1.6 1.6h10.8a1.6 1.6 0 0 0 1.6-1.6v-6.1"
+  };
+  function xicon(k) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="' + XI[k] + '"/></svg>';
+  }
+
+  // X's own compact counter: 942, 2.3K, 230K, 1.4M.
+  function compact(v) {
+    if (v < 1000) return String(v);
+    var u = v < 1e6 ? [v / 1e3, "K"] : [v / 1e6, "M"];
+    return (u[0] < 100 ? u[0].toFixed(1).replace(/\.0$/, "") : String(Math.round(u[0]))) + u[1];
+  }
+
+  // No avatars were collected, so the circle is a deterministic monogram
+  // rather than a stand-in photograph of somebody.
+  function avatar(handle) {
+    var h = 0;
+    for (var i = 0; i < handle.length; i++) h = (h * 31 + handle.charCodeAt(i)) >>> 0;
+    return { bg: "hsl(" + (h % 360) + " 48% 44%)", ch: (handle[0] || "?").toUpperCase() };
+  }
+
+  // `mini` is the hover card: the whole text, no clamp, nothing to press.
+  function xpost(nd, mini) {
+    var who = String(nd.src || "").replace(/^@/, "");
+    var av = avatar(who || "?");
+    var acts =
+      '<div class="xacts">' +
+        '<span class="xact" title="Replies were not collected">' + xicon("reply") + "</span>" +
+        '<span class="xact" title="' + fmt(nd.n) + ' retweets of this wording">' +
+          xicon("rt") + "<span>" + compact(nd.n) + "</span></span>" +
+        '<span class="xact" title="Likes were not collected">' + xicon("like") + "</span>" +
+        '<span class="xact" title="Views were not collected">' + xicon("views") + "</span>" +
+        '<span class="xact">' + xicon("save") + "</span>" +
+        '<span class="xact">' + xicon("share") + "</span>" +
+      "</div>";
+    return '<article class="xpost" data-expanded="' + (mini ? "true" : "false") + '">' +
+      '<span class="av" style="background:' + av.bg + '" aria-hidden="true">' + esc(av.ch) + "</span>" +
+      '<div class="xcol">' +
+        '<p class="xhead"><span class="xname">' +
+          (who ? "@" + esc(who) : "account not recorded") + "</span>" +
+          '<span class="xdate">&middot; ' + esc(dayLabel(nd.t0)) + "</span></p>" +
+        '<p class="xtext">' + esc(detwit(nd.txt)) + "</p>" +
+        (mini ? "" : '<button type="button" class="xmore" hidden>Show more</button>') +
+        acts +
+      "</div></article>";
+  }
+
+  // Whether the clamp actually bit can only be known once it is laid out, and
+  // an offer to expand something already whole is worse than no offer.
+  function initPost(root) {
+    var post = root.querySelector(".xpost"), txt = root.querySelector(".xtext"),
+        more = root.querySelector(".xmore");
+    if (!post || !txt || !more) return;
+    more.hidden = txt.scrollHeight - txt.clientHeight < 2;
+  }
+  function togglePost(post) {
+    var open = post.dataset.expanded === "true";
+    post.dataset.expanded = open ? "false" : "true";
+    post.querySelector(".xmore").textContent = open ? "Show more" : "Show less";
+  }
+
   /* ---------------- inspector ---------------- */
 
   function renderInspector() {
@@ -866,18 +1063,32 @@
 
     // Only the flags that are actually raised. An unlit warning is noise.
     var fl = [];
-    if (n.obf > 3) fl.push(n.obf + " homoglyph characters \u2014 possibly filter evasion, possibly just styling");
+    // Two different things used to be reported as one number. A lookalike
+    // character sitting inside an otherwise Latin word is evasion and very
+    // little else; a wholly styled headline is typography. Only the first
+    // is worth raising.
+    if (n.mix > 0) {
+      fl.push(n.mix + " word" + (n.mix > 1 ? "s" : "") +
+              " mix scripts \u2014 a lookalike character inside a Latin word, which " +
+              "reads normally and misses a keyword filter");
+    } else if (n.obf > 3) {
+      fl.push(n.obf + " styled characters (math-bold and similar) \u2014 defeats a naive " +
+              "keyword match, but reads as decoration here");
+    }
     if (coord > 0.15) fl.push("coordinated accounts present");
 
     el.innerHTML =
       "<h3>Wording " + T.label[state.sel] + "</h3><span>generation " + n.d +
         " &middot; first seen " + esc(hourLabel(n.t0)) + "</span>" +
-      '<blockquote class="spec">' + esc(n.txt) + "</blockquote>" + mutation + rels +
+      xpost(n) + mutation + rels +
       '<p class="figs"><b>' + fmt(n.n) + "</b> retweets &middot; <b>" + fmt(n.acc) + "</b> accounts &middot; <b>" +
         fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
         "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
         (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
-      (fl.length ? '<p class="flags">' + fl.join(" &middot; ") + "</p>" : "");
+      (fl.length
+        ? '<p class="flags' + (n.mix > 0 ? "" : " mild") + '">' + fl.join(" &middot; ") + "</p>"
+        : "");
+    initPost(el);
   }
   function relChip(kind, i) {
     return "<button data-i=\"" + i + '">' + kind + " " + state.topo.label[i] + "</button>";
@@ -897,7 +1108,7 @@
         fmt(n.n) + "</td><td>" + fmt(n.acc) + "</td><td>" +
         (n.acc ? Math.round(n.co / n.acc * 100) : 0) + "%</td><td>" +
         Math.round(n.drift * 100) + "%</td><td>" + esc(hourLabel(n.t0)) + "</td>" +
-        '<td class="txt">' + esc(n.txt.slice(0, 160)) + (n.txt.length > 160 ? "\u2026" : "") + "</td></tr>";
+        '<td class="txt"><span>' + esc(detwit(n.txt)) + "</span></td></tr>";
     }).join("");
     return '<details class="tbl" id="tabledetails"' + (state.tableOpen ? " open" : "") +
       "><summary>the same lineage as numbers \u2014 all " + nodes.length + " wordings</summary>" +
@@ -959,8 +1170,9 @@
         '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
           fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
           Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
-          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p></div>" +
-        '<p class="root">' + esc(f.root) + "</p>" +
+          "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
+        kindLine(f) + "</div>" +
+        '<p class="root">' + esc(detwit(f.root)) + "</p>" +
         warn +
       "</div>" +
       '<div class="bar">' +
@@ -1034,9 +1246,9 @@
       var t = e.target;
       if (t.classList && t.classList.contains("nd")) {
         var n = state.nodes[+t.dataset.i];
-        tip.innerHTML = '<div class="t">' + esc(n.txt.slice(0, 200)) + (n.txt.length > 200 ? "&hellip;" : "") + "</div>" +
-          '<div class="m"><span>' + fmt(n.n) + " retweets</span><span>gen " + n.d + "</span><span>" +
-          Math.round(n.drift * 100) + "% drift</span><span>" + esc(hourLabel(n.t0)) + "</span></div>";
+        tip.innerHTML = xpost(n, true) +
+          '<div class="m">generation ' + n.d + " &middot; " + Math.round(n.drift * 100) +
+          "% drift &middot; first seen " + esc(hourLabel(n.t0)) + "</div>";
         tip.classList.add("on");
         var w = tip.offsetWidth, h = tip.offsetHeight;
         tip.style.left = Math.min(e.clientX + 14, innerWidth - w - 10) + "px";
@@ -1126,6 +1338,8 @@
   function wireOnce() {
     // The relation chips are the diagram's edges as words, so they navigate it.
     $("#inspector").addEventListener("click", function (e) {
+      var m = e.target.closest(".xmore");
+      if (m) { togglePost(m.closest(".xpost")); return; }
       var b = e.target.closest("button[data-i]"); if (b) selectNode(+b.dataset.i, true);
     });
     $("#panelx").addEventListener("click", closePanel);
@@ -1197,31 +1411,64 @@
   function renderTopics() {
     var counts = {};
     FAMS.forEach(function (f) { f.topics.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; }); });
-    var chips = ['<button data-t="all" aria-pressed="true">all</button>',
+    var chips = ['<button data-t="all" aria-pressed="true">all subjects</button>',
                  '<button data-t="news" aria-pressed="false">news &amp; politics</button>'];
     Object.keys(TOPIC_LABEL).filter(function (t) { return counts[t]; }).forEach(function (t) {
-      chips.push('<button data-t="' + t + '" aria-pressed="false">' + TOPIC_LABEL[t].toLowerCase() + "</button>");
+      chips.push('<button data-t="' + t + '" aria-pressed="false">' + TOPIC_LABEL[t].toLowerCase() +
+                 ' <i>' + counts[t] + "</i></button>");
     });
     $("#topics").innerHTML = chips.join("");
+  }
+
+  // The behaviour row. Classes with nothing in them are still listed, greyed
+  // and disabled, because "we looked for filter evasion and found none" is a
+  // result and hiding the chip would quietly turn it into a question never
+  // asked.
+  function renderKinds() {
+    var counts = {}, off = 0, flagged = 0;
+    FAMS.forEach(function (f) {
+      counts[f.kind] = (counts[f.kind] || 0) + 1;
+      if (f.offlang) off++;
+      if (f.kind !== "organic") flagged++;
+    });
+    var chips = ['<button data-k="all" aria-pressed="true">any behaviour</button>',
+                 '<button data-k="flagged" aria-pressed="false">any flag <i>' + flagged + "</i></button>"];
+    ["farm", "evade", "burst", "promo", "organic"].forEach(function (k) {
+      var n = counts[k] || 0;
+      chips.push('<button data-k="' + k + '" aria-pressed="false" title="' + esc(KIND_NOTE[k]) + '"' +
+                 (n ? "" : " disabled") + ">" + KIND_LABEL[k] + " <i>" + n + "</i></button>");
+    });
+    if (off) {
+      chips.push('<button data-k="offlang" aria-pressed="false" title="' +
+                 'Twitter tagged these English. Their text is not, so the lineage was built ' +
+                 'from Latin-script hashtags alone.">non-English <i>' + off + "</i></button>");
+    }
+    $("#kinds").innerHTML = chips.join("");
   }
 
   fetch("phylo/index.json").then(function (r) { return r.json(); }).then(function (data) {
     META = data.meta; FAMS = data.families; CORPUS_T0 = Date.parse(META.t0);
 
+    var flagged = FAMS.filter(function (f) { return f.kind !== "organic"; }).length;
     $("#corpus").innerHTML =
       "<b>" + fmt(META.n_families) + "</b> lineages &middot; <b>" + fmt(META.n_variants) +
       "</b> distinct wordings &middot; <b>" + fmt(META.n_emissions) + "</b> retweets traced &middot; " +
-      "Aug 17 \u2013 Sep 17, 2026";
+      "<b>" + fmt(flagged) + "</b> carrying a behaviour flag &middot; Aug 17 \u2013 Sep 17, 2026";
 
     renderTopics();
+    renderKinds();
     renderList();
     wireOnce();
 
-    // Open on a prose narrative rather than a promotional template: both are real
-    // lineages, but the hashtag-block campaigns dominate the corpus by volume and
-    // would give a misleading first impression of what the method finds.
+    // Open on a prose narrative rather than a promotional template: both are
+    // real lineages, but the hashtag-block campaigns dominate the corpus by
+    // volume and would give a misleading first impression of what the method
+    // finds. Now that promo is classified rather than guessed at by hashtag
+    // count, exclude it by class, and exclude the lineages whose text is not
+    // actually English.
     var pick = FAMS.filter(function (f) {
-      return f.ht < 1.5 && f.win === "aug" && f.topics.some(function (t) { return NEWS[t]; });
+      return f.kind !== "promo" && !f.offlang && f.win === "aug" &&
+             f.topics.some(function (t) { return NEWS[t]; });
     }).sort(function (a, b) { return notability(b) - notability(a); })[0] || FAMS[0];
     selectFamily(pick.id);
 
@@ -1239,6 +1486,14 @@
       var c = e.target.closest("button[data-t]"); if (!c) return;
       state.topic = c.dataset.t;
       Array.prototype.forEach.call($("#topics").children, function (x) {
+        x.setAttribute("aria-pressed", String(x === c));
+      });
+      renderList();
+    });
+    $("#kinds").addEventListener("click", function (e) {
+      var c = e.target.closest("button[data-k]"); if (!c || c.disabled) return;
+      state.kind = c.dataset.k;
+      Array.prototype.forEach.call($("#kinds").children, function (x) {
         x.setAttribute("aria-pressed", String(x === c));
       });
       renderList();

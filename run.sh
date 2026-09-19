@@ -10,6 +10,7 @@
 #   ./run.sh coordinate  co-retweet graph -> clusters
 #   ./run.sh inspect     print the top clusters and what they amplify
 #   ./run.sh evolution   variant families, mutation trees, dashboard export
+#   ./run.sh untruncate  put back the text the 140-char retweet cut removed
 #   ./run.sh dist        assemble the static site into dist/
 #   ./run.sh serve       live dev server on :8000 (npm run dev)
 #   ./run.sh verify     check every shard opens as valid parquet
@@ -94,12 +95,29 @@ evolution)
     python3 pipeline/04_evolution.py "$@"
     ;;
 
+untruncate)
+    # Display repair, not analysis: a retweet body arrives cut at 140 chars,
+    # and the full wording is usually sitting in content_global at n_copies=1
+    # -- below the threshold step 4 reads from, so it never reaches the export.
+    # Re-run this after any re-run of evolution, or the site shows stumps.
+    python3 pipeline/05_untruncate.py "$@"
+    ;;
+
 dist)
     # The site is the page plus the JSON it fetches, and nothing else: no build
     # step, no server, no API. Anything that serves static files can host it.
     if [ ! -f data/export/phylo/index.json ]; then
         echo "no export yet - run ./run.sh evolution first" >&2
         exit 1
+    fi
+    clipped=$(python3 -c "
+import json, glob
+n = sum(1 for f in glob.glob('data/export/phylo/trees-*.json')
+          for fam in json.load(open(f)).values()
+          for v in fam['nodes'] if v['txt'].rstrip().endswith('\u2026'))
+print(n)" 2>/dev/null || echo 0)
+    if [ "$clipped" -gt 8000 ]; then
+        echo "note: $clipped variants still cut at 140 chars - run ./run.sh untruncate first"
     fi
     rm -rf dist
     mkdir -p dist/phylo
@@ -135,6 +153,7 @@ all)
     ./run.sh coordinate "$@"
     ./run.sh inspect
     ./run.sh evolution
+    ./run.sh untruncate
     ;;
 
 status)

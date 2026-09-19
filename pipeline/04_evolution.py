@@ -61,7 +61,9 @@ import duckdb
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config as C
-from pipeline.textnorm import CONF_FROM, CONF_TO, EMOJI_RE2, STOPWORDS
+from pipeline.textnorm import (CONF_FROM, CONF_TO, EMOJI_RE2, EVASION_FROM,
+                              NONLATIN_THRESHOLD, STOPWORDS, evasion_profile,
+                              nonlatin_share)
 
 EVO = C.DATA / "evolution"
 PHYLO = C.EXPORT / "phylo"
@@ -138,6 +140,14 @@ def step1_content_global(con, force: bool) -> None:
                    min(first_seen)      AS first_seen
             FROM read_parquet('{C.CONTENT}/*.parquet')
             WHERE lang = 'en' AND length(text) BETWEEN {MIN_LEN} AND {MAX_LEN}
+              -- lang='en' is Twitter's guess and it is wrong in one direction
+              -- in particular: hashtag-heavy posts in Thai, Korean and
+              -- Japanese get tagged English because their Latin-script
+              -- hashtags outweigh the body. Left alone, 11% of the resulting
+              -- "English" variants carry non-Latin script. Drop the ones that
+              -- are plainly not English prose; borderline cases survive and
+              -- are labelled per-family at export.
+              AND NOT regexp_matches(text, '\\p{{Thai}}|\\p{{Hangul}}|\\p{{Hiragana}}|\\p{{Katakana}}')
             GROUP BY content_key
         ) TO '{CONTENT_GLOBAL}' (FORMAT PARQUET, COMPRESSION ZSTD)
     """)
@@ -162,7 +172,7 @@ def step2_tokens(con, force: bool) -> None:
                        {norm} AS norm,
                        -- deleting the confusable set and measuring the shortfall
                        -- counts homoglyph/styled characters without a second pass
-                       length(text) - length(translate(text, {sql_literal(CONF_FROM)}, '')) AS obf_chars,
+                       length(text) - length(translate(text, {sql_literal(EVASION_FROM)}, '')) AS obf_chars,
                        len(regexp_extract_all(text, '{EMOJI_RE2}')) AS n_emoji,
                        len(regexp_extract_all(text, '#(\\w+)')) AS n_hashtags,
                        (text LIKE '%…') AS is_truncated
@@ -485,6 +495,7 @@ TOPICS = {
 # rewording, and a term that appears once does not.
 MIN_TOPIC_DF = 2
 MIN_TOPIC_SHARE = 0.05
+MAX_TOPIC_DF = 4   # cap, so a 200-wording lineage is not held to a 10-term bar
 
 
 def _parse(spec: str) -> dict[str, int]:
@@ -497,18 +508,33 @@ def _parse(spec: str) -> dict[str, int]:
 TOPIC_SETS = {k: _parse(v) for k, v in TOPICS.items()}
 
 
+def _df_floor(n_variants: int) -> int:
+    """How many wordings a term must survive into before it counts."""
+    return max(MIN_TOPIC_DF, min(MAX_TOPIC_DF,
+                                 int(n_variants * MIN_TOPIC_SHARE + 0.999)))
+
+
 def classify(tok_df: dict, n_variants: int) -> list[str]:
     """Tag a family from the token->variant-count map of its wordings.
 
-    Two gates. A term must be persistent (present in several wordings, not
-    just one), and a topic must have an anchor plus corroboration. Both exist
-    to stop a single incidental word from labelling a whole lineage.
+    Two gates, and they fix different halves of the same failure.
+
+    Persistence: a term has to appear in several wordings. A lineage is a set
+    of rewordings of one claim, so a term that is part of the claim survives
+    the rewording. This is what stops one tweet in two hundred from setting
+    the label.
+
+    Anchors: the surviving terms have to include one that is unambiguous.
+    Weak terms can no longer combine into a tag on their own -- "white" plus
+    "black" in a description of an outfit used to score exactly as high as
+    "antisemitic" plus "sharia". They still rank a topic once an anchor has
+    earned it, so the two-term cases that are genuine keep their ordering.
     """
-    floor = max(MIN_TOPIC_DF, int(n_variants * MIN_TOPIC_SHARE + 0.999))
+    floor = _df_floor(n_variants)
     hits = []
     for topic, terms in TOPIC_SETS.items():
         kept = [(tok, w) for tok, w in terms.items() if tok_df.get(tok, 0) >= floor]
-        if len(kept) < 2 or not any(w == 2 for _, w in kept):
+        if not any(w == 2 for _, w in kept):
             continue
         hits.append((topic, sum(w for _, w in kept)))
     hits.sort(key=lambda x: -x[1])
@@ -534,11 +560,23 @@ def classify(tok_df: dict, n_variants: int) -> list[str]:
 #   promo    promotional template. A conserved hashtag block with variable
 #            free text -- scheduled marketing and fan-campaign material.
 #            Coordinated by construction, but disclosed and commercial.
-#   sync     synchronised burst. Near-identical wordings from many distinct
-#            accounts inside a tight window, by accounts that co-retweet each
-#            other elsewhere. This is the coordinated-inauthentic-behaviour
-#            candidate, and the only class here that is a real accusation.
+#   burst    synchronised burst. Near-identical wordings appearing from many
+#            distinct upstream sources inside a tight window, spread by
+#            accounts that co-retweet each other elsewhere. This is the
+#            coordinated-inauthentic-behaviour *shortlist*, not a verdict:
+#            inspected by hand, most of what it catches in this corpus is
+#            football transfer aggregators racing the same scoop, which has
+#            the identical structure and is entirely legitimate. It also
+#            catches the two state-politics press campaigns in the corpus,
+#            which is the reason to keep it. Read it as "worth a look".
 #   organic  no structural evidence of any of the above.
+#
+# Source dispersion is what makes that class mean anything. A fandom lineage
+# where one official account is retweeted 10,000 times is a broadcast, and it
+# used to land here because a broadcast is also fast and also travels through
+# a dense mutually-following community. Requiring the near-identical text to
+# come from *several* upstream accounts is what separates "one post went
+# viral" from "many accounts published the same thing at once".
 #
 # Thresholds sit near the top of each observed distribution rather than at
 # round numbers, and are listed here so they can be argued with.
@@ -549,13 +587,15 @@ FARM_TERMS = frozenset("""
 """.split())
 
 FARM_MIN_TERMS = 4      # 4+ of the above co-occurring is a solicitation
-EVADE_MIN_MIXED = 0.30  # mixed-script words per variant
+EVADE_MIN_MIXED = 0.15  # mixed-script words per variant...
+EVADE_MIN_TOTAL = 3     # ...and enough of them that it is not one odd wording
 PROMO_MIN_HT = 1.5      # mean hashtags per variant (corpus p90 = 2.3)
 PROMO_HANDLE_HT = 0.8   # ...or a lower hashtag load from one dominant source
 PROMO_MIN_SHARE = 0.85
-SYNC_MIN_PEAK6 = 0.75   # share of spread inside its busiest 6 hours (p90)
-SYNC_MIN_COORD = 0.20   # share of accounts in a stage-2 co-retweet cluster (p95)
-SYNC_MIN_ACC = 250      # too few accounts to call it a network
+BURST_MIN_PEAK6 = 0.75   # share of spread inside its busiest 6 hours (p90)
+BURST_MIN_COORD = 0.10   # share of accounts in a stage-2 co-retweet cluster (p90)
+BURST_MIN_ACC = 250      # too few accounts to call it a network
+BURST_MAX_HSHARE = 0.50  # one source above this is a broadcast, not a chorus
 
 
 def behaviour(*, tok_df: dict, nv: int, ht: float, mixed: int, coord_share: float,
@@ -567,22 +607,26 @@ def behaviour(*, tok_df: dict, nv: int, ht: float, mixed: int, coord_share: floa
     mechanism, and the evidence list keeps the losing signals visible.
     """
     ev = []
-    farm_hits = sorted(t for t in FARM_TERMS if tok_df.get(t, 0) >= max(2, nv * 0.1))
+    floor = _df_floor(nv)
+    farm_hits = sorted(t for t in FARM_TERMS if tok_df.get(t, 0) >= floor)
     mixed_rate = mixed / max(1, nv)
 
     if len(farm_hits) >= FARM_MIN_TERMS:
         return "farm", [f"solicitation terms: {', '.join(farm_hits[:6])}"]
-    if mixed_rate >= EVADE_MIN_MIXED:
-        return "evade", [f"{mixed_rate:.1f} mixed-script words per wording"]
+    if mixed_rate >= EVADE_MIN_MIXED and mixed >= EVADE_MIN_TOTAL:
+        return "evade", [f"{mixed_rate:.2f} mixed-script words per wording",
+                         f"{mixed} in total"]
     if ht >= PROMO_MIN_HT or (ht >= PROMO_HANDLE_HT and handle_share >= PROMO_MIN_SHARE):
         ev.append(f"{ht:.1f} hashtags per wording")
         if handle_share >= PROMO_MIN_SHARE:
             ev.append(f"{handle_share:.0%} of spread from one account")
         return "promo", ev
-    if peak6 >= SYNC_MIN_PEAK6 and coord_share >= SYNC_MIN_COORD and acc >= SYNC_MIN_ACC:
-        return "sync", [f"{peak6:.0%} of spread in 6 hours",
-                        f"{coord_share:.0%} of accounts co-retweet elsewhere",
-                        f"{acc:,} distinct accounts"]
+    if (peak6 >= BURST_MIN_PEAK6 and coord_share >= BURST_MIN_COORD
+            and acc >= BURST_MIN_ACC and handle_share <= BURST_MAX_HSHARE):
+        return "burst", [f"{peak6:.0%} of spread in 6 hours",
+                         f"{acc:,} accounts, no single source above "
+                         f"{handle_share:.0%}",
+                         f"{coord_share:.0%} of accounts co-retweet elsewhere"]
     return "organic", []
 
 
@@ -625,6 +669,27 @@ def step6_trees(con, force: bool) -> None:
     keep = keep[(keep.nv >= MIN_FAMILY) & (keep.emis >= MIN_FAMILY_EMISSIONS)]
     v = v[v.family_id.isin(keep.index)]
     print(f"      {len(keep):,} families qualify ({len(v):,} variants)")
+
+    # Evasion is recomputed here from the message text rather than read from
+    # the column step 2 wrote. That column counted every character the
+    # normalizer folds, which is dominated by curly apostrophes and by the
+    # ellipsis Twitter appends to a truncated retweet -- so it ranked
+    # "was this tweet cut off" and called it obfuscation. Step 2 now uses the
+    # narrower set too, but recomputing costs a second over 10^5 variants and
+    # means an existing build does not have to be thrown away to get it right.
+    prof = v.text.map(evasion_profile)
+    v["ev_styled"] = [d["styled"] for d in prof]
+    v["ev_homo"] = [d["homo"] for d in prof]
+    v["ev_mixed"] = [d["mixed"] for d in prof]
+
+    # Twitter's own lang field is what selected this corpus, and it is wrong
+    # often enough to matter: a Thai or Korean post whose Latin-script
+    # hashtags outweigh its body is routinely tagged "en". Those lineages are
+    # real and worth keeping -- but they cluster on their hashtag block, not
+    # on a reworded claim, so they answer a different question. Label them so
+    # the dashboard can separate them instead of quietly presenting them as
+    # English narrative drift.
+    v["nonlatin"] = v.text.map(nonlatin_share)
 
     t0_global = v.first_seen.min()
     cliff_h = int((pd.Timestamp(COLLECTION_CLIFF) - t0_global).total_seconds() // 3600)
@@ -692,7 +757,8 @@ def step6_trees(con, force: bool) -> None:
                 "d": int(depth[i]),
                 "add": added,
                 "del": lost,
-                "obf": int(r.obf_chars),
+                "obf": int(r.ev_styled + r.ev_homo),
+                "mix": int(r.ev_mixed),
                 "emo": int(r.n_emoji),
                 "drift": round(1 - (len(toks[i] & root_tok) /
                                     max(1, len(toks[i] | root_tok))), 3),
@@ -701,30 +767,74 @@ def step6_trees(con, force: bool) -> None:
             })
 
         all_tok = set().union(*toks) if toks else set()
+        # How many *wordings* each token survives into, not how many exist in
+        # the family overall. classify() needs the former; a term that shows
+        # up in one wording out of two hundred is not what the lineage says.
+        tok_df: dict[str, int] = {}
+        for ts in toks:
+            for tok in ts:
+                tok_df[tok] = tok_df.get(tok, 0) + 1
+
         emis = int(g.n_emissions.sum())
         acc = int(g.n_accounts.sum())
         co = int(g.n_coord_accounts.sum())
         handles = (g[g.rt_handle.notna()].groupby("rt_handle").n_emissions.sum()
                    .sort_values(ascending=False).head(5))
+        handle_share = (float(handles.iloc[0]) / emis) if len(handles) and emis else 0.0
+
+        fam_tl_all = tl_by_fam.get(fid)
+        if fam_tl_all is not None and len(fam_tl_all):
+            hrs = ((fam_tl_all.hr - t0_global).dt.total_seconds() // 3600).astype(int)
+            peak6 = peak_window(hrs.to_numpy(), fam_tl_all.n.to_numpy())
+        else:
+            peak6 = 0.0
+
+        mixed = int(g.ev_mixed.sum())
+        coord_share = round(co / acc, 3) if acc else 0.0
+        ht_mean = round(float(g.n_hashtags.mean()), 2)
+        kind, evidence = behaviour(
+            tok_df=tok_df, nv=n, ht=ht_mean, mixed=mixed, coord_share=coord_share,
+            acc=acc, peak6=peak6, handle_share=handle_share)
+        # Weight by spread: one stray non-English wording in a large lineage
+        # should not relabel it, and a lineage that is mostly non-English
+        # should be caught even if its wordings are individually short.
+        nonlatin = float((g.nonlatin * g.n_emissions).sum() / emis) if emis else 0.0
         fam = {
             "id": int(fid),
             "nv": n,
             "emis": emis,
             "acc": acc,
             "co": co,
-            "coord_share": round(co / acc, 3) if acc else 0.0,
+            "coord_share": coord_share,
             "t0": int((g.first_seen.min() - t0_global).total_seconds() // 3600),
             "t1": int((g.last_seen.max() - t0_global).total_seconds() // 3600),
             "depth": int(depth.max()),
             "drift": round(float(np.mean([nd["drift"] for nd in nodes])), 3),
-            "obf": int(g.obf_chars.sum()),
+            "obf": int(g.ev_styled.sum() + g.ev_homo.sum()),
+            # Styled characters (math-bold and friends) are reported, not
+            # charged. They defeat a naive keyword match, but inspection says
+            # they are decorative here -- headline emphasis and idol promo --
+            # so calling them evasion would be inventing a finding.
+            "sty": int(g.ev_styled.sum()),
+            "mix": mixed,
+            # Behaviour class and the numbers behind it. Separate from topic:
+            # topic says what a lineage argues, this says how it travelled.
+            "kind": kind,
+            "why": evidence,
+            "peak6": round(peak6, 3),
+            "hshare": round(handle_share, 3),
+            # Share of spread whose text is not Latin script. Non-zero means
+            # Twitter's lang field put a non-English lineage in an English
+            # corpus, and that its tree was built from hashtags alone.
+            "nonlatin": round(nonlatin, 3),
+            "offlang": bool(nonlatin >= NONLATIN_THRESHOLD),
             # Mean hashtags per variant separates the two kinds of lineage this
             # method finds: a prose narrative reworded by people (low) and a
             # promo template whose hashtag block is the conserved part and whose
             # free text is the variable region (high). Both are real mutation;
             # only one is the kind this project is about.
-            "ht": round(float(g.n_hashtags.mean()), 2),
-            "topics": classify(all_tok),
+            "ht": ht_mean,
+            "topics": classify(tok_df, n),
             "win": ("aug" if int((g.last_seen.max() - t0_global).total_seconds() // 3600) < cliff_h
                     else "sep" if int((g.first_seen.min() - t0_global).total_seconds() // 3600) >= cliff_h
                     else "span"),
@@ -745,6 +855,9 @@ def step6_trees(con, force: bool) -> None:
         "n_variants": int(v.shape[0]),
         "n_emissions": int(v.n_emissions.sum()),
         "buckets": N_BUCKETS,
+        "kinds": {k: sum(1 for f in index if f["kind"] == k)
+                  for k in ("farm", "evade", "promo", "burst", "organic")},
+        "offlang": sum(1 for f in index if f["offlang"]),
         "cliff_h": cliff_h,
         "cliff_note": "Crawl volume drops 15.3x on 2026-09-01 (22.0M tweets/day "
                       "before, 1.4M/day after). Counts either side are not comparable.",
@@ -752,6 +865,11 @@ def step6_trees(con, force: bool) -> None:
             "sim_threshold": SIM_THRESHOLD, "min_copies": MIN_COPIES,
             "block_keys": BLOCK_KEYS, "max_df": MAX_DF, "max_block": MAX_BLOCK,
             "min_family": MIN_FAMILY, "min_family_emissions": MIN_FAMILY_EMISSIONS,
+            "topic_min_df": MIN_TOPIC_DF, "topic_min_share": MIN_TOPIC_SHARE,
+            "burst_min_peak6": BURST_MIN_PEAK6, "burst_min_coord": BURST_MIN_COORD,
+            "burst_max_hshare": BURST_MAX_HSHARE,
+            "promo_min_ht": PROMO_MIN_HT, "evade_min_mixed": EVADE_MIN_MIXED,
+            "nonlatin_threshold": NONLATIN_THRESHOLD,
         },
     }
     idx_path.write_text(json.dumps({"meta": meta, "families": index},
