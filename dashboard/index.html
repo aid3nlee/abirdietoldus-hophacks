@@ -223,7 +223,10 @@
          keeps 35px of travel from reading as a jump. */
       transition: height var(--t-slow) var(--ease) .22s;
     }
-    .headdock:hover, .headdock:focus-within {
+    /* :focus-visible rather than :focus-within, so the bar opens for a reader
+       tabbing into it but does not stay wedged open under a mouse that has
+       just clicked one of its two buttons and moved on. */
+    .headdock:hover, .headdock:has(:focus-visible) {
       height: var(--head-h); transition-delay: 0s;
     }
     /* Anchored to the bottom edge of the dock, so the bar slides down out of
@@ -240,9 +243,9 @@
       content: ""; position: absolute; z-index: 2; top: 3px; left: 50%;
       width: 30px; height: 2px; margin-left: -15px; border-radius: 2px;
       background: var(--ink-2); opacity: .3; pointer-events: none;
-      transition: opacity .16s ease .46s;
+      transition: opacity var(--t-fast) ease .46s;
     }
-    .headdock:hover::after, .headdock:focus-within::after {
+    .headdock:hover::after, .headdock:has(:focus-visible)::after {
       opacity: 0; transition-delay: 0s;
     }
   }
@@ -396,7 +399,7 @@
      -- the tweet text above it is two clamped lines of context, these are the
      four words that say which idea it is. */
   .fam-kw { display: flex; flex-wrap: wrap; gap: 3px 4px; }
-  .lin-kw { display: flex; flex-wrap: wrap; gap: 4px 5px; margin: 0 0 7px; }
+  .lin-kw { display: flex; flex-wrap: wrap; gap: 4px 5px; margin: 6px 0 0; }
   .lin-kw .kw { font-size: 11px; padding: 1px 6px; }
   .lin-name { font-weight: 400; color: var(--ink-2); }
   .kw {
@@ -476,6 +479,17 @@
        than the viewport's -- folding the rail away widens the board, and with
        it the island, without any media query noticing. */
     container-type: inline-size;
+    interpolate-size: allow-keywords;
+    transition: width var(--t-slow) var(--ease), padding var(--t-slow) var(--ease);
+  }
+  /* When its details are shut, the lineage island is just its title. Keeping
+     the paper close to that text makes the folded state a compact waypoint on
+     the map rather than an empty bar across it. */
+  .isle-l.is-collapsed {
+    width: fit-content; overflow-y: visible;
+    /* Inline-size containment is useful while the body is a responsive
+       two-column grid, but it would hide the title from intrinsic sizing. */
+    container-type: normal;
   }
   .isle-r {
     top: 11px; right: 11px; width: clamp(214px, 26%, 264px); max-width: calc(100% - 22px);
@@ -487,7 +501,20 @@
   .isle-hd {
     margin: 12px 0 0; font-size: 10.5px; letter-spacing: .05em; color: var(--ink-2);
   }
-  .lin summary { cursor: pointer; }
+  .lin summary {
+    display: flex; align-items: baseline; gap: 6px; cursor: pointer;
+    list-style: none;
+  }
+  .lin summary::-webkit-details-marker { display: none; }
+  .lin summary::marker { content: ""; }
+  /* The control reads as an action, not a direction: plus opens the island
+     and minus closes it. The native details semantics still carry the state
+     for keyboards and assistive technology. */
+  .lin summary::before {
+    content: "+"; flex: none; width: .72em;
+    font-size: 17px; font-weight: 700; line-height: 1; transform: translateY(-1px);
+  }
+  .lin details[open] summary::before { content: "−"; }
   .lin summary h2 { display: inline; transition: color var(--t-mid) ease; }
   .lin summary:hover h2 { color: var(--ink); }
   /* The post first and the reading of it beside: the wording is the evidence
@@ -611,7 +638,6 @@
      carries the line and the glyph together; flipping it on two of the three
      keeps the stack from reading as one control stamped three times. */
   .nav button {
-  .nav button {
     position: relative; width: 28px; height: 28px; padding: 0;
     display: grid; place-items: center; border: 0;
     background: var(--nav-overlay);
@@ -631,8 +657,6 @@
   .nav #zout::before { transform: scaleX(-1); }
   .nav #zfit::before { transform: scale(-1); }
   .nav button:hover { color: var(--ink); }
-  .nav .fit { font-size: 11px; }
-  .nav button:hover { color: var(--ink); border-color: var(--ink); }
   .nav .fit { font-size: 13.5px; }
   .zoomlbl {
     position: absolute; left: 10px; bottom: 8px; z-index: 2; pointer-events: none;
@@ -671,9 +695,6 @@
     float: right; margin: -2px -6px 0 10px; padding: 2px 6px; cursor: pointer;
     border: 0; background: none; color: var(--ink-2); font-size: 16px; line-height: 1;
     transition: color var(--t-mid) ease, transform var(--t-mid) var(--ease-back);
-  }
-  .panel-x:hover { color: var(--ink); transform: rotate(90deg); }
-  .panel-x:active { transform: rotate(90deg) scale(.86); }
   }
   .panel-x:hover { color: var(--ink); transform: rotate(90deg); }
   .panel-x:active { transform: rotate(90deg) scale(.86); }
@@ -739,9 +760,6 @@
   .reply-excerpts { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .reply-excerpts summary { cursor: pointer; color: var(--pen); transition: opacity var(--t-fast) ease; }
   .reply-excerpts summary:hover { opacity: .78; }
-  .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
-  .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
-  .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
   .reply-excerpts blockquote { margin: 7px 0 0; padding: 5px 0 4px 9px; border-left: 2px solid var(--pen-soft); }
   .reply-excerpts blockquote p { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
   .reply-excerpts blockquote span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
@@ -900,9 +918,6 @@
   th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
   th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
   td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
-  th, td { text-align: left; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; vertical-align: top; }
-  th { position: sticky; top: 0; background: var(--paper); z-index: 1; color: var(--ink-2); font-weight: 400; box-shadow: 0 1px 0 var(--hair); }
-  td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
   td.k { color: var(--ink); font-weight: 700; }
   td.txt { white-space: normal; min-width: 28ch; max-width: 56ch; }
   td.txt span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -1001,7 +1016,6 @@
     .dock-bar { padding-left: 12px; }
     .dock-pane { padding: 0 12px 14px; }
     .panel { width: 100%; }
-    .sheet[data-panel="open"] { margin-right: 0; }
     .sheet[data-panel="open"] { margin-right: 0; }
   }
 
@@ -2998,7 +3012,7 @@
            Folded down to its title when the board wants the room, and holding
            the earliest phrasing as the post it actually was rather than as a
            paragraph of quoted text. */
-        '<aside class="isle isle-l" id="isle-l" aria-label="About this lineage">' +
+        '<aside class="isle isle-l' + (state.linOpen ? "" : " is-collapsed") + '" id="isle-l" aria-label="About this lineage">' +
           '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
             "<summary><h2>Lineage " + f.id +
               (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2></summary>" +
@@ -3007,17 +3021,16 @@
             '<div class="lin-post">' +
               '<p class="isle-hd">earliest phrasing in the corpus</p>' +
               xpost(state.nodes[state.topo.root]) +
-            "</div>" +
-            // and what the corpus says about it, alongside
-            '<div class="lin-meta"><div class="hdr">' +
-              // What this lineage is about, in its own words: the vocabulary that
-              // survived every rewording. Sits above the figures because "which
-              // idea is this" is the question a reader has before any of them.
+              // The lineage's durable words belong to the root post they
+              // describe, rather than to the aggregate figures beside it.
               ((f.kw && f.kw.length)
                 ? '<p class="lin-kw">' + f.kw.map(function (w) {
                     return '<span class="kw">' + esc(w) + "</span>";
                   }).join("") + "</p>"
                 : "") +
+            "</div>" +
+            // and what the corpus says about it, alongside
+            '<div class="lin-meta"><div class="hdr">' +
               '<p class="figs"><b>' + f.nv + "</b> wordings &middot; <b>" + f.depth + "</b> generations &middot; <b>" +
                 fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
                 Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
@@ -3322,7 +3335,22 @@
 
     var lin = $("#lindetails");
     if (lin) {
-      lin.addEventListener("toggle", function () { state.linOpen = lin.open; });
+      var syncLineageIsland = function () {
+        var island = $("#isle-l");
+        if (island) island.classList.toggle("is-collapsed", !lin.open);
+      };
+      // Start the paper widening as the details open (and vice versa), while
+      // the toggle event remains the source of truth for the next lineage.
+      lin.addEventListener("click", function (e) {
+        if (e.target.closest("summary")) {
+          var island = $("#isle-l");
+          if (island) island.classList.toggle("is-collapsed", lin.open);
+        }
+      });
+      lin.addEventListener("toggle", function () {
+        state.linOpen = lin.open;
+        syncLineageIsland();
+      });
       animateDetails(lin);
     }
 
