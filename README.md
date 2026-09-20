@@ -517,6 +517,46 @@ npm run dev       # live dev server on :8000  (= ./run.sh serve)
 npm run build     # -> dist/  (= ./run.sh dist)
 ```
 
+### Gemini reading
+
+The selected wording inspector includes an optional Gemini reading of the text.
+It is sent the wording, the wording it descends from, the tokens added and
+dropped in between, and the spread figures, and returns at most two sentences:
+what the wording says and what the reword changed, then what the figures show
+about how it travelled. The two-sentence cap is enforced server-side as well as
+asked for in the prompt, so a verbose reply cannot push the inspector off
+screen. The API key stays server-side; it is never placed in the static page.
+
+Set the key before starting the local server:
+
+```bash
+export GEMINI_API_KEY="your-key"
+./run.sh serve
+```
+
+Or put it in a `.env` beside `run.sh`, which is gitignored and survives across
+shells, so a new terminal does not need the export again:
+
+```bash
+echo 'GEMINI_API_KEY=your-key' > .env
+./run.sh serve
+```
+
+A real environment variable wins over the file, and `GEMINI_MODEL` may be set
+the same way to override the `gemini-3.6-flash` default. The model is pinned
+rather than tracking `gemini-flash-latest`, so it cannot change mid-demo;
+`gemini-2.5-flash` is retired and will 404 on a newly issued key.
+
+One reading takes roughly 6 seconds, which is why the button disables itself
+and says so while the call is in flight.
+
+Without a key, the dashboard and all existing evidence still work; only the
+analysis button reports that Gemini is unavailable. It interprets the text and
+never verifies the claim, and the prompt says so explicitly: the spread figures
+describe how a phrasing travelled and how it landed, never that anyone posted
+it in bad faith. Read it alongside the pipeline evidence and the uncertainty
+notes, not instead of them.
+
 There is no bundler and no Node dependency — `package.json` exists only so the
 usual two commands do the usual two things. Both shell out to `run.sh`, which
 is the real entry point:

@@ -171,7 +171,7 @@ serve)
     echo
     echo "  http://localhost:$port"
     echo
-    python3 -m http.server "$port" --directory .dev
+    python3 gemini_server.py "$port" .dev
     ;;
 
 all)

@@ -763,6 +763,15 @@
   .panel .figs { max-width: none; }
   .insp h3 { font-size: 15.5px; display: inline; }
   .insp h3 + span { font-size: 13.5px; color: var(--ink-2); margin-left: 9px; }
+  .gem { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .gem h4 { margin: 0 0 5px; font-size: 13px; }
+  .gem p { font-size: 12px; line-height: 1.45; }
+  .gem button { margin: 7px 0; padding: 4px 8px; border: 1px solid var(--pen); background: var(--pen-soft); cursor: pointer; }
+  .gem button:disabled { opacity: .55; cursor: wait; }
+  .gem .conf { display: block; margin-top: 4px; color: var(--ink-2); font-size: 11.5px; }
+  .gem .gem-error { color: var(--red); }
+  .insp h3 { font-size: 13.5px; display: inline; }
+  .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
   /* ---------- the wording, drawn the way X draws a post ----------
      Each variant is a real tweet, so it is shown as one: X's layout, X's type,
      X's rounded card and action row. It is rendered here, not screenshotted.
@@ -2585,6 +2594,10 @@
     // tweet being answered -- which is why `cmt` reaches 39,656 wordings where
     // the reply-only pass reached 9,922. Both are carried, never merged.
     var comments = commentBlock(n.cmt, state.famId, n.met && n.met.reply);
+    var gem = '<section class="gem" id="gemini-analysis" aria-live="polite">' +
+      '<h4>Gemini reading</h4>' +
+      '<button type="button" id="gem-run">Analyse this wording</button>' +
+      '<p id="gem-result"></p></section>';
     var deadends = deadEndBlock(n);
 
     el.innerHTML =
@@ -2595,13 +2608,64 @@
         fmt(n.sub) + "</b> counting everything descended from it &middot; <b>" + Math.round(n.drift * 100) +
         "%</b> drift &middot; <b>" + Math.round(coord * 100) + "%</b> coordinated" +
         (n.src ? " &middot; amplifies @" + esc(n.src) : "") + "</p>" +
-      comments + deadends +
+      comments +
+      gem +
+      deadends +
       (fl.length
         ? '<p class="flags' + (n.mix > 0 ? "" : " mild") + '">' + fl.join(" &middot; ") + "</p>"
         : "");
     initPost(el);
     Array.prototype.forEach.call(el.querySelectorAll(".reply-excerpts"), animateDetails);
     replay(el, "swap");
+    var ask = $("#gem-run");
+    if (ask) ask.addEventListener("click", requestAnalysis);
+  }
+
+  function requestAnalysis() {
+    var n = state.nodes[state.sel], f = state.fam, button = $("#gem-run"), out = $("#gem-result");
+    if (!n || !f || !button || !out) return;
+    button.disabled = true;
+    button.textContent = "Reading the wording...";
+    out.className = "";
+    out.textContent = "Gemini is reading this wording against the figures above.";
+    // The parent wording and the token diff are what make this a reading of a
+    // mutation rather than of an isolated sentence -- without them the model
+    // can only describe the text, not what changed when it was copied.
+    var parent = n.p != null && state.nodes[n.p] ? state.nodes[n.p] : null;
+    var payload = {
+      lineage_id: f.id,
+      wording: detwit(n.txt || n.text || ""),
+      parent_wording: parent ? detwit(parent.txt || parent.text || "") : null,
+      tokens_added: n.add || [],
+      tokens_dropped: n["del"] || [],
+      root: detwit(f.root || ""),
+      topics: f.topics || [],
+      spread: {
+        kind: f.kind,
+        why: f.why || [],
+        coordination_share: f.coord_share,
+        accounts: n.acc,
+        retweets_seen: n.n,
+        drift: n.drift,
+        comments: n.cmt ? n.cmt.n : 0,
+        comment_stance: n.cmt ? n.cmt.st : {}
+      }
+    };
+    fetch("/api/analyze", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.json().then(function (body) { if (!r.ok) throw new Error(body.error || "analysis unavailable"); return body; });
+    }).then(function (review) {
+      out.innerHTML = esc(String(review.analysis || "No reading returned.")) +
+        '<span class="conf">Gemini’s confidence in this reading: ' +
+        Math.round(Number(review.confidence || 0) * 100) + "%</span>";
+    }).catch(function (error) {
+      out.className = "gem-error";
+      out.textContent = error.message + ". Set GEMINI_API_KEY and restart ./run.sh serve.";
+    }).finally(function () {
+      button.disabled = false;
+      button.textContent = "Analyse this wording";
+    });
   }
   // Every wording on this tree spread at least twice -- that is what stage 4's
   // MIN_COPIES=2 buys, and it is also survivorship bias built into the sample:
