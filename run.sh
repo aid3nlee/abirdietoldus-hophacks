@@ -140,8 +140,11 @@ enrich)
     ;;
 
 dist)
-    # The site is the page plus the JSON it fetches, and nothing else: no build
-    # step, no server, no API. Anything that serves static files can host it.
+    # The site is the page plus the JSON it fetches, and nothing else: no
+    # bundler, no framework. Anything that serves static files can host it.
+    # The one dynamic part, /api/analyze, is not in here: locally it is
+    # gemini_server.py, on Vercel it is api/analyze.js, and the page degrades
+    # to an error in that panel if neither is answering.
     if [ ! -f data/export/phylo/index.json ]; then
         echo "no export yet - run ./run.sh evolution first" >&2
         exit 1

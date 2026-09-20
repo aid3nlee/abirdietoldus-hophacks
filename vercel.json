@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "./run.sh dist",
+  "outputDirectory": "dist",
+  "framework": null,
+  "headers": [
+    {
+      "source": "/phylo/(.*).json",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=31536000" }
+      ]
+    }
+  ]
+}

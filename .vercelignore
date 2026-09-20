@@ -1,0 +1,23 @@
+# The deploy is the page plus the JSON it fetches. Everything that builds that
+# JSON stays on a laptop.
+#
+# gemini_server.py and requirements.txt are the two lines that matter: a .py
+# at the root with a Handler in it is what made Vercel guess this was a Python
+# app and refuse to build. api/analyze.js is the deployed endpoint; the Python
+# one is the local dev server and has no business in the bundle.
+gemini_server.py
+requirements.txt
+config.py
+pipeline/
+twitter-firehose/
+__pycache__/
+.dev/
+.backup/
+.vscode/
+
+# Root assets the page does not use -- the font it does use is inlined as
+# base64 in dashboard/index.html, so the page is genuinely one file.
+*.png
+*.ttf
+README.md
+CLAUDE.md
