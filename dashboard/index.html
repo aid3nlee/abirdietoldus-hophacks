@@ -201,7 +201,7 @@
 
   /* The bar folds itself away so the board owns the whole sheet, and unfolds
      when the pointer reaches the top edge. Folded, it leaves behind its own
-     2px rule and a short handle to aim at. Gated on a real pointer and on the
+     2px rule. Gated on a real pointer and on the
      desktop layout: a touch screen has no hover to unfold it with, and below
      881px the sheet is a scrolling document where a bar parked at the top of
      the page would scroll out of reach. In both of those cases the bar stays
@@ -217,42 +217,32 @@
       --head-h: 45px;
       display: block; flex: none; position: relative; z-index: 6;
       height: var(--peek); overflow: hidden;
-      /* Unrolls on the instant, rolls back a beat late, so crossing the top of
-         the board on the way somewhere else does not snatch it shut under the
-         cursor. The curve spends its speed early and lands soft, which is what
-         keeps 35px of travel from reading as a jump. */
-      transition: height var(--t-slow) var(--ease) .22s;
+      transition: height var(--t-slow) var(--ease);
     }
     /* :focus-visible rather than :focus-within, so the bar opens for a reader
        tabbing into it but does not stay wedged open under a mouse that has
        just clicked one of its two buttons and moved on. */
-    .headdock:hover, .headdock:has(:focus-visible) {
-      height: var(--head-h); transition-delay: 0s;
-    }
+    .headdock:hover, .headdock:has(:focus-visible) { height: var(--head-h); }
     /* Anchored to the bottom edge of the dock, so the bar slides down out of
        its own strip as the dock opens instead of being squashed: the rule
        under it never moves relative to the board it divides. */
     .headdock .head {
       position: absolute; bottom: 0; left: 0; right: 0;
       background: var(--paper);
+      /* The hover dock is intentionally one line tall. On an unusually wide
+         corpus summary, let the summary yield with an ellipsis rather than
+         wrapping it underneath the title and making a tall blank header. */
+      flex-wrap: nowrap;
     }
-    /* A mark to aim at, not a button. It goes the instant the bar starts down
-       and only comes back once the bar has finished going up, so it is never
-       drawn over the words it is standing in for. */
-    .headdock::after {
-      content: ""; position: absolute; z-index: 2; top: 3px; left: 50%;
-      width: 30px; height: 2px; margin-left: -15px; border-radius: 2px;
-      background: var(--ink-2); opacity: .3; pointer-events: none;
-      transition: opacity var(--t-fast) ease .46s;
-    }
-    .headdock:hover::after, .headdock:has(:focus-visible)::after {
-      opacity: 0; transition-delay: 0s;
+    .headdock .head h1 { flex: none; white-space: nowrap; }
+    .headdock .head .counts {
+      flex: 0 1 auto; min-width: 0; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .headdock { transition-duration: 0s; }
-    .headdock::after { transition-duration: 0s; }
   }
 
   .cols { display: grid; grid-template-columns: auto minmax(0, 1fr); flex: 1; min-height: 0; }
@@ -449,11 +439,13 @@
      itself is not, so it only fades. */
   #stage-body.swap .isle-l { animation: rise var(--t-slow) var(--ease-out); }
   #stage-body.swap .isle-r { animation: rise var(--t-slow) var(--ease-out); }
+  #stage-body.swap .isle-k { animation: rise var(--t-slow) var(--ease-out); }
 
-  /* ---------- the two islands ----------
-     The board is the whole page now, so the two bands that used to sit above
-     it are laid on it instead: what this lineage *is* on the left, what the
-     drawing is *doing* on the right. They are paper resting on the map -- they
+  /* ---------- the three islands ----------
+     The board is the whole page now, so the bands that used to sit above and
+     below it are laid on it instead: what this lineage *is* top left, what the
+     drawing is *doing* top right, and how to read it bottom left. They are
+     paper resting on the map -- they
      take their own clicks and let every other pixel through to the tree
      underneath, which is why they are siblings of the SVG rather than anything
      the pan and zoom maths has to know about. */
@@ -472,51 +464,85 @@
     /* Wide enough for the post and the figures side by side, but never so wide
        that the right island has nowhere to sit: the second term reserves its
        width plus the water on either side of it, whatever the board is doing. */
-    width: clamp(280px, min(58%, 100% - 300px), 700px);
+    width: clamp(280px, min(64%, 100% - 300px), 760px);
     max-height: calc(100% - 22px); overflow-y: auto; overscroll-behavior: contain;
     padding: 9px 14px 12px;
     /* Queried by .lin-body below, which needs the island's own width rather
        than the viewport's -- folding the rail away widens the board, and with
        it the island, without any media query noticing. */
     container-type: inline-size;
-    interpolate-size: allow-keywords;
-    transition: width var(--t-slow) var(--ease), padding var(--t-slow) var(--ease);
-  }
-  /* When its details are shut, the lineage island is just its title. Keeping
-     the paper close to that text makes the folded state a compact waypoint on
-     the map rather than an empty bar across it. */
-  .isle-l.is-collapsed {
-    width: fit-content; overflow-y: visible;
-    /* Inline-size containment is useful while the body is a responsive
-       two-column grid, but it would hide the title from intrinsic sizing. */
-    container-type: normal;
   }
   .isle-r {
     top: 11px; right: 11px; width: clamp(214px, 26%, 264px); max-width: calc(100% - 22px);
     padding: 10px 14px 11px;
   }
+  /* The lineage island's body sets its own gap under the title (.lin-body);
+     the controls have no such row of their own to carry it. */
+  .isle-r > .isle-in { margin-top: 8px; }
+
+  /* ---------- one fold, three islands ----------
+     All three shut the same way, because they are the same object at three
+     sizes: a word you can press, and a body that folds under it. What is left
+     when a body is folded is the island's own name in its own corner -- a
+     compact waypoint on the map rather than an empty bar across it, which is
+     why the two top islands shrink their paper to that word as well.
+
+     `display: none` on a folded body is what makes `fit-content` honest: a
+     clipped body still contributes its width to an intrinsic size, so a
+     height-only clip would leave the folded paper as wide as the open paper.
+     setFold() below measures both boxes and animates between them, and holds
+     the body drawn (.folding) for the length of the travel so a closing
+     island still has something to show on the way down. */
+  .isle[data-open="false"] > .isle-in { display: none; }
+  .isle.folding > .isle-in { display: block; }
+  .isle-l:not([data-open="true"]),
+  .isle-r:not([data-open="true"]) { width: fit-content; }
+  .isle-l:not([data-open="true"]) {
+    overflow-y: visible;
+    /* Inline-size containment is useful while the body is a responsive
+       two-column grid, but it would hide the title from intrinsic sizing. */
+    container-type: normal;
+  }
+  /* The whole title row is the control, so the pointer target is the width of
+     the paper rather than the width of a glyph. */
+  .isle-tog {
+    display: flex; align-items: baseline; gap: 7px; width: 100%;
+    padding: 0; border: 0; background: none; cursor: pointer;
+    font: inherit; text-align: left; color: var(--ink-2);
+    transition: color var(--t-mid) ease;
+  }
+  .isle-tog:hover, .isle-tog:hover h2 { color: var(--ink); }
+  .isle-tog h2 { transition: color var(--t-mid) ease; }
+  /* The two islands whose name is a caption rather than a heading. */
+  .isle-k .isle-tog, .isle-r .isle-tog {
+    font-size: 11.5px; letter-spacing: .05em;
+  }
+  /* The control reads as an action, not a direction: plus opens the island and
+     minus closes it. Both glyphs are drawn, one over the other, and the fold
+     turns one into the other through a quarter turn -- the minus is the plus's
+     own upright stroke, laid down. A `content` swap would snap; this is the
+     same gesture the paper under it is making, at the size of a letter. */
+  .pm {
+    position: relative; top: -1px; flex: none; width: .8em; text-align: center;
+    font-size: 15px; font-weight: 700; font-style: normal; line-height: 1;
+  }
+  .pm::before, .pm::after {
+    transition: opacity var(--t-mid) ease, transform var(--t-mid) var(--ease-back);
+  }
+  .pm::before { content: "+"; display: block; }
+  .pm::after {
+    content: "\2212"; position: absolute; left: 0; top: 0; width: 100%;
+    opacity: 0; transform: rotate(-90deg);
+  }
+  .isle[data-open="true"] .pm::before { opacity: 0; transform: rotate(90deg); }
+  .isle[data-open="true"] .pm::after  { opacity: 1; transform: none; }
+
   /* A caption on a card, not a heading in the document: the island names its
      own sections at a whisper, so the post inside it stays the loudest thing
      on the paper. */
   .isle-hd {
     margin: 12px 0 0; font-size: 10.5px; letter-spacing: .05em; color: var(--ink-2);
   }
-  .lin summary {
-    display: flex; align-items: baseline; gap: 6px; cursor: pointer;
-    list-style: none;
-  }
-  .lin summary::-webkit-details-marker { display: none; }
-  .lin summary::marker { content: ""; }
-  /* The control reads as an action, not a direction: plus opens the island
-     and minus closes it. The native details semantics still carry the state
-     for keyboards and assistive technology. */
-  .lin summary::before {
-    content: "+"; flex: none; width: .72em;
-    font-size: 17px; font-weight: 700; line-height: 1; transform: translateY(-1px);
-  }
-  .lin details[open] summary::before { content: "−"; }
-  .lin summary h2 { display: inline; transition: color var(--t-mid) ease; }
-  .lin summary:hover h2 { color: var(--ink); }
   /* The post first and the reading of it beside: the wording is the evidence
      and the figures are what we say about it, so they are two columns rather
      than a stack that makes you scroll from one to the other. Below the
@@ -552,6 +578,12 @@
     margin-top: 10px; font-size: 12px;
     justify-content: flex-start; flex-wrap: wrap; gap: 3px 13px;
   }
+  /* Once the island has enough room for the tweet beside the lineage figures,
+     preserve X's familiar single action row. Smaller islands keep wrapping
+     rather than letting counters spill past the card. */
+  @container (min-width: 750px) {
+    .isle-l .xacts { flex-wrap: nowrap; }
+  }
 
   /* Controls are typed words, underlined in pen when they are the live one.
      One column now rather than one row: the island is narrow, and a label
@@ -562,15 +594,17 @@
     flex: 0 0 100%; font-weight: 400; font-size: 11px; letter-spacing: .04em;
     text-transform: uppercase; color: var(--ink-2);
   }
-  /* Scoped to the island rather than to .bar, because the timeline's own two
-     words sit outside the shade/layout rows and would otherwise come up in the
-     browser's grey button chrome next to them. */
-  .isle-r button {
+  /* Scoped to the island's body rather than to .bar, because the timeline's own
+     two words sit outside the shade/layout rows and would otherwise come up in
+     the browser's grey button chrome next to them -- and scoped past the
+     island's fold control, which is a title, not a choice, and wears the same
+     plus/minus as the other two islands instead of a control's underline. */
+  .isle-r .isle-in button {
     padding: 1px 0; border: 0; background: none; cursor: pointer;
     color: var(--ink-2); border-bottom: 2px solid transparent;
     transition: color var(--t-mid) ease, border-bottom-color var(--t-mid) var(--ease-out);
   }
-  .isle-r button:hover { color: var(--ink); }
+  .isle-r .isle-in button:hover { color: var(--ink); }
   .isle-r button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--pen); }
   .isle-r .act { color: var(--ink-2); border-bottom: 1px dotted var(--rule); }
   .isle-r .act:active { color: var(--pen); }
@@ -658,20 +692,48 @@
   .nav #zfit::before { transform: scale(-1); }
   .nav button:hover { color: var(--ink); }
   .nav .fit { font-size: 13.5px; }
+  /* Beside the buttons it reports on, rather than across the board from them:
+     the bottom-left corner is the key's now. */
   .zoomlbl {
-    position: absolute; left: 10px; bottom: 8px; z-index: 2; pointer-events: none;
+    position: absolute; right: 45px; bottom: 10px; z-index: 2; pointer-events: none;
     font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums;
   }
 
+  /* ---------- the key, as the third island ----------
+     It used to be a band under the board, which spent a strip of height on
+     something most readers consult once and then stop seeing. On the map it
+     costs the board nothing it was using, and it folds away to its own title
+     when it has been read. */
+  .isle-k {
+    left: 11px; bottom: 11px; z-index: 4;
+    max-width: calc(100% - 22px); max-height: calc(100% - 22px);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  /* The title is the control: pressing the word folds the island under it, the
+     same bargain the other two islands make, with the same mark on it. The
+     island has no padding of its own -- the title carries the inset it needs
+     and the key carries the rest -- so folded it is the width of one word. */
+  .isle-k .isle-tog { flex: none; padding: 8px 13px; }
+
   .key {
-    padding: 9px 20px 12px; font-size: 13.5px; color: var(--ink-2);
+    padding: 0 13px 11px; font-size: 12px; color: var(--ink-2);
+    width: 244px; max-width: 100%; overflow-y: auto; overscroll-behavior: contain;
+  }
+  .key-ttl { margin: 0; color: var(--ink); font-size: 12.5px; }
+  /* The wash and the two words that bound it, on one line: the ramp is the
+     sentence, so its ends are set as labels on it rather than as prose. */
+  .key-ramp { margin: 4px 0 0; display: flex; align-items: center; gap: 6px; }
+  .key-marks {
+    margin: 9px 0 0; padding: 0; list-style: none;
     display: flex; flex-direction: column; gap: 6px;
   }
-  .key-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 14px; }
-  .key span { display: flex; align-items: center; gap: 5px; }
-  .key .sep { width: 1px; height: 11px; background: var(--rule); flex: none; }
-  .wash { display: flex; }
-  .wash i { width: 17px; height: 9px; display: block; }
+  .key-marks li { display: flex; align-items: flex-start; gap: 6px; }
+  /* A swatch sits on the cap-height of the line it explains, not on the
+     middle of a row that may have wrapped to two. */
+  .key-marks svg { flex: none; margin-top: 1px; }
+  .key-star { flex: none; width: 20px; font-style: normal; text-align: center; }
+  .wash { display: flex; flex: none; }
+  .wash i { width: 15px; height: 9px; display: block; }
 
   /* ---------- the selected variant, in the panel that slides in ----------
      Clicking a circle opens this. Everything the page knows about one wording
@@ -825,9 +887,18 @@
      read instead of being scrolled off to reach them. Same paper, same pen:
      a panel, not a card -- its top rule answers the header's. */
   .dock {
+    --dock-h: min(274px, 32vh);
     position: sticky; bottom: 0; z-index: 12; margin-top: 4px;
     background: var(--paper); border-top: 2px solid var(--ink);
   }
+  /* This is the dock's grab bar. It is separate from the tabs so a drag never
+     selects a view; the dock's top rule itself remains the only visual cue. */
+  .dock-resize {
+    height: 10px; display: grid; place-items: center; cursor: ns-resize;
+    touch-action: none; user-select: none;
+  }
+  .dock-resize:focus-visible { outline: 2px solid var(--pen); outline-offset: -2px; }
+  .dock[data-open="false"] .dock-resize { display: none; }
   .dock-bar {
     display: flex; align-items: stretch; gap: 14px;
     padding: 0 8px 0 20px; background: var(--paper-2);
@@ -857,10 +928,24 @@
   .dock-sel b { color: var(--ink); font-weight: 700; }
   #docktoggle svg { transition: transform .2s ease; }
   .dock[data-open="false"] #docktoggle svg { transform: rotate(180deg); }
-  /* Fixed height, so opening and closing the dock is the only thing that ever
-     moves the board -- a tab switch must not resize it underneath the reader. */
-  .dock-body { height: min(274px, 32vh); overflow: hidden; }
-  .dock[data-open="false"] .dock-body { display: none; }
+  /* A drag sets --dock-h once; switching tabs then leaves that reader-chosen
+     height alone instead of moving the board underneath them. */
+  .dock-body {
+    height: var(--dock-h); overflow: hidden; will-change: height;
+    transition: height var(--t-slow) var(--ease);
+  }
+  /* Keep direct manipulation attached to the pointer, then let the panel
+     settle softly for keyboard and programmatic size changes. */
+  .dock.resizing .dock-body { transition-duration: 70ms; transition-timing-function: linear; }
+  /* Folding it away travels rather than snaps, on the same curve and the same
+     clock as the three islands on the board. Visibility waits out the close,
+     so the numbers are still there on the way down and are gone -- from the
+     tab order and from a screen reader, not merely from view -- once the body
+     has finished closing. */
+  .dock[data-open="false"] .dock-body {
+    height: 0; visibility: hidden;
+    transition: height var(--t-slow) var(--ease), visibility 0s linear var(--t-slow);
+  }
   .dock-pane { height: 100%; overflow: auto; padding: 0 20px 14px; }
   .dock-pane[hidden] { display: none; }
   .dock-pane h4 {
@@ -1041,26 +1126,29 @@
     .lin h2 { font-size: 13.5px; }
     /* Side by side, two islands on a phone leave no board between them, so
        they stack instead: the lineage across the top, the controls across the
-       foot, and the map is the band of paper left in between. */
+       foot, and the map is the band of paper left in between. The key starts
+       folded here (see state.keyOpen) and keeps only the corner its own title
+       needs; opened, it is an overlay over the controls, which is the bargain
+       a phone gets instead of a third resident band. */
     .isle-l {
       top: 8px; left: 8px; right: 8px; width: auto; max-width: none;
       max-height: 34%; padding: 8px 12px 10px;
     }
     .isle-r {
-      top: auto; bottom: 8px; left: 8px; right: 46px; width: auto; max-width: none;
+      top: auto; bottom: 8px; left: 74px; right: 46px; width: auto; max-width: none;
       padding: 9px 12px 10px;
     }
+    .isle-k { left: 8px; bottom: 8px; z-index: 5; max-width: calc(100% - 16px); }
+    .isle-k[data-open="true"] { max-height: calc(100% - 16px); }
     .grp { gap: 3px 12px; }
     .zoomlbl { display: none; }
     .pulse { height: 50px; }
     .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 14px 8px; }
-    .key { padding: 2px 14px 12px; gap: 5px 12px; }
     .note { padding-inline: 14px; }
     .loading { padding-inline: 14px; }
 
     .nav { right: 7px; bottom: 7px; gap: 6px; }
     .nav button { width: 38px; height: 38px; }
-    .zoomlbl { left: 8px; bottom: 7px; }
     .tip { display: none; }
     .panel { padding: 12px 14px max(24px, env(safe-area-inset-bottom)); }
     .panel-x { min-width: 34px; min-height: 34px; }
@@ -1068,6 +1156,8 @@
     .xpost .av { width: 34px; height: 34px; font-size: 15px; }
     .xacts { gap: 8px; font-size: 12px; }
     .xact { gap: 3px; }
+    .dock-resize { display: none; }
+    .dock-body { height: min(var(--dock-h), 46vh); }
   }
 
   @media (max-width: 380px) {
@@ -1075,7 +1165,6 @@
     .head .counts { margin-left: 34px; }
     .rail-top { padding-inline: 11px; }
     .draw { margin-inline: 11px; }
-    .key { padding-inline: 11px; }
     .xpost .av { width: 30px; height: 30px; }
   }
 </style>
@@ -1220,7 +1309,18 @@
   var CLUSTERS = {}, CMETA = null;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
-                dockOpen:true, dockTab:"wordings", linOpen:false };
+                dockOpen:true, dockTab:"wordings", dockHeight:null, linOpen:false,
+                // The controls island. Open by default everywhere: shade and
+                // layout are the two things on the sheet that change what the
+                // board is showing, so they are not something to go looking
+                // for -- but they fold, because on a small board the water
+                // matters more than a row of words already read.
+                ctlOpen:true,
+                // The key island. Folded to its title on a phone, where the
+                // board has no corner to spare and the controls already own
+                // the foot of it; open everywhere else, because a reader who
+                // has not met the wash yet cannot read the board without it.
+                keyOpen: !matchMedia("(max-width: 640px)").matches };
   // The board's camera. auto = it is still the fitted default, so a resize may
   // refit it; any pan or zoom clears the flag and the camera is left where the
   // reader put it. The zoom range is wide enough to be called free: the whole
@@ -1505,6 +1605,64 @@
         d.open = opening;
       };
     });
+  }
+
+  /* ---------------- the island fold ----------------
+
+     One gesture, three islands, and the same bargain the <details> above
+     strikes: the box is measured in both states inside a single frame -- no
+     paint happens in between, so nothing flickers -- and then travelled
+     between them.
+
+     Width travels with height because a folded island shrinks its paper to
+     its own title, and that width is only honest while the body is out of
+     flow: a clipped body still contributes its width to `fit-content`, so the
+     closed box has to be measured with the body already `display: none`. The
+     body is then pinned to the width it had while open and held drawn for the
+     length of the travel (.folding), so a closing island still has something
+     to show on the way down instead of reflowing its two columns into a strip
+     as the paper narrows underneath it.
+
+     Reduced motion gets the state change and none of the travel. */
+  var FOLD_MS = 340;
+  function setFold(isle, open) {
+    if (!isle) return;
+    var prev = isle._fold;
+    if (prev) { isle._fold = null; prev.forEach(function (a) { a.cancel(); }); }
+    if (REDUCE || !isle.animate) { isle.dataset.open = String(open); return; }
+
+    var body = isle.querySelector(":scope > .isle-in"), bw = 0;
+    if (!open && body) bw = body.offsetWidth;          // measured while still open
+    var w0 = isle.offsetWidth, h0 = isle.offsetHeight;
+    isle.dataset.open = String(open);
+    if (open && body) bw = body.offsetWidth;           // measured now that it is
+    var w1 = isle.offsetWidth, h1 = isle.offsetHeight;
+
+    isle.classList.add("folding");
+    isle.style.overflow = "hidden";
+    if (body && bw) body.style.width = bw + "px";
+
+    var runs = [isle.animate(
+      [{ width: w0 + "px", height: h0 + "px" }, { width: w1 + "px", height: h1 + "px" }],
+      { duration: FOLD_MS, easing: "cubic-bezier(.32,.72,0,1)" })];
+    // The contents are a beat behind the paper either way: they wait for room
+    // to land in, and they are gone before the paper has finished closing.
+    if (body) runs.push(body.animate(
+      open ? [{ opacity: 0, transform: "translateY(5px)" },
+              { opacity: 0, transform: "translateY(5px)", offset: .3 },
+              { opacity: 1, transform: "none" }]
+           : [{ opacity: 1, transform: "none" },
+              { opacity: 0, transform: "translateY(5px)", offset: .55 },
+              { opacity: 0, transform: "translateY(5px)" }],
+      { duration: FOLD_MS, easing: "linear" }));
+
+    isle._fold = runs;
+    runs[0].onfinish = runs[0].oncancel = function () {
+      if (isle._fold === runs) isle._fold = null;
+      isle.classList.remove("folding");
+      isle.style.overflow = "";
+      if (body) body.style.width = "";
+    };
   }
   function median(a) {
     var v = a.slice().sort(function (x, y) { return x - y; }), m = v.length >> 1;
@@ -2626,7 +2784,12 @@
     }).join("");
 
     return '<section class="dock" id="dock" data-open="' + state.dockOpen +
-        '" aria-label="Lineage inspector">' +
+        '" aria-label="Lineage inspector"' +
+        (state.dockHeight !== null ? ' style="--dock-h:' + Math.round(state.dockHeight) + 'px"' : "") + '>' +
+      '<div class="dock-resize" id="dockresize" role="separator" aria-orientation="horizontal" ' +
+        'aria-label="Resize lineage inspector" aria-valuemin="0" ' +
+        'aria-valuenow="' + Math.round(state.dockHeight !== null ? state.dockHeight : 274) +
+        '" tabindex="0"></div>' +
       '<div class="dock-bar">' +
         '<div class="dock-tabs" role="tablist" aria-label="Inspector views">' + tabs + "</div>" +
         '<div class="dock-tools">' +
@@ -2849,6 +3012,62 @@
         css("--ink-2") + '">gen ' + maxD + "</text>";
   }
 
+  function syncDockResize() {
+    var handle = $("#dockresize"), body = $("#dock-body");
+    if (!handle || !body) return;
+    var height = Math.round(body.getBoundingClientRect().height);
+    handle.setAttribute("aria-valuemin", "0");
+    handle.removeAttribute("aria-valuemax");
+    handle.setAttribute("aria-valuenow", String(height));
+    handle.setAttribute("aria-valuetext", height + " pixels tall");
+  }
+  function setDockHeight(height) {
+    // The pointer is the only upper bound: the reader can devote the whole
+    // stage to analysis or pull the body all the way down to its tab bar.
+    height = Math.max(0, Math.round(height));
+    state.dockHeight = height;
+    var dock = $("#dock");
+    if (dock) dock.style.setProperty("--dock-h", height + "px");
+    syncDockResize();
+    drawDockCharts();
+  }
+  function wireDockResize(dock) {
+    var handle = $("#dockresize"), body = $("#dock-body"), drag = null;
+    if (!dock || !handle || !body) return;
+    syncDockResize();
+    handle.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0 || !state.dockOpen) return;
+      e.preventDefault();
+      drag = { id:e.pointerId, y:e.clientY, height:body.getBoundingClientRect().height };
+      handle.setPointerCapture(e.pointerId);
+      dock.classList.add("resizing");
+    });
+    handle.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      setDockHeight(drag.height + drag.y - e.clientY);
+    });
+    var finish = function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (handle.hasPointerCapture && handle.hasPointerCapture(e.pointerId)) {
+        handle.releasePointerCapture(e.pointerId);
+      }
+      drag = null;
+      dock.classList.remove("resizing");
+    };
+    handle.addEventListener("pointerup", finish);
+    handle.addEventListener("pointercancel", finish);
+    // The separator has the same range semantics for a keyboard reader.
+    handle.addEventListener("keydown", function (e) {
+      var height = body.getBoundingClientRect().height, next;
+      if (e.key === "ArrowUp" || e.key === "ArrowRight") next = height + 20;
+      else if (e.key === "ArrowDown" || e.key === "ArrowLeft") next = height - 20;
+      else if (e.key === "Home") next = 0;
+      else return;
+      e.preventDefault();
+      setDockHeight(next);
+    });
+  }
+
   // Selecting a circle is the dock's input: the row highlights, the field list
   // is rewritten and the ranking marks its entry. Only the visible pane is
   // rebuilt -- the other two are rebuilt when they are opened.
@@ -2898,7 +3117,7 @@
     b.setAttribute("aria-expanded", String(open));
     b.title = (open ? "Minimize" : "Expand") + " the inspector";
     $("#docktoggletext").textContent = b.title;
-    if (open) drawDockCharts();
+    if (open) { syncDockResize(); drawDockCharts(); }
   }
 
   function openPanel()  { setPanel(true); }
@@ -2926,33 +3145,72 @@
         "its spring. Arrow keys move to the parent, a child or a sibling.";
   }
 
+  // A column rather than the band it used to be, so every mark gets its own
+  // line and its own drawing: on one row the two marks that carry no swatch
+  // read as leftover prose beside the ones that do.
   function renderKey() {
     var f = state.fam, ml = METRIC_LABEL[state.colorBy];
-    var wash = RAMPS[state.colorBy].map(function (v) { return '<i style="background:' + css(v) + '"></i>'; }).join("");
-    var sep = '<i class="sep" aria-hidden="true"></i>';
+    var ramp = RAMPS[state.colorBy];
+    var wash = ramp.map(function (v) { return '<i style="background:' + css(v) + '"></i>'; }).join("");
+    // The size mark borrows the wash's own midpoint, so it reads as the same
+    // circle the board draws rather than as a second colour language.
+    var mid = css(ramp[Math.floor(ramp.length / 2)]);
 
     var marks = [
-      "bigger circle, more retweets",
-      '<svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="none" stroke="' +
+      '<svg width="20" height="15" aria-hidden="true"><circle cx="4" cy="9.5" r="2.5" fill="' + mid +
+        '" stroke="' + css("--ink-2") + '" stroke-width=".8"/><circle cx="14" cy="7.5" r="5.5" fill="' + mid +
+        '" stroke="' + css("--ink-2") + '" stroke-width=".8"/></svg>bigger circle, more retweets',
+      '<svg width="20" height="15" aria-hidden="true"><circle cx="10" cy="7.5" r="5" fill="none" stroke="' +
         css("--red") + '" stroke-width="2"/></svg>coordinated accounts',
-      '<svg width="15" height="15" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5" fill="' + css("--paper") + '" stroke="' +
-        css("--pen") + '" stroke-width="1.25"/><path d="M5.5 6h4v3H8l-1.3 1V9H5.5z" fill="none" stroke="' +
+      '<svg width="20" height="15" aria-hidden="true"><circle cx="10" cy="7.5" r="5" fill="' + css("--paper") + '" stroke="' +
+        css("--pen") + '" stroke-width="1.25"/><path d="M8 6h4v3h-1.5l-1.3 1V9H8z" fill="none" stroke="' +
         css("--pen") + '" stroke-width="1.1" stroke-linejoin="round"/></svg>collapsed response group; *sampled replies',
-      "pencilled ring, the subtree of the selected wording",
+      // Drawn with the hull's own dash and opacity (see buildScene), so the
+      // swatch is the mark on the board at a smaller size.
+      '<svg width="20" height="15" aria-hidden="true"><rect x="1" y="2.5" width="18" height="11" rx="5" fill="' +
+        css("--ink") + '" fill-opacity=".045" stroke="' + css("--ink-2") +
+        '" stroke-opacity=".65" stroke-width="1.1" stroke-dasharray="1 4" stroke-linecap="round"/></svg>' +
+        'pencilled ring, the subtree of the selected wording',
+      // No swatch to draw for this one -- the asterisk *is* the mark, so it
+      // takes the swatch gutter rather than sitting out of line with the rest.
       state.xMode === "tree"
-        ? (f.win === "span" ? "* first seen after 1 Sep" : "")
-        : '<svg width="15" height="10" aria-hidden="true"><line x1="0" y1="5" x2="15" y2="5" stroke="' +
+        ? (f.win === "span" ? '<i class="key-star" aria-hidden="true">*</i>first seen after 1 Sep' : "")
+        : '<svg width="20" height="15" aria-hidden="true"><line x1="1" y1="7.5" x2="19" y2="7.5" stroke="' +
           css("--red") + '" stroke-width="1.5" stroke-dasharray="3 2"/></svg>1 Sep collection cliff'
     ].filter(Boolean);
 
-    var items = [
-      ml[0] + " &mdash; " + ml[1] + '<span class="wash">' + wash + "</span>" + ml[2]
-    ].concat(marks);
-
     $("#key").innerHTML =
-      '<div class="key-row">' +
-        items.map(function (m) { return "<span>" + m + "</span>"; }).join(sep) +
-      "</div>";
+      '<p class="key-ttl">' + ml[0] + "</p>" +
+      '<p class="key-ramp">' + ml[1] + '<span class="wash">' + wash + "</span>" + ml[2] + "</p>" +
+      '<ul class="key-marks">' +
+        marks.map(function (m) { return "<li>" + m + "</li>"; }).join("") +
+      "</ul>";
+  }
+  /* The three islands fold through one door. Each row is the state field the
+     next lineage is rebuilt from, the button that carries the fold, and the
+     words that finish "Expand ..." for a reader who is being told rather than
+     shown. renderKey() only ever fills the key; the island keeps the fold. */
+  var ISLES = {
+    "isle-l": { at: "linOpen", tog: "lintog", what: "the lineage summary" },
+    "isle-r": { at: "ctlOpen", tog: "ctltog", what: "the board controls" },
+    "isle-k": { at: "keyOpen", tog: "keytog", what: "the key" }
+  };
+  function setIsle(id, open) {
+    var m = ISLES[id], isle = document.getElementById(id);
+    if (!m || !isle) return;
+    state[m.at] = open;
+    var b = document.getElementById(m.tog);
+    if (b) {
+      var say = (open ? "Minimize " : "Expand ") + m.what;
+      b.setAttribute("aria-expanded", String(open));
+      b.title = say;
+      var vh = b.querySelector(".vh");
+      if (vh) vh.textContent = say;
+    }
+    setFold(isle, open);
+    // Whether the root post's clamp actually bit can only be measured once the
+    // island is laid out, which it was not while the body was folded away.
+    if (id === "isle-l" && open) initPost(isle);
   }
 
   // The lineage's audience, summarised. `shared` is the part that matters and
@@ -3012,10 +3270,12 @@
            Folded down to its title when the board wants the room, and holding
            the earliest phrasing as the post it actually was rather than as a
            paragraph of quoted text. */
-        '<aside class="isle isle-l' + (state.linOpen ? "" : " is-collapsed") + '" id="isle-l" aria-label="About this lineage">' +
-          '<div class="lin"><details id="lindetails"' + (state.linOpen ? " open" : "") + ">" +
-            "<summary><h2>Lineage " + f.id +
-              (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2></summary>" +
+        '<aside class="isle isle-l lin" id="isle-l" data-open="' + state.linOpen +
+          '" aria-label="About this lineage">' +
+          isleTog("lintog", "lin-in", state.linOpen, "the lineage summary",
+                  "<h2>Lineage " + f.id +
+                  (f.name ? ' <span class="lin-name">' + esc(f.name) + "</span>" : "") + "</h2>") +
+          '<div class="isle-in" id="lin-in">' +
             '<div class="lin-body">' +
             // the evidence, on the far left
             '<div class="lin-post">' +
@@ -3038,14 +3298,17 @@
               kindLine(f) + famComments(f) +
             "</div>" + warn + "</div>" +
             "</div>" +
-          "</details></div>" +
+          "</div>" +
         "</aside>" +
 
         /* ---- the island on the right: what the drawing is doing ----
            Shade and layout are always live, because they change what is on the
            board; the timeline is not, because it is a second chart and it waits
            to be asked. */
-        '<aside class="isle isle-r" id="isle-r" aria-label="Board controls">' +
+        '<aside class="isle isle-r" id="isle-r" data-open="' + state.ctlOpen +
+          '" aria-label="Board controls">' +
+          isleTog("ctltog", "ctl-in", state.ctlOpen, "the board controls", "board") +
+          '<div class="isle-in" id="ctl-in">' +
           '<div class="bar">' +
             '<span class="grp" id="colorby"><b>shade</b>' +
               btn("drift", "drift", state.colorBy) + btn("spread", "spread", state.colorBy) +
@@ -3066,9 +3329,17 @@
               '<button class="act tl-x" type="button" id="tlhide" hidden>hide</button>' +
             "</p>" +
           "</div>" +
+          "</div>" +
+        "</aside>" +
+
+        /* ---- the island in the bottom-left corner: how to read the board ----
+           Filled by renderKey(), which runs again whenever the shade, the
+           layout or the theme changes what the marks mean. */
+        '<aside class="isle isle-k" id="isle-k" data-open="' + state.keyOpen + '" aria-label="Key">' +
+          isleTog("keytog", "key", state.keyOpen, "the key", "key") +
+          '<div class="isle-in key" id="key"></div>' +
         "</aside>" +
       "</div>" +
-      '<div class="key" id="key"></div>' +
       renderDock();
 
     renderKey();
@@ -3082,6 +3353,15 @@
   }
   function btn(v, label, cur) {
     return '<button data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + label + "</button>";
+  }
+  // Every island's title is its fold control, and every one of them is this
+  // button: the mark, the name, and the sentence a screen reader is read
+  // instead of the mark. `what` completes "Expand ..." / "Minimize ...".
+  function isleTog(id, controls, open, what, label) {
+    return '<button class="isle-tog" type="button" id="' + id + '" aria-expanded="' + open +
+      '" aria-controls="' + controls + '" title="' + (open ? "Minimize " : "Expand ") + what +
+      '"><i class="pm" aria-hidden="true"></i>' + label +
+      '<span class="vh">' + (open ? "Minimize " : "Expand ") + what + "</span></button>";
   }
   // Rebuild the rest positions and the elements that sit on them. `bloom`
   // means a different lineage, so the circles start over; a layout switch keeps
@@ -3330,29 +3610,14 @@
         showDockTab(next);
         $("#dtab-" + next).focus();
       });
+      wireDockResize(dock);
     }
     syncDock();
 
-    var lin = $("#lindetails");
-    if (lin) {
-      var syncLineageIsland = function () {
-        var island = $("#isle-l");
-        if (island) island.classList.toggle("is-collapsed", !lin.open);
-      };
-      // Start the paper widening as the details open (and vice versa), while
-      // the toggle event remains the source of truth for the next lineage.
-      lin.addEventListener("click", function (e) {
-        if (e.target.closest("summary")) {
-          var island = $("#isle-l");
-          if (island) island.classList.toggle("is-collapsed", lin.open);
-        }
-      });
-      lin.addEventListener("toggle", function () {
-        state.linOpen = lin.open;
-        syncLineageIsland();
-      });
-      animateDetails(lin);
-    }
+    Object.keys(ISLES).forEach(function (id) {
+      var b = $("#" + ISLES[id].tog);
+      if (b) b.addEventListener("click", function () { setIsle(id, !state[ISLES[id].at]); });
+    });
 
     $("#colorby").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-v]"); if (!b || b.dataset.v === state.colorBy) return;
@@ -3483,6 +3748,7 @@
     });
 
     addEventListener("resize", debounce(function () {
+      syncDockResize();
       sizeBoard();
       if (view.auto) fitView();
       paint(); drawPulse(); drawDockCharts();
