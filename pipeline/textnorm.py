@@ -256,6 +256,57 @@ def normalize(text: str) -> dict:
     }
 
 
+# --- search blobs -----------------------------------------------------------
+# The dashboard's search box needs something quite different from the token
+# sets above. Those are deliberately order-free and stopword-stripped, which is
+# right for measuring similarity and wrong for finding a phrase: a sorted token
+# bag cannot match "charlie kirk" unless those two words happen to be adjacent
+# in the alphabet. So search gets its own representation, built from the raw
+# variant text with word order intact.
+#
+# The old blob was `" ".join(sorted(tokens))[:320]`, which had both faults at
+# once -- alphabetical order destroyed phrases, and the cut then removed every
+# token from roughly "p" onward for the 21% of lineages that overflowed it.
+# A term like "ycombinator" was effectively unsearchable.
+
+_SB_URL = re.compile(r"https?://\S+|\bt\.co/\S*")
+_SB_WS = re.compile(r"\s+")
+_SB_WORD = re.compile(r"[a-z0-9#@']+")
+
+
+def search_blob(texts, cap: int = 6000) -> str:
+    """Phrase-preserving, lowercased search text for one lineage.
+
+    `texts` is an iterable of variant strings already ordered by importance --
+    most-emitted first -- because `cap` cuts from the end, and if a lineage has
+    to lose wordings it should lose the rarest ones.
+
+    Variants within a lineage are near-duplicates by construction, so a
+    variant contributing no word the blob does not already hold is skipped.
+    That is what keeps the whole corpus near 14 MB instead of 40: the saving
+    comes from redundancy between variants, not from throwing away vocabulary.
+    URLs go too -- a t.co link is 23 bytes nobody searches for.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    n = 0
+    for t in texts:
+        if not t:
+            continue
+        t = _SB_WS.sub(" ", _SB_URL.sub(" ", t)).strip().lower()
+        if not t:
+            continue
+        words = set(_SB_WORD.findall(t))
+        if words and words <= seen:
+            continue
+        seen |= words
+        if n + len(t) + 1 > cap:
+            continue
+        out.append(t)
+        n += len(t) + 1
+    return " ".join(out)
+
+
 def jaccard(a: set, b: set) -> float:
     if not a or not b:
         return 0.0

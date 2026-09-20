@@ -65,7 +65,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config as C
 from pipeline.textnorm import (CONF_FROM, CONF_TO, EMOJI_RE2, EVASION_FROM,
                               NONLATIN_THRESHOLD, STOPWORDS, evasion_profile,
-                              nonlatin_share)
+                              nonlatin_share, search_blob)
 
 EVO = C.DATA / "evolution"
 PHYLO = C.EXPORT / "phylo"
@@ -1091,7 +1091,12 @@ def step6_trees(con, force: bool) -> None:
             "root": nodes[0]["txt"][:180],
             "top": g.sort_values("n_emissions", ascending=False).iloc[0].text[:180],
             "handles": [[h, int(c)] for h, c in handles.items()],
-            "q": " ".join(sorted(all_tok))[:320],
+            # A short phrase-preserving blob, so the board is searchable from
+            # index.json alone before search.json arrives. Stage 8 replaces it
+            # with the full-recall version; this is the fallback, not the
+            # feature. Ordered most-emitted first because the cap cuts the tail.
+            "q": search_blob(
+                [nd["txt"] for nd in sorted(nodes, key=lambda nd: -nd["n"])], 320),
         }
         index.append(fam)
         buckets.setdefault(int(fid) % N_BUCKETS, {})[str(int(fid))] = {

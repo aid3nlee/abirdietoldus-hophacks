@@ -352,7 +352,12 @@
   .aug { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); cursor: pointer; }
   .aug input { accent-color: var(--pen); margin: 0; }
   .count { padding: 6px 16px; font-size: 13.5px; color: var(--ink-2); border-bottom: 1px solid var(--hair); }
-  .list { overflow-y: auto; flex: 1; min-height: 0; display: grid; gap: 6px; padding: 8px 10px; }
+  /* Leave spare room below a short result set instead of stretching its few
+     rows to fill the rail; each lineage card should stay sized to its text. */
+  .list {
+    overflow-y: auto; flex: 1; min-height: 0; display: grid; align-content: start;
+    gap: 6px; padding: 8px 10px;
+  }
   .fam {
     display: grid; gap: 5px; width: 100%; text-align: left; cursor: pointer;
     padding: 9px 11px 9px 10px; background: var(--paper); color: inherit;
@@ -410,8 +415,6 @@
   .kind.burst { color: var(--pen); }
   .kind.promo { color: var(--ink-2); }
   .kind.offlang { color: var(--ink-2); border-style: dashed; }
-  .why { margin-top: 6px; font-size: 13.5px; color: var(--ink-2); }
-  .why b { color: var(--ink); font-weight: 600; }
   .chips.kinds button[aria-pressed="true"] { border-bottom-color: var(--red); }
 
   /* ---------- right column: the sheet itself ---------- */
@@ -555,9 +558,10 @@
   .lin-post > .isle-hd { margin-top: 0; }
   /* One column wide either way, so the header's parts stack rather than
      sharing a row and wrapping raggedly halfway through a figure. */
-  .lin .hdr { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .lin .hdr { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
   .lin h2 { font-size: 14px; }
   .lin .hdr .figs { margin-top: 5px; }
+  .lin .hdr > .figs + .stance { margin-top: 4px; }
   .figs { margin-top: 8px; font-size: 12px; color: var(--ink-2); }
   .figs b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   .warn {
@@ -647,16 +651,27 @@
   .pulse { display: block; width: 100%; height: 58px; }
   /* The board is a map, not a picture: a fixed window onto a canvas with no
      edges. The tree is what the page is for, so the window takes every pixel
-     the sheet can spare; everything else is a caption on it. */
+     the sheet can spare; everything else is a caption on it. No frame around
+     it either -- a hairline rectangle drew an edge on the one thing that is
+     meant not to have one, and the clip still holds without the line. No side
+     gutter for the same reason: the rail's own rule already divides the two
+     columns, and the dock below runs full width, so an inset board was the
+     only thing left floating inside its column. */
   .draw {
     position: relative; flex: 1 1 auto; min-height: 260px;
-    margin: 0 20px 8px; border: 1px solid var(--hair); overflow: hidden;
+    margin: 0 0 8px; overflow: hidden;
   }
   .tree { display: block; touch-action: none; cursor: grab; }
+  /* No focus ring on the board. A rectangle around the whole window was the
+     one hard edge on the sheet, and it told a keyboard reader nothing the
+     pencilled ring on the selected wording does not already say, in the place
+     they are actually looking. */
   .tree:focus, .tree:focus-visible { outline: none; }
-  .tree.kb:focus { outline: 2px solid var(--pen); outline-offset: -2px; }
   .tree.panning, .tree.holding { cursor: grabbing; }
-  .ndg { cursor: grab; }
+  /* Timeline playback reveals a wording by lifting this group from its ghosted
+     state. Keep the circle, its label and any attached marker on the same
+     fade, so a node arrives as one mark rather than filling in at once. */
+  .ndg { cursor: grab; transition: opacity var(--t-mid) ease-out; }
   .ndg text { pointer-events: none; user-select: none; }
   /* A small speech mark is a collapsed conversation group, not a second kind
      of lineage edge. Comments answer a different question from rewording, so
@@ -1030,13 +1045,13 @@
 
   .tip {
     position: fixed; z-index: 40; max-width: 402px; pointer-events: none;
-    opacity: 0; transform: translateY(5px) scale(.985); transform-origin: bottom left;
+    opacity: 0; transform: translateY(5px) scale(.735); transform-origin: bottom left;
     transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-back);
     background: var(--x-card-bg); padding: 12px 14px;
     border: 1px solid var(--x-line); border-radius: 16px;
     box-shadow: 0 6px 22px rgba(0, 0, 0, .13);
   }
-  .tip.on { opacity: 1; transform: none; }
+  .tip.on { opacity: 1; transform: scale(.75); }
   .tip .xpost { margin: 0; padding: 0; border: 0; border-radius: 0; }
   /* The line under the card is this page talking about the post, not X, so it
      keeps the board's hand. */
@@ -1152,7 +1167,7 @@
     .grp { gap: 3px 12px; }
     .zoomlbl { display: none; }
     .pulse { height: 50px; }
-    .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 14px 8px; }
+    .draw { height: min(58dvh, 460px); min-height: 280px; margin: 0 0 8px; }
     .note { padding-inline: 14px; }
     .loading { padding-inline: 14px; }
 
@@ -1173,7 +1188,6 @@
     .head { padding-inline: 11px; }
     .head .counts { margin-left: 34px; }
     .rail-top { padding-inline: 11px; }
-    .draw { margin-inline: 11px; }
     .xpost .av { width: 30px; height: 30px; }
   }
 </style>
@@ -1316,6 +1330,11 @@
   // and stays empty until comments.json lands, which the board tolerates --
   // a node simply shows its counts without the cluster breakdown.
   var CLUSTERS = {}, CMETA = null;
+  // Full variant text per lineage, for the search box. The index carries only
+  // a 320-char fallback blob, so until search.json lands a query sees the root
+  // and top wording and little else; afterwards it sees all 142,175 variants.
+  // SEARCH stays null rather than empty so the two states are distinguishable.
+  var SEARCH = null;
   var state = { q:"", sort:"notable", topic:"all", kind:"all", win:"all", famId:null, fam:null, nodes:null,
                 topo:null, colorBy:"drift", xMode:"time", cut:Infinity, sel:0, playing:false,
                 dockOpen:true, dockTab:"wordings", dockHeight:null, linOpen:false,
@@ -1337,7 +1356,7 @@
   // the other.
   var view = { k:1, tx:0, ty:0, auto:true, note:"" };
   var ZMIN = 0.02, ZMAX = 50;
-  var layout = null, scene = null, boardRO = null, KEYNAV = false;
+  var layout = null, scene = null, boardRO = null;
 
   var $ = function (s) { return document.querySelector(s); };
   var fmt = function (n) { return n.toLocaleString("en-US"); };
@@ -1451,24 +1470,6 @@
       note: "Largest share of the lineage's spread landing inside any six-hour window." }
   ];
 
-  // Show the numbers behind the classification, so the call can be checked
-  // rather than taken. The class name and its definition live once in the
-  // legend now, not repeated on every lineage -- the card badge in the rail
-  // already says which class this is.
-  function kindLine(f) {
-    var bits = [];
-    if (f.kind !== "organic" && f.why && f.why.length) {
-      bits.push("Evidence: " + f.why.map(esc).join("; ") + ".");
-    }
-    if (f.offlang) {
-      bits.push("Twitter tagged this lineage English and " +
-                Math.round(f.nonlatin * 100) + "% of its text is not. " +
-                "Tokenisation keeps only Latin characters, so this tree was built from " +
-                "its hashtags rather than from a reworded sentence.");
-    }
-    return bits.length ? '<p class="why">' + bits.join(" ") + "</p>" : "";
-  }
-
   /* ---------------- family list ---------------- */
 
   function filtered() {
@@ -1481,6 +1482,11 @@
       else if (state.kind === "offlang") { if (!f.offlang) return false; }
       else if (state.kind !== "all") { if (f.kind !== state.kind) return false; }
       if (!q) return true;
+      // search.json holds every variant's text; the index fields are what we
+      // can match before it arrives. Both are already lowercased where it
+      // matters, so this is a substring test and nothing more.
+      var blob = SEARCH && SEARCH[f.id];
+      if (blob !== undefined && blob !== null) return blob.indexOf(q) >= 0;
       return f.q.indexOf(q) >= 0 || f.top.toLowerCase().indexOf(q) >= 0 || f.root.toLowerCase().indexOf(q) >= 0;
     });
     var key = {
@@ -3285,15 +3291,8 @@
   function famComments(f) {
     var c = f.cmt;
     if (!c) return "";
-    var replies = c.n - c.q;
     var shared = (c.shared || []).filter(function (id) { return CLUSTERS[id]; });
-    var line = '<p class="figs"><b>' + fmt(c.n) + "</b> comments \u00b7 <b>" +
-      fmt(c.q) + "</b> quote tweets \u00b7 <b>" + fmt(replies) + "</b> replies \u00b7 <b>" +
-      fmt(c.acc) + "</b> responding accounts \u00b7 <b>" + fmt(c.ncl) +
-      "</b> response template" + (c.ncl === 1 ? "" : "s") +
-      (c.reuse ? ' \u00b7 <b class="cib">' + fmt(c.reuse) + "</b> reused template" +
-                 (c.reuse === 1 ? "" : "s") : "") +
-      "</p>" + stanceBar(c.st, c.tn);
+    var line = stanceBar(c.st, c.tn);
     if (shared.length) {
       line += '<ul class="cmt-cl">' + shared.slice(0, 3).map(function (id) {
         var cl = CLUSTERS[id];
@@ -3359,7 +3358,7 @@
                 fmt(f.emis) + "</b> retweets &middot; <b>" + fmt(f.acc) + "</b> accounts &middot; <b>" +
                 Math.round(f.drift * 100) + "%</b> mean drift &middot; <b>" + Math.round(f.coord_share * 100) +
                 "%</b> coordinated &middot; over <b>" + Math.round((f.t1 - f.t0) / 24) + "</b> days</p>" +
-              kindLine(f) + famComments(f) +
+              famComments(f) +
             "</div>" + warn + "</div>" +
             "</div>" +
           "</div>" +
@@ -3591,8 +3590,6 @@
     svg.addEventListener("pointerup", letGo);
     svg.addEventListener("pointercancel", letGo);
     svg.addEventListener("pointerleave", function () { hideTip(); });
-    svg.addEventListener("focus", function () { svg.classList.toggle("kb", KEYNAV); });
-    svg.addEventListener("blur", function () { svg.classList.remove("kb"); });
 
     svg.addEventListener("wheel", function (e) {
       e.preventDefault();
@@ -3619,7 +3616,6 @@
       if (e.key === "+" || e.key === "=") { zoomAt(s.w / 2, s.h / 2, 1.45); e.preventDefault(); return; }
       if (e.key === "-" || e.key === "_") { zoomAt(s.w / 2, s.h / 2, 1 / 1.45); e.preventDefault(); return; }
       if (e.key === "0") { fitView(true); paint(); e.preventDefault(); return; }
-      svg.classList.add("kb");
       if (e.key === "ArrowUp") go = hasParent ? n.p : undefined;
       else if (e.key === "ArrowDown") go = T.kids[state.sel][0];
       else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -3783,10 +3779,6 @@
       setTheme(document.documentElement.getAttribute("data-theme") !== "dark");
     });
 
-    // Which ring the board shows when it takes focus depends on how the focus
-    // arrived, and only the page as a whole can tell.
-    addEventListener("keydown", function (e) { if (e.key === "Tab") KEYNAV = true; }, true);
-    addEventListener("pointerdown", function () { KEYNAV = false; }, true);
 
     // The relation chips are the diagram's edges as words, so they navigate it.
     $("#inspector").addEventListener("click", function (e) {
@@ -4052,6 +4044,19 @@
       CMETA = d.meta;
       d.clusters.forEach(function (c) { CLUSTERS[c.id] = c; });
       if (state.fam) renderStage();
+    })
+    .catch(function () {});
+
+  // Same contract as comments.json above: fetched, never awaited. A query
+  // typed before this lands is answered from the index fields, so the board is
+  // usable immediately and simply gets better. Re-run the list on arrival only
+  // if a search is actually open, so the fetch never disturbs a resting board.
+  fetch("phylo/search.json")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      SEARCH = d.blobs;
+      if (state.q.trim()) renderList();
     })
     .catch(function () {});
 

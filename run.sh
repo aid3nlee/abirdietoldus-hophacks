@@ -13,6 +13,7 @@
 #   ./run.sh enrich      put back the cut text and the platform's own counts
 #   ./run.sh comments    replies + quote tweets, stance-scored and clustered
 #   ./run.sh deadends    once-only rewordings that never spread, per lineage
+#   ./run.sh search      full-text search index over every variant
 #   ./run.sh dist        assemble the static site into dist/
 #   ./run.sh serve       live dev server on :8000 (npm run dev)
 #   ./run.sh verify     check every shard opens as valid parquet
@@ -116,6 +117,17 @@ deadends)
     # export that already exists and never touches the phylogeny, so it is safe
     # to re-run mid-demo. Runs last, after enrich has settled the node text.
     python3 pipeline/07_deadends.py "$@"
+    ;;
+
+search)
+    # Findability, not coverage. The index carries three searchable fields per
+    # lineage, one of which was a sorted token bag cut at 320 chars -- so it
+    # could not match a phrase at all, and for the 21% of lineages that
+    # overflowed it, everything from about "p" onward was gone. This writes a
+    # phrase-preserving blob over all 142,175 variant texts, which the board
+    # fetches without awaiting. Additive: one new file beside the export,
+    # nothing else touched. Re-run after evolution or enrich changes the text.
+    python3 pipeline/08_search.py "$@"
     ;;
 
 enrich)
