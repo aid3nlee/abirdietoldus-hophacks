@@ -85,7 +85,13 @@ RARE_DF = 20          # a shared token this rare is on its own enough to pair on
 SIM_THRESHOLD = 0.45  # token-set Jaccard for "same narrative, reworded"
 MIN_FAMILY = 3        # variants required to call something a lineage
 MAX_FAMILY = 300      # single-linkage blobs get truncated to their top variants
-MIN_FAMILY_EMISSIONS = 50   # enough observed spread to inspect, not just a stray trio
+MIN_FAMILY_EMISSIONS = 20   # enough observed spread to inspect, not just a stray trio
+# Lowered from 50 after measuring the gate directly: this is an *export* gate,
+# checked in step 6 against variants.parquet, so the families it admits are
+# already clustered and already have trees. 50 -> 20 ships 6,587 more lineages
+# and 37,831 more nodes without changing a single distance or edge. The cost is
+# dilution, not correctness: the admitted band runs a median of 5 wordings and
+# 31 emissions, and skews further toward promo templates than the corpus does.
 N_BUCKETS = 24        # tree files; the dashboard fetches one on demand
 
 # Strict edges are allowed to join wordings into a family.  These settings are

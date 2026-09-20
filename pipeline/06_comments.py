@@ -60,6 +60,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import hashlib
 import json
 import sys
 import time
@@ -393,6 +394,42 @@ def _tone_mix(series) -> dict:
     return {t: int(c[t]) for t in TONES if c[t]}
 
 
+def _sample(rows, t0) -> list[dict]:
+    """The loudest few comments, with what it takes to draw one as a post.
+
+    The dashboard renders these in X's own card, the same one the wording
+    above them is drawn in, so each carries the three things that card needs
+    beyond its text: the comment's own tweet id -- x.com/i/status/<id>
+    resolves without a handle, and on X the date *is* the permalink -- the
+    hour it was posted on the same corpus clock every other timestamp in the
+    export uses, and a hue.
+
+    The hue is the only field here that is derived rather than recorded, and
+    it exists because of what this corpus does not have. There is no handle,
+    bio or avatar for a posting account anywhere in the firehose, so the card
+    cannot name whoever wrote a comment and must not look as though it has.
+    What can be said honestly is *the same account again*: the circle is
+    tinted by a hash of the author id and left as a silhouette, so two
+    comments from one account match without anybody being handed a name they
+    did not have. On a page about manufactured engagement that distinction is
+    the whole point -- see the same rule applied to the counters in stage 5.
+    """
+    out = []
+    for r in rows.head(SHOW).itertuples():
+        out.append({
+            "txt": str(r.body)[:300],
+            "st": r.stance,
+            "tn": r.tone,
+            "like": int(r.like_count or 0),
+            "q": r.ctype == "quote",
+            "id": str(r.cid),
+            "t": int((r.created_at - t0).total_seconds() // 3600),
+            "hue": int(hashlib.blake2s(str(r.author_id).encode(),
+                                       digest_size=2).hexdigest(), 16) % 360,
+        })
+    return out
+
+
 def step5_export(con, idx, trees, force: bool) -> None:
     import numpy as np
     import pandas as pd
@@ -494,11 +531,7 @@ def step5_export(con, idx, trees, force: bool) -> None:
             "tn": _tone_mix(g.tone),
             "pol": round(float(g.pol.mean()), 3),
             "cl": [[c, n] for c, n in cl.most_common(TOP_CLUSTERS)],
-            "sample": [{"txt": str(b)[:300], "st": s, "like": int(l or 0),
-                        "q": ct == "quote", "tn": tn}
-                       for b, s, l, ct, tn in zip(best.body.head(SHOW), best.stance.head(SHOW),
-                                                  best.like_count.head(SHOW),
-                                                  best.ctype.head(SHOW), best.tone.head(SHOW))],
+            "sample": _sample(best, t0),
         }
 
     hit = 0
