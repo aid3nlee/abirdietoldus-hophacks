@@ -13,3 +13,8 @@ dist/
 .dev/
 .backup/
 dashboard/phylo/
+
+# Secrets. The README promises this file is ignored; make that true.
+.env
+.env.*
+!.env.example

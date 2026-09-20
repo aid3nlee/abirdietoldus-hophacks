@@ -21,3 +21,7 @@ __pycache__/
 *.ttf
 README.md
 CLAUDE.md
+
+# The deployed key comes from Vercel's own env vars, never from a bundled file.
+.env
+.env.*

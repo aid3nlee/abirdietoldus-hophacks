@@ -845,6 +845,15 @@
   .gem button:disabled { opacity: .55; cursor: wait; }
   .gem-logo { flex: none; display: block; width: 15px; height: 15px; }
   .gem .conf { display: block; margin-top: 4px; color: var(--ink-2); font-size: 11.5px; }
+  .gem .reads { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .gem .reads b {
+    font-weight: 500; font-size: 11px; letter-spacing: .01em;
+    padding: 2px 7px; border: 1px solid var(--rule); border-radius: 9px; color: var(--ink-2);
+  }
+  /* A shift is a finding, not an allegation -- it gets the accent the rest of
+     the tool uses for evidence, never the error red. */
+  .gem .reads b.shift { border-color: var(--pen); color: var(--pen); background: var(--pen-soft); }
+  .gem .basis { display: block; margin-top: 5px; color: var(--ink-2); font-size: 11.5px; font-style: italic; }
   .gem .gem-error { color: var(--red); }
   .insp h3 { font-size: 13.5px; display: inline; }
   .insp h3 + span { font-size: 11.5px; color: var(--ink-2); margin-left: 9px; }
@@ -2775,6 +2784,33 @@
     if (ask) ask.addEventListener("click", requestAnalysis);
   }
 
+  // Tone and sourcing describe how the wording is WRITTEN -- register, and
+  // whether it names a source or hedges. Neither is a judgement about whether
+  // the claim is true; the model has no retrieval and the prompt forbids it
+  // from guessing. `flat-assertion` means "no source given", not "false".
+  //
+  // `sourcing_shift` is the one worth the tree's attention: attribution and
+  // hedges cost characters, so a reword that drops them replicates more
+  // cheaply. Seeing "attributed" at a root decay to "flat-assertion" down a
+  // branch is the evolutionary claim this whole tool exists to make.
+  var SHIFT_COPY = {
+    stripped: "this reword dropped the grounding its parent had",
+    added: "this reword added grounding its parent lacked",
+    unchanged: "grounding unchanged from its parent"
+  };
+
+  function readingTags(review) {
+    var tone = String(review.tone || ""), src = String(review.sourcing || ""),
+        shift = String(review.sourcing_shift || "n/a"), tags = "";
+    if (tone) tags += "<b>tone: " + esc(tone) + "</b>";
+    if (src) tags += "<b>sourcing: " + esc(src) + "</b>";
+    if (SHIFT_COPY[shift]) {
+      tags += '<b class="' + (shift === "unchanged" ? "" : "shift") + '">' +
+        esc(SHIFT_COPY[shift]) + "</b>";
+    }
+    return tags ? '<span class="reads">' + tags + "</span>" : "";
+  }
+
   function requestAnalysis() {
     var n = state.nodes[state.sel], f = state.fam, button = $("#gem-run"),
         label = $("#gem-label"), out = $("#gem-result");
@@ -2812,6 +2848,10 @@
       return r.json().then(function (body) { if (!r.ok) throw new Error(body.error || "analysis unavailable"); return body; });
     }).then(function (review) {
       out.innerHTML = esc(String(review.analysis || "No reading returned.")) +
+        readingTags(review) +
+        (review.sourcing_basis
+          ? '<span class="basis">read from: ' + esc(String(review.sourcing_basis)) + "</span>"
+          : "") +
         '<span class="conf">Gemini’s confidence in this reading: ' +
         Math.round(Number(review.confidence || 0) * 100) + "%</span>";
     }).catch(function (error) {

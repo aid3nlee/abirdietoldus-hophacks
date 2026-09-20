@@ -527,6 +527,20 @@ about how it travelled. The two-sentence cap is enforced server-side as well as
 asked for in the prompt, so a verbose reply cannot push the inspector off
 screen. The API key stays server-side; it is never placed in the static page.
 
+Alongside the reading it returns three labels about the wording itself: `tone`
+(the register it is written in), `sourcing` (whether it names a source, hedges,
+or asserts flatly with neither), and `sourcing_shift` (whether the reword added
+or dropped that grounding relative to its parent). All three describe how the
+text is *written*. None is a judgement about whether the claim is true -- the
+model has no retrieval and the prompt forbids it from guessing, so
+`flat-assertion` means "no source given here", never "false". `sourcing_shift`
+is the one that earns its place on a tree: attribution and hedges cost
+characters, so a reword that drops them copies more cheaply, and an attributed
+root decaying to flat assertion down a branch is selection pressure you can
+point at. Both endpoints coerce all three into a closed vocabulary before
+replying, so a model that invents a label renders as the neutral fallback
+rather than as a verdict the pipeline never produced.
+
 Set the key before starting the local server:
 
 ```bash
@@ -543,7 +557,7 @@ echo 'GEMINI_API_KEY=your-key' > .env
 ```
 
 A real environment variable wins over the file, and `GEMINI_MODEL` may be set
-the same way to override the `gemini-3.6-flash` default. The model is pinned
+the same way to override the `gemini-3.5-flash-lite` default. The model is pinned
 rather than tracking `gemini-flash-latest`, so it cannot change mid-demo;
 `gemini-2.5-flash` is retired and will 404 on a newly issued key.
 

@@ -55,11 +55,19 @@ PHYLO = C.EXPORT / "phylo"
 # lineages are cut at all, and each loses its least-emitted wordings first.
 DEFAULT_CAP = 6000
 
+# How many words a variant must contribute that the blob does not already hold.
+# At 3 the index is 14.8 MB and holds 98.1% of what an unfiltered blob matches;
+# at 1 it is 18.8 MB, which does not fit an Artifact's 16 MB per-file ceiling.
+# See search_blob() for why this is the dial to turn rather than DEFAULT_CAP.
+DEFAULT_MIN_NEW = 3
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cap", type=int, default=DEFAULT_CAP,
                     help="max search characters per lineage")
+    ap.add_argument("--min-new", type=int, default=DEFAULT_MIN_NEW,
+                    help="words a variant must add to earn its place in the blob")
     args = ap.parse_args()
 
     t0 = time.time()
@@ -84,7 +92,7 @@ def main() -> None:
             # to drop wordings should drop the ones fewest people ever sent.
             ordered = sorted(nodes, key=lambda nd: -nd.get("n", 0))
             blobs[fid] = search_blob((nd.get("txt") or "" for nd in ordered),
-                                     args.cap)
+                                     args.cap, args.min_new)
     print(f"  [1] {n_nodes:,} variant texts over {len(blobs):,} lineages "
           f"({time.time() - t0:.0f}s)")
 
@@ -99,6 +107,7 @@ def main() -> None:
     payload = {
         "meta": {
             "cap": args.cap,
+            "min_new": args.min_new,
             "n_lineages": len(blobs),
             "n_variants": n_nodes,
             "truncated": sum(1 for b in blobs.values() if len(b) >= args.cap - 280),

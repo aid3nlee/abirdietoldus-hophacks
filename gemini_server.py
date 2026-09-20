@@ -56,8 +56,38 @@ def build_ssl_context() -> ssl.SSLContext:
 
 
 load_env_file()
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 SSL_CONTEXT = build_ssl_context()
+
+
+# Closed vocabularies for the classification fields. The model is asked for one
+# of these exact strings; anything else is coerced to the fallback rather than
+# rendered, for the same reason the analysis is truncated -- the inspector is a
+# fixed slot and an invented label would either break the layout or, worse,
+# quietly read as a verdict the pipeline never produced.
+TONES = ("reportorial", "alarmed", "outraged", "mocking", "celebratory",
+         "earnest", "sardonic", "promotional", "neutral")
+SOURCING = ("attributed", "hedged", "flat-assertion", "opinion", "unclear")
+SHIFTS = ("stripped", "added", "unchanged", "n/a")
+
+
+def one_of(value: object, allowed: tuple, fallback: str) -> str:
+    """Coerce a model-supplied label into a known vocabulary."""
+    candidate = str(value or "").strip().lower()
+    return candidate if candidate in allowed else fallback
+
+
+def clip_words(text: object, limit: int = 12) -> str:
+    """Cap a free-text justification so it cannot run past its one line."""
+    return " ".join(str(text or "").split()[:limit])
+
+
+def unit(value: object) -> float:
+    """Clamp a confidence to 0..1; the panel renders it as a percentage."""
+    try:
+        return min(1.0, max(0.0, float(value)))
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def two_sentences(text: str) -> str:
@@ -87,10 +117,32 @@ Say what this wording claims and what the reword changed about it. The supplied 
 Return JSON only with exactly these keys:
 {
   "analysis": "at most two sentences",
+  "tone": "one label",
+  "sourcing": "one label",
+  "sourcing_basis": "at most 12 words",
+  "sourcing_shift": "one label",
   "confidence": 0.0
 }
 
 `analysis` is read off a dashboard, so it is hard-capped at TWO SENTENCES. Sentence one: what the wording says, and what the mutation from its parent changed about its meaning or force. Sentence two: what the spread and reception figures show about how it travelled. No preamble, no bullet points, no quoting the wording back verbatim.
+
+The remaining fields classify the WORDING ITSELF. They describe how the text is written, never whether its claim is true -- you still cannot verify that and must not try. An unsourced claim is not thereby a false one, and nothing you return may imply that it is.
+
+`tone` -- the register the wording is written in. Exactly one of:
+reportorial | alarmed | outraged | mocking | celebratory | earnest | sardonic | promotional | neutral
+
+`sourcing` -- whether the wording shows its work. Exactly one of:
+attributed     -- names a source, outlet, document or speaker
+hedged         -- asserts with explicit uncertainty: reportedly, appears, may
+flat-assertion -- states a checkable factual claim with no source and no hedge
+opinion        -- a value judgement or reaction, making no factual claim
+unclear        -- too short or too fragmentary to tell
+
+`sourcing_basis` -- at most 12 words naming the feature in the text that decided `sourcing`. Quote the words that did it.
+
+`sourcing_shift` -- how the reword changed that grounding relative to the parent wording. Exactly one of:
+stripped | added | unchanged | n/a
+Use n/a when no parent wording was supplied. This is the field the tool cares about most: attribution and hedges are expensive to carry, so watch for them being dropped as a phrasing replicates.
 
 Use a confidence from 0 to 1 for your reading of the text, not for the truth of the underlying claim."""},
         {"text": "\nSUPPLIED MATERIAL:\n" + json.dumps(payload, ensure_ascii=True)},
@@ -121,8 +173,18 @@ Use a confidence from 0 to 1 for your reading of the text, not for the truth of 
         review = json.loads(text)
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
         raise RuntimeError("Gemini returned an unexpected response") from exc
-    review["analysis"] = two_sentences(review.get("analysis", ""))
-    return review
+    has_parent = bool(payload.get("parent_wording"))
+    shift = one_of(review.get("sourcing_shift"), SHIFTS, "n/a")
+    return {
+        "analysis": two_sentences(review.get("analysis", "")),
+        "tone": one_of(review.get("tone"), TONES, "neutral"),
+        "sourcing": one_of(review.get("sourcing"), SOURCING, "unclear"),
+        "sourcing_basis": clip_words(review.get("sourcing_basis")),
+        # A root wording has nothing to have shifted from, so the model does not
+        # get to report one -- it will occasionally claim "unchanged" anyway.
+        "sourcing_shift": shift if has_parent else "n/a",
+        "confidence": unit(review.get("confidence")),
+    }
 
 
 class Handler(SimpleHTTPRequestHandler):

@@ -274,7 +274,7 @@ _SB_WS = re.compile(r"\s+")
 _SB_WORD = re.compile(r"[a-z0-9#@']+")
 
 
-def search_blob(texts, cap: int = 6000) -> str:
+def search_blob(texts, cap: int = 6000, min_new: int = 1) -> str:
     """Phrase-preserving, lowercased search text for one lineage.
 
     `texts` is an iterable of variant strings already ordered by importance --
@@ -282,10 +282,16 @@ def search_blob(texts, cap: int = 6000) -> str:
     to lose wordings it should lose the rarest ones.
 
     Variants within a lineage are near-duplicates by construction, so a
-    variant contributing no word the blob does not already hold is skipped.
-    That is what keeps the whole corpus near 14 MB instead of 40: the saving
+    variant contributing fewer than `min_new` words the blob does not already
+    hold is skipped. That is what keeps the corpus a sane size: the saving
     comes from redundancy between variants, not from throwing away vocabulary.
     URLs go too -- a t.co link is 23 bytes nobody searches for.
+
+    `min_new` is the size/recall dial, and it is a far better one than `cap`
+    once a corpus is wide rather than deep: at 17,263 lineages the total is
+    driven by how many lineages there are, not by the few hundred that overrun
+    the cap, so cutting `cap` from 6000 to 3500 saves barely 6% while 1 -> 3
+    here saves 21% for 1.9% of recall.
     """
     seen: set[str] = set()
     out: list[str] = []
@@ -297,7 +303,7 @@ def search_blob(texts, cap: int = 6000) -> str:
         if not t:
             continue
         words = set(_SB_WORD.findall(t))
-        if words and words <= seen:
+        if words and len(words - seen) < min_new:
             continue
         seen |= words
         if n + len(t) + 1 > cap:
